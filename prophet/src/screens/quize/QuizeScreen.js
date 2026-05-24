@@ -36,9 +36,9 @@ export default function QuizeScreen({ navigation }) {
           activeOpacity={0.7}
           onPress={() => {
             if (item.sub_total > 0) {
-              navigation.navigate('QuizeData', { item: item })
+              navigation.navigate('QuizeData', {fetch_data:item.sub_category,type:sub_category,title:item.category, item: item })
             } else {
-              navigation.navigate('QuizStart', { item: item })
+              navigation.navigate('QuizStart', {fetch_data:item.category,type:category,title:item.category, item: item })
             }
           }
         }

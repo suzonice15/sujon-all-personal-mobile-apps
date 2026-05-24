@@ -11,7 +11,7 @@ import { getQuizeSubCategory } from '../../db/quizeContents';
 
 
 export default function QuizeData({ route, navigation }) {
-    const { item } = route.params;
+    const { item, type } = route.params;
     const [data, setData] = useState([]);
 
     useLayoutEffect(() => {
@@ -43,9 +43,9 @@ export default function QuizeData({ route, navigation }) {
                     style={styles.card}
                     activeOpacity={0.7}
                     onPress={() => {
-                      
-                        navigation.navigate('QuizStart', { item: item })
-                        
+
+                        navigation.navigate('QuizStart', { fetch_data:item.sub_category,type:sub_category,title:item.category, item: item })
+
                     }
                     }
                 >

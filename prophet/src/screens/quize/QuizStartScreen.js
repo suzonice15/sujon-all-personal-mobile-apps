@@ -12,7 +12,7 @@ const finishSound = new Sound(require('../../assets/sounds/finish.mp3'));
 
 export default function QuizStartScreen({ route, navigation }) {
 
-  const { item } = route.params;
+  const { item,title,type,fetch_data } = route.params;
 
   const [data, setData] = useState([]);
   const [index, setIndex] = useState(0);
@@ -30,16 +30,16 @@ export default function QuizStartScreen({ route, navigation }) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: item.sub_category,
+      title: title,
     });
   }, [navigation]);
 
   useEffect(() => {
     loadData();
-  }, [item.sub_category]);
+  }, [fetch_data]);
 
   const loadData = async () => {
-    const res = await getQuizeData('sub_category', item.sub_category);
+    const res = await getQuizeData(type, fetch_data);
 
     setData(res || []);
     resetAll();
