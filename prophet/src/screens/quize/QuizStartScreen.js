@@ -1,11 +1,14 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { getQuizeData } from '../../db/quizeContents';
-
 import Sound from 'react-native-sound';
 
 Sound.setCategory('Playback');
 
+// ================= SOUND =================
+const correctSound = new Sound(require('../../assets/sounds/correct.mp3'));
+const wrongSound = new Sound(require('../../assets/sounds/wrong.mp3'));
+const finishSound = new Sound(require('../../assets/sounds/finish.mp3'));
 
 export default function QuizStartScreen({ route, navigation }) {
 
@@ -39,17 +42,20 @@ export default function QuizStartScreen({ route, navigation }) {
     const res = await getQuizeData('sub_category', item.sub_category);
 
     setData(res || []);
-    setIndex(0);
-    setScore(0);
-    setSelected(null);
-    setIsLocked(false);
-    setFinished(false);
-    setAnswers([]);
-    setTimeLeft(10);
-    setRetryMode(false);
+    resetAll();
   };
 
-  // SAFE QUESTION (FIX CRASH)
+  const resetAll = () => {
+    setIndex(0);
+    setScore(0);
+    setAnswers([]);
+    setFinished(false);
+    setRetryMode(false);
+    setSelected(null);
+    setIsLocked(false);
+    setTimeLeft(10);
+  };
+
   const question = data?.[index];
 
   const options = question
@@ -88,7 +94,12 @@ export default function QuizStartScreen({ route, navigation }) {
 
     const isCorrect = options[i] === question.answer;
 
-    if (isCorrect) setScore(prev => prev + 1);
+    if (isCorrect) {
+      setScore(prev => prev + 1);
+      correctSound.play();
+    } else {
+      wrongSound.play();
+    }
 
     setAnswers(prev => [
       ...prev,
@@ -124,6 +135,7 @@ export default function QuizStartScreen({ route, navigation }) {
       setIndex(index + 1);
     } else {
       setFinished(true);
+      finishSound.play();
     }
   };
 
@@ -156,15 +168,13 @@ export default function QuizStartScreen({ route, navigation }) {
     setData(mapped);
     setIndex(0);
     setScore(0);
-    setSelected(null);
-    setIsLocked(false);
     setAnswers([]);
     setFinished(false);
     setRetryMode(true);
     setTimeLeft(10);
   };
 
-  // ================= LOADING / SAFE =================
+  // ================= LOADING =================
   if (!question && !finished) {
     return (
       <View style={styles.center}>
@@ -231,7 +241,7 @@ export default function QuizStartScreen({ route, navigation }) {
 
       {/* QUESTION */}
       <View style={styles.card}>
-        <Text style={styles.question}>{question?.name}</Text>
+        <Text style={styles.question}>{question.name}</Text>
       </View>
 
       {/* OPTIONS */}
@@ -331,7 +341,6 @@ const styles = StyleSheet.create({
   question: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111827',
   },
 
   option: {
@@ -343,7 +352,6 @@ const styles = StyleSheet.create({
 
   optionText: {
     fontSize: 14,
-    color: '#111827',
   },
 
   nextBtn: {
