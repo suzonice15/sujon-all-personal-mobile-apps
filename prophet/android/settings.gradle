@@ -1,0 +1,32 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+    includeBuild("../node_modules/@react-native/gradle-plugin")
+}
+
+buildscript {
+    includeBuild("../node_modules/@react-native/gradle-plugin")
+}
+
+plugins {
+    id("com.facebook.react.settings")
+}
+
+reactSettings {
+    autolinkLibrariesFromCommand()
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jcenter.bintray.com") }
+    }
+}
+
+rootProject.name = "prophet"
+include(":app")

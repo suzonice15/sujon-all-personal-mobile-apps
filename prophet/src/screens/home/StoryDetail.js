@@ -1,0 +1,148 @@
+import React, { useLayoutEffect, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ToastAndroid } from 'react-native';
+import { WebView } from 'react-native-webview';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { getContentFolderIds } from '../../db/bookmarks';
+import BookmarkModal from '../../components/BookmarkModal';
+import { addEarning } from '../../db/earnings';
+import { usePoints } from '../../context/PointsContext';
+
+const htmlTemplate = (content, fontSize) => `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: 'Georgia', serif;
+        font-size: ${fontSize}px;
+        line-height: 1.9;
+        color: #2c2c2c;
+        background: #FAFAF7;
+        padding: 16px;
+        text-align: justify;
+      }
+      p { margin-bottom: 14px; }
+      img { max-width: 100%; border-radius: 8px; margin: 10px 0; }
+    </style>
+  </head>
+  <body>${content || '<p>কোনো বিষয়বস্তু নেই।</p>'}</body>
+  </html>
+`;
+
+const isOnline = async () => {
+  try {
+    const res = await fetch('https://www.google.com', { method: 'HEAD' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+};
+
+export default function StoryDetail({ navigation, route }) {
+  const { item, title } = route.params;
+  const [fontSize, setFontSize] = useState(17);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [pointProcessed, setPointProcessed] = useState(false);
+  const { refreshPoints } = usePoints();
+
+  useEffect(() => { checkBookmark(); }, []);
+
+  const checkBookmark = async () => {
+    const ids = await getContentFolderIds(item.id);
+    setIsBookmarked(ids.length > 0);
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ title });
+  }, [navigation, title]);
+
+  const handleReadComplete = async () => {
+    if (pointProcessed) return;
+    setPointProcessed(true);
+
+    const online = await isOnline();
+    if (!online) return;
+
+    // প্রতিবার story খুললে point পাবে — same session-এ double fire ঠেকাতে pointProcessed check
+    const result = await addEarning(item.id, item.title, 2);
+    if (result.added) {
+      await refreshPoints();
+      ToastAndroid.show(`🎉 ${result.points} পয়েন্ট অর্জন হয়েছে!`, ToastAndroid.SHORT);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.titleBox}>
+        <Text style={styles.storyTitle}>{item.title}</Text>
+      </View>
+
+      <WebView
+        originWhitelist={['*']}
+        source={{ html: htmlTemplate(item.content, fontSize) }}
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        renderLoading={() => <ActivityIndicator size="large" color="#4CAF50" />}
+        startInLoadingState
+        onLoadEnd={handleReadComplete}
+      />
+
+      {/* Floating Buttons */}
+      <View style={styles.fab}>
+        <TouchableOpacity style={styles.fabBtn} onPress={() => setFontSize(s => Math.max(13, s - 1))}>
+          <MaterialIcons name="text-decrease" size={20} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.fabBtn} onPress={() => setFontSize(s => Math.min(24, s + 1))}>
+          <MaterialIcons name="text-increase" size={20} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.fabBtn, isBookmarked ? styles.fabBookmarked : styles.fabBookmark]}
+          onPress={() => setModalVisible(true)}>
+          <MaterialIcons name={isBookmarked ? 'bookmark' : 'bookmark-border'} size={22} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
+      <BookmarkModal
+        visible={modalVisible}
+        onClose={() => {
+          setModalVisible(false);
+          checkBookmark();
+        }}
+        item={item}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#FAFAF7' },
+  titleBox: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: '#FAFAF7',
+  },
+  storyTitle: { fontSize: 17, fontWeight: 'bold', color: '#1a1a1a', lineHeight: 26 },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 16,
+    alignItems: 'center',
+    gap: 10,
+  },
+  fabBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 0,
+  },
+  fabBookmark: { backgroundColor: 'rgba(0,0,0,0.25)' },
+  fabBookmarked: { backgroundColor: 'rgba(229,62,62,0.7)' },
+});
