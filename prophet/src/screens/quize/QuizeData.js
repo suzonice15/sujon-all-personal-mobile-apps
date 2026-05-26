@@ -44,7 +44,7 @@ export default function QuizeData({ route, navigation }) {
                     activeOpacity={0.7}
                     onPress={() => {
 
-                        navigation.navigate('QuizStart', { fetch_data:item.sub_category,type:sub_category,title:item.category, item: item })
+                        navigation.navigate('QuizStart', {  fetch_data:item.sub_category, type:'sub_category',title:item.category, item: item })
 
                     }
                     }
