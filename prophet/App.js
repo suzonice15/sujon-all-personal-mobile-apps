@@ -1,27 +1,20 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import { StatusBar, ToastAndroid } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 import { lightTheme } from './src/theme/lightTheme';
 import { darkTheme } from './src/theme/darkTheme';
 import { NavigationContainer } from '@react-navigation/native';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import { PointsProvider, usePoints } from './src/context/PointsContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { claimDailyBonus } from './src/db/earnings';
-
 import { initDB } from './src/db/db';
 import { runMigrations } from './src/db/migrations';
 import { seedDB } from './src/db/seed';
 
 function AppInner() {
-  const [isDark] = useState(false);
+  const { isDark } = useTheme();
   const { refreshPoints } = usePoints();
 
   useEffect(() => {
@@ -50,7 +43,9 @@ function AppInner() {
 function App() {
   return (
     <PointsProvider>
-      <AppInner />
+      <ThemeProvider>
+        <AppInner />
+      </ThemeProvider>
     </PointsProvider>
   );
 }

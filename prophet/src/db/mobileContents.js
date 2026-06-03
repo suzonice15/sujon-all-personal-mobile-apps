@@ -44,3 +44,18 @@ export const getMobileContents = async (parent_id = 0) => {
   const [result] = await db.executeSql(query, params);
   return result.rows.raw();
 };
+export const getSingleContent = async (id) => {
+  const db = await getDB();
+
+  const query = `
+    SELECT *
+    FROM mobile_contents
+    WHERE data_id = ?
+    ORDER BY serial ASC
+    LIMIT 1
+  `;
+
+  const [result] = await db.executeSql(query, [id]);
+
+  return result.rows.length > 0 ? result.rows.item(0) : null;
+};

@@ -11,9 +11,11 @@ import {
 import { getQuizeData } from '../../db/quizeContents';
 import SoundPlayer from 'react-native-sound-player';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useTheme } from 'react-native-paper';
 
 export default function QuizStartScreen({ route, navigation }) {
   const { title, type, fetch_data } = route.params || {};
+  const { colors } = useTheme();
 
   const [originalData, setOriginalData] = useState([]); // মূল ব্যাকআপ ডাটা রাখার জন্য
   const [data, setData] = useState([]);
@@ -209,8 +211,8 @@ export default function QuizStartScreen({ route, navigation }) {
   // ================= LOADING =================
   if (!question && !finished) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.loadingText}>⏳ কুইজ লোড হচ্ছে...</Text>
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loadingText, { color: colors.onSurface }]}>⏳ কুইজ লোড হচ্ছে...</Text>
       </View>
     );
   }
@@ -218,15 +220,14 @@ export default function QuizStartScreen({ route, navigation }) {
   // ================= RESULT SCREEN =================
   if (finished) {
     return (
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* রেজাল্ট বক্স */}
-        <View style={styles.resultBox}>
+      <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+        <View style={[styles.resultBox, { backgroundColor: colors.surface }]}>
           <MaterialIcons name="emoji-events" size={50} color="#EAB308" style={styles.resultIcon} />
-          <Text style={styles.doneTitle}>কুইজ শেষ হয়েছে</Text>
-          <Text style={styles.scoreText}>আপনার মোট স্কোর</Text>
-          <View style={styles.scoreCircle}>
-            <Text style={styles.scoreNumber}>{score}</Text>
-            <Text style={styles.scoreTotal}>/ {total}</Text>
+          <Text style={[styles.doneTitle, { color: colors.onSurface }]}>কুইজ শেষ হয়েছে</Text>
+          <Text style={[styles.scoreText, { color: colors.onSurface, opacity: 0.6 }]}>আপনার মোট স্কোর</Text>
+          <View style={[styles.scoreCircle, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+            <Text style={[styles.scoreNumber, { color: colors.primary }]}>{score}</Text>
+            <Text style={[styles.scoreTotal, { color: colors.onSurface }]}>/ {total}</Text>
           </View>
         </View>
 
@@ -249,13 +250,13 @@ export default function QuizStartScreen({ route, navigation }) {
         </TouchableOpacity>
 
         <View style={styles.reviewHeader}>
-          <MaterialIcons name="analytics" size={22} color="#475569" />
-          <Text style={styles.reviewTitle}>উত্তরপত্র পর্যালোচনা:</Text>
+          <MaterialIcons name="analytics" size={22} color={colors.onSurface} />
+          <Text style={[styles.reviewTitle, { color: colors.onSurface }]}>উত্তরপত্র পর্যালোচনা:</Text>
         </View>
 
         {answers.map((item, i) => (
-          <View key={i} style={[styles.reviewCard, item.isCorrect ? styles.borderCorrect : styles.borderWrong]}>
-            <Text style={styles.qText}>
+          <View key={i} style={[styles.reviewCard, { backgroundColor: colors.surface }, item.isCorrect ? styles.borderCorrect : styles.borderWrong]}>
+            <Text style={[styles.qText, { color: colors.onSurface }]}>
               {i + 1}. {item.question}
             </Text>
 
@@ -294,12 +295,11 @@ export default function QuizStartScreen({ route, navigation }) {
 
   // ================= QUIZ MAIN SCREEN =================
   return (
-    <View style={styles.container}>
-      
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.metaContainer}>
-        <View style={styles.countBadge}>
-          <MaterialIcons name="help-outline" size={16} color="#334155" style={styles.badgeIcon} />
-          <Text style={styles.countText}>প্রশ্ন: {index + 1} / {total}</Text>
+        <View style={[styles.countBadge, { backgroundColor: colors.surface }]}>
+          <MaterialIcons name="help-outline" size={16} color={colors.onSurface} style={styles.badgeIcon} />
+          <Text style={[styles.countText, { color: colors.onSurface }]}>প্রশ্ন: {index + 1} / {total}</Text>
         </View>
         <View style={styles.timerRow}>
           <MaterialIcons 
@@ -313,12 +313,12 @@ export default function QuizStartScreen({ route, navigation }) {
         </View>
       </View>
 
-      <View style={styles.progressBarBackground}>
-        <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
+      <View style={[styles.progressBarBackground, { backgroundColor: colors.surface }]}>
+        <View style={[styles.progressBarFill, { width: `${progressPercent}%`, backgroundColor: colors.primary }]} />
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.question}>{question.name}</Text>
+      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.question, { color: colors.onSurface }]}>{question.name}</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.optionsContainer}>
@@ -328,8 +328,8 @@ export default function QuizStartScreen({ route, navigation }) {
           const isCorrect = opt === question.answer;
           const isSelected = selected === i;
 
-          let bg = '#FFF';
-          let border = '#E5E7EB';
+          let bg = colors.surface;
+          let border = colors.surface;
           let textColor = '#1F2937';
           let iconName = "radio-button-unchecked";
           let iconColor = "#94A3B8";

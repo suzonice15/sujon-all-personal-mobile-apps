@@ -6,8 +6,9 @@ import { getContentFolderIds } from '../../db/bookmarks';
 import BookmarkModal from '../../components/BookmarkModal';
 import { addEarning } from '../../db/earnings';
 import { usePoints } from '../../context/PointsContext';
+import { useTheme as usePaperTheme } from 'react-native-paper';
 
-const htmlTemplate = (content, fontSize) => `
+const htmlTemplate = (content, fontSize, background, text) => `
   <!DOCTYPE html>
   <html>
   <head>
@@ -18,8 +19,8 @@ const htmlTemplate = (content, fontSize) => `
         font-family: 'Georgia', serif;
         font-size: ${fontSize}px;
         line-height: 1.9;
-        color: #2c2c2c;
-        background: #FAFAF7;
+        color: ${text};
+        background: ${background};
         padding: 16px;
         text-align: justify;
       }
@@ -41,12 +42,13 @@ const isOnline = async () => {
 };
 
 export default function StoryDetail({ navigation, route }) {
-  const { item, title } = route.params;
+  const { item, title,headerTitle } = route.params;
   const [fontSize, setFontSize] = useState(17);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [pointProcessed, setPointProcessed] = useState(false);
   const { refreshPoints } = usePoints();
+  const { colors, dark } = usePaperTheme();
 
   useEffect(() => { checkBookmark(); }, []);
 
@@ -56,8 +58,8 @@ export default function StoryDetail({ navigation, route }) {
   };
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title });
-  }, [navigation, title]);
+    navigation.setOptions({ title: headerTitle });
+  }, [navigation, headerTitle]);
 
   const handleReadComplete = async () => {
     if (pointProcessed) return;
@@ -75,31 +77,30 @@ export default function StoryDetail({ navigation, route }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.titleBox}>
-        <Text style={styles.storyTitle}>{item.title}</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.titleBox, { backgroundColor: colors.background, borderBottomColor: colors.surface }]}>
+        <Text style={[styles.storyTitle, { color: colors.onSurface }]}>{item.title}</Text>
       </View>
 
       <WebView
         originWhitelist={['*']}
-        source={{ html: htmlTemplate(item.content, fontSize) }}
-        style={{ flex: 1 }}
+        source={{ html: htmlTemplate(item.content, fontSize, colors.background, colors.text) }}
+        style={{ flex: 1, backgroundColor: colors.background }}
         showsVerticalScrollIndicator={false}
-        renderLoading={() => <ActivityIndicator size="large" color="#4CAF50" />}
+        renderLoading={() => <ActivityIndicator size="large" color={colors.primary} />}
         startInLoadingState
         onLoadEnd={handleReadComplete}
       />
 
-      {/* Floating Buttons */}
       <View style={styles.fab}>
-        <TouchableOpacity style={styles.fabBtn} onPress={() => setFontSize(s => Math.max(13, s - 1))}>
+        <TouchableOpacity style={[styles.fabBtn, { backgroundColor: colors.primary }]} onPress={() => setFontSize(s => Math.max(13, s - 1))}>
           <MaterialIcons name="text-decrease" size={20} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.fabBtn} onPress={() => setFontSize(s => Math.min(24, s + 1))}>
+        <TouchableOpacity style={[styles.fabBtn, { backgroundColor: colors.primary }]} onPress={() => setFontSize(s => Math.min(24, s + 1))}>
           <MaterialIcons name="text-increase" size={20} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.fabBtn, isBookmarked ? styles.fabBookmarked : styles.fabBookmark]}
+          style={[styles.fabBtn, isBookmarked ? styles.fabBookmarked : { backgroundColor: colors.primary + '99' }]}
           onPress={() => setModalVisible(true)}>
           <MaterialIcons name={isBookmarked ? 'bookmark' : 'bookmark-border'} size={22} color="#fff" />
         </TouchableOpacity>
@@ -118,15 +119,13 @@ export default function StoryDetail({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAF7' },
+  container: { flex: 1 },
   titleBox: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: '#FAFAF7',
   },
-  storyTitle: { fontSize: 17, fontWeight: 'bold', color: '#1a1a1a', lineHeight: 26 },
+  storyTitle: { fontSize: 17, fontWeight: 'bold', lineHeight: 26 },
   fab: {
     position: 'absolute',
     bottom: 24,

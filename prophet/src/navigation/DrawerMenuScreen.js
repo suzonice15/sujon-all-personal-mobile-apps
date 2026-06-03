@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Share, Linking, Alert, ToastAndroid } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../db/auth';
 
 const menu = [
@@ -19,6 +20,8 @@ const menu = [
 export default function DrawerMenuScreen({ navigation }) {
   const nav = useNavigation();
   const [user, setUser] = useState(null);
+  const { colors } = useTheme();
+  const s = styles(colors);
 
   useFocusEffect(useCallback(() => {
     getLoggedInUser().then(setUser);
@@ -40,61 +43,62 @@ export default function DrawerMenuScreen({ navigation }) {
   const handleLogout = () => {
     Alert.alert('লগআউট', 'আপনি কি লগআউট করতে চান?', [
       { text: 'না', style: 'cancel' },
-      { text: 'হ্যাঁ', onPress: async () => { await logoutUser(); setUser(null); ToastAndroid.show('লগআউট সফল হয়েছে', ToastAndroid.SHORT); } },
+      { text: 'হ্যাঁ', onPress: async () => { await logoutUser(); setUser(null); ToastAndroid.show('লগআউট সফল হয়েছে', ToastAndroid.SHORT); } },
     ]);
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header with Solid Color */}
-      <View style={styles.header}>
-        <View style={styles.avatarBox}>
-          {user ? <Text style={styles.avatarText}>{user.name?.charAt(0).toUpperCase()}</Text>
-            : <MaterialIcons name="person" size={28} color="#4F46E5" />}
+    <ScrollView style={s.container} showsVerticalScrollIndicator={false}>
+      <View style={s.header}>
+        <View style={s.avatarBox}>
+          {user ? <Text style={s.avatarText}>{user.name?.charAt(0).toUpperCase()}</Text>
+            : <MaterialIcons name="person" size={28} color={colors.primary} />}
         </View>
-        <Text style={styles.userName}>{user ? user.name : 'অতিথি ব্যবহারকারী'}</Text>
-        <Text style={styles.userEmail}>{user ? user.email : 'লগইন করুন'}</Text>
+        <Text style={s.userName}>{user ? user.name : 'অতিথি ব্যবহারকারী'}</Text>
+        <Text style={s.userEmail}>{user ? user.email : 'লগইন করুন'}</Text>
       </View>
 
-      {/* Menu Container */}
-      <View style={styles.menuContainer}>
+      <View style={s.menuContainer}>
         {menu.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.menuItem} onPress={() => handlePress(item)}>
-            <MaterialIcons name={item.icon} size={20} color="#64748B" />
-            <Text style={styles.menuText}>{item.title}</Text>
+          <TouchableOpacity key={index} style={s.menuItem} onPress={() => handlePress(item)}>
+            <MaterialIcons name={item.icon} size={20} color={colors.text} />
+            <Text style={s.menuText}>{item.title}</Text>
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={styles.menuItem} onPress={user ? handleLogout : () => nav.navigate('Profile')}>
-          <MaterialIcons name={user ? "logout" : "login"} size={20} color={user ? "#E11D48" : "#4F46E5"} />
-          <Text style={[styles.menuText, { color: user ? "#E11D48" : "#4F46E5" }]}>
+        <TouchableOpacity style={s.menuItem} onPress={user ? handleLogout : () => nav.navigate('Profile')}>
+          <MaterialIcons name={user ? 'logout' : 'login'} size={20} color={user ? colors.danger : colors.text} />
+          <Text style={[s.menuText, { color: user ? colors.danger : colors.text }]}>
             {user ? 'লগআউট' : 'লগইন / নিবন্ধন'}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.footer}>v 1.0.0</Text>
+      <Text style={s.footer}>v 1.0.0</Text>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#ffffff' },
-  header: { 
-    paddingTop: 60, paddingBottom: 30, alignItems: 'center', 
-    backgroundColor: '#4F46E5', // সলিড ইনডিগো কালার
-    borderBottomLeftRadius: 24, borderBottomRightRadius: 24 
+const styles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  header: {
+    paddingTop: 60, paddingBottom: 30, alignItems: 'center',
+    backgroundColor: colors.headerBackground,
+    borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
   },
-  avatarBox: { 
-    width: 60, height: 60, borderRadius: 30, backgroundColor: '#ffffff', 
-    justifyContent: 'center', alignItems: 'center', marginBottom: 12 
+  avatarBox: {
+    width: 60, height: 60, borderRadius: 30, backgroundColor: colors.background,
+    justifyContent: 'center', alignItems: 'center', marginBottom: 12,
   },
-  avatarText: { fontSize: 24, fontWeight: 'bold', color: '#4F46E5' },
-  userName: { fontSize: 17, fontWeight: '700', color: '#ffffff' },
-  userEmail: { fontSize: 12, color: '#E0E7FF', marginTop: 2 },
-  
+  avatarText: { fontSize: 24, fontWeight: 'bold', color: colors.headerColor },
+  userName: { fontSize: 17, fontWeight: '700', color: colors.headerColor },
+  userEmail: { fontSize: 12, color: colors.headerColor, marginTop: 2 },
   menuContainer: { paddingHorizontal: 20, paddingTop: 15 },
-  menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' },
-  menuText: { marginLeft: 16, fontSize: 14, color: '#334155', fontWeight: '500' },
-  footer: { textAlign: 'center', color: '#CBD5E1', fontSize: 11, marginVertical: 20 }
+  menuItem: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 0.5, borderBottomColor: colors.surface,
+  },
+  menuText: { marginLeft: 16, fontSize: 14, color: colors.text, fontWeight: '500' },
+  footer: { textAlign: 'center', color: colors.text, fontSize: 11, marginVertical: 20, opacity: 0.4 },
 });

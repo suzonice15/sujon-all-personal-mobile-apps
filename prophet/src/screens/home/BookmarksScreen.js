@@ -1,15 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity,
-  StyleSheet, Alert,
+  StyleSheet, Alert, SafeAreaView,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTheme } from 'react-native-paper';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getFolders, getFolderItems, deleteFolder } from '../../db/bookmarks';
 
 export default function BookmarksScreen({ navigation }) {
   const [folders, setFolders] = useState([]);
   const [openFolderId, setOpenFolderId] = useState(null);
   const [folderItems, setFolderItems] = useState({});
+  const { colors } = useTheme();
+  const s = styles(colors);
 
   useFocusEffect(
     useCallback(() => {
@@ -58,27 +62,26 @@ export default function BookmarksScreen({ navigation }) {
     const items = folderItems[folder.id] || [];
 
     return (
-      <View style={styles.folderCard}>
-        <TouchableOpacity style={styles.folderRow} onPress={() => toggleFolder(folder.id)}>
-          <Text style={styles.folderIcon}>📁</Text>
-          <View style={styles.folderInfo}>
-            <Text style={styles.folderName}>{folder.name}</Text>
-            <Text style={styles.folderCount}>{folder.item_count} টি গল্প </Text>
+      <View style={s.card}>
+        <TouchableOpacity style={s.folderRow} onPress={() => toggleFolder(folder.id)}>
+          <View style={s.indexCircle}>
+            <MaterialIcons name="folder" size={22} color="#fff" />
           </View>
-          {/* <TouchableOpacity onPress={() => handleDeleteFolder(folder)}>
-            <Text style={styles.deleteBtn}>🗑</Text>
-          </TouchableOpacity> */}
-          <Text style={styles.arrow}>{isOpen ? '▲' : '▼'}</Text>
+          <View style={s.folderInfo}>
+            <Text style={s.folderName}>{folder.name}</Text>
+            <Text style={s.folderCount}>{folder.item_count} টি গল্প</Text>
+          </View>
+          <MaterialIcons name={isOpen ? 'expand-less' : 'expand-more'} size={22} color={colors.onSurface} />
         </TouchableOpacity>
 
         {isOpen && items.map(story => (
           <TouchableOpacity
             key={story.id}
-            style={styles.storyRow}   
-            onPress={() => navigation.navigate('StoryDetail', { item: story, title: folder.name })}>
-            <Text style={styles.storyDot}>•</Text>
-            <Text style={styles.storyTitle}>{story.title}</Text>
-            <Text style={styles.storyArrow}>›</Text>
+            style={s.storyRow}
+            onPress={() => navigation.navigate('StoryDetail', { item: story, headerTitle: folder.name })}>
+            <MaterialIcons name="chrome-reader-mode" size={16} color={colors.primary} />
+            <Text style={s.storyTitle}>{story.title}</Text>
+            <MaterialIcons name="chevron-right" size={20} color={colors.onSurface} style={{ opacity: 0.3 }} />
           </TouchableOpacity>
         ))}
       </View>
@@ -86,52 +89,53 @@ export default function BookmarksScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={s.container}>
       <FlatList
         data={folders}
         keyExtractor={f => String(f.id)}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={s.list}
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <View style={styles.emptyBox}>
-            <Text style={styles.emptyIcon}>🔖</Text>
-            <Text style={styles.emptyText}>কোনো ফোল্ডার নেই।{'\n'} গল্প পড়ার সময় 🔖 চাপুন।</Text>
+          <View style={s.emptyBox}>
+            <Text style={s.emptyIcon}>🔖</Text>
+            <Text style={s.emptyText}>কোনো ফোল্ডার নেই।{'\n'} গল্প পড়ার সময় 🔖 চাপুন।</Text>
           </View>
         }
         renderItem={renderItem}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  list: { padding: 16, gap: 10 },
-  folderCard: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
+const styles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  list: { padding: 16 },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    marginBottom: 12,
     overflow: 'hidden',
-    elevation: 2,
   },
   folderRow: {
     flexDirection: 'row', alignItems: 'center',
-    padding: 14, gap: 10,
+    padding: 16, gap: 12,
   },
-  folderIcon: { fontSize: 24 },
+  indexCircle: {
+    width: 45, height: 45, borderRadius: 22.5,
+    backgroundColor: colors.circleBackground,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  folderIcon: { fontSize: 20 },
   folderInfo: { flex: 1 },
-  folderName: { fontSize: 15, fontWeight: 'bold', color: '#1a1a1a' },
-  folderCount: { fontSize: 12, color: '#888', marginTop: 2 },
-  deleteBtn: { fontSize: 18, paddingHorizontal: 4 },
-  arrow: { fontSize: 12, color: '#aaa' },
+  folderName: { fontSize: 16, fontWeight: '700', color: colors.onSurface },
+  folderCount: { fontSize: 13, color: colors.text, marginTop: 2, fontWeight: '500' },
   storyRow: {
     flexDirection: 'row', alignItems: 'center',
-    paddingVertical: 10, paddingHorizontal: 16,
-    borderTopWidth: 1, borderTopColor: '#f0f0f0',
-    gap: 8,
+    paddingVertical: 12, paddingHorizontal: 16,
+    gap: 10,
   },
-  storyDot: { fontSize: 18, color: '#4CAF50' },
-  storyTitle: { flex: 1, fontSize: 14, color: '#333' },
-  storyArrow: { fontSize: 18, color: '#aaa' },
+  storyTitle: { flex: 1, fontSize: 14, fontWeight: '500', color: colors.onSurface },
   emptyBox: { alignItems: 'center', marginTop: 80, gap: 12 },
   emptyIcon: { fontSize: 48 },
-  emptyText: { fontSize: 15, color: '#aaa', textAlign: 'center', lineHeight: 24 },
+  emptyText: { fontSize: 15, color: colors.text, opacity: 0.4, textAlign: 'center', lineHeight: 24 },
 });

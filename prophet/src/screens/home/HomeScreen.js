@@ -6,172 +6,122 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
-  Alert,
+  SafeAreaView,
 } from 'react-native';
-
 import { useFocusEffect } from '@react-navigation/native';
-
 import { getMobileContents } from '../../db/mobileContents';
-
+import { useTheme as usePaperTheme } from 'react-native-paper';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+ 
 export default function HomeScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  // LOAD DATA
+  const { colors } = usePaperTheme();
+  const s = styles(colors);
+
   const loadData = async (force = false) => {
+    if (!force && data.length > 0) return;
+    setLoading(true);
     try {
-      // data already loaded থাকলে আবার call দিবে না
-      if (!force && data.length > 0) {
-        return;
-      }
-      setLoading(true);
       const response = await getMobileContents();
       setData(response || []);
-
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
-  }; 
+  };
+
   useFocusEffect(
     useCallback(() => {
-      if (data.length === 0) {
-        loadData();
-      }
+      if (data.length === 0) loadData();
     }, [data])
   );
 
-  // PULL TO REFRESH
-  const onRefresh = () => {
-    loadData(true);
-  };
-
   return (
-    <View style={styles.container}>
-
+    <SafeAreaView style={s.container}>
       <FlatList
         data={data}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
-
         refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={onRefresh}
-          />
+          <RefreshControl refreshing={loading} onRefresh={() => loadData(true)} />
         }
-
         renderItem={({ item, index }) => (
           <TouchableOpacity
-            style={styles.item}
+            style={s.card}
             onPress={() => {
-              console.log(item)
-              // Alert.alert('d',item.data_id)
-               const content = item.content || ''; 
+              const content = item.content || '';
               if (content.trim().length < 15) {
-                navigation.navigate('DataScreen', {
-                  item: item,
-                  parent_id: item.data_id
-                });
-
+                navigation.navigate('DataScreen', { item: item, headerTitle: item.title, parent_id: item.data_id });
               } else {
- 
-                navigation.navigate('StoryDetail', {
-                  item: item,
-                  title: item.title,
-                });
-
+                navigation.navigate('StoryDetail', { item: item, headerTitle: item.title });
               }
-
             }}
           >
-
-            <View style={styles.indexBox}>
-              <Text style={styles.indexText}>
-                {index + 1}
-              </Text>
+            <View style={s.cardInner}>
+              <View style={s.indexCircle}>
+                <Text style={s.indexText}>{index + 1}</Text>
+              </View>
+              <View style={s.textWrapper}>
+                <Text style={s.itemTitle}>{item.title}</Text>
+                <Text style={s.itemSubtitle} numberOfLines={1}>{item.sub_title}</Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={22} color={colors.onSurface} style={{ opacity: 0.3 }} />
             </View>
-
-            <View style={styles.textBox}>
-              <Text style={styles.name}>
-                {item.title}
-              </Text>
-
-              <Text style={styles.title}>
-                {item.sub_title}
-              </Text>
-            </View>
-
-            <Text style={styles.arrow}>›</Text>
-
           </TouchableOpacity>
         )}
       />
-
-    </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ddd"
+    backgroundColor: colors.background,
   },
-
   list: {
     padding: 16,
-    gap: 10
   },
-
-  item: {
+  card: {
+    borderRadius: 12,
+    marginBottom: 12,
+    backgroundColor: colors.surface,
+  },
+  cardInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: "white",
-    borderRadius: 14,
-    padding: 14,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.07,
-    shadowRadius: 4,
-    gap: 12,
+    padding: 16,
+    borderRadius: 12,
   },
-
-  indexBox: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: "lightgray",
-    alignItems: 'center',
+  indexCircle: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: colors.circleBackground,
     justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
-
   indexText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: "black"
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.circleText,
   },
-
-  textBox: {
-    flex: 1
+  textWrapper: {
+    flex: 1,
   },
-
-  name: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: "black"
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 4,
   },
-
-  title: {
+  itemSubtitle: {
     fontSize: 13,
+    color: colors.text,
     fontWeight: '500',
-    color: "black"
-  },
-
-  arrow: {
-    fontSize: 22,
-    color: "black",
-    fontWeight: 'bold'
   },
 });

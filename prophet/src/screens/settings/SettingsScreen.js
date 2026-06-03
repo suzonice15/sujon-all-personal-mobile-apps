@@ -4,35 +4,37 @@ import {
   TouchableOpacity, Switch, Linking,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useTheme } from '../../context/ThemeContext';
 
-const SettingItem = ({ icon, label, value, onPress, right }) => (
-  <TouchableOpacity style={styles.item} onPress={onPress} activeOpacity={0.7}>
-    <View style={styles.itemLeft}>
-      <View style={styles.iconBox}>
+const SettingItem = ({ icon, label, onPress, right, isDark }) => (
+  <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
+    <View style={styles(isDark).itemLeft}>
+      <View style={styles(isDark).iconBox}>
         <MaterialIcons name={icon} size={20} color="#4F46E5" />
       </View>
-      <Text style={styles.itemLabel}>{label}</Text>
+      <Text style={styles(isDark).itemLabel}>{label}</Text>
     </View>
     {right || <MaterialIcons name="chevron-right" size={22} color="#ccc" />}
   </TouchableOpacity>
 );
 
-const SectionTitle = ({ title }) => (
-  <Text style={styles.sectionTitle}>{title}</Text>
+const SectionTitle = ({ title, isDark }) => (
+  <Text style={styles(isDark).sectionTitle}>{title}</Text>
 );
 
 export default function SettingsScreen({ navigation }) {
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles(isDark).container} contentContainerStyle={styles(isDark).content}>
 
-      <SectionTitle title="সাধারণ" />
-      <View style={styles.card}>
+      <SectionTitle title="সাধারণ" isDark={isDark} />
+      <View style={styles(isDark).card}>
         <SettingItem
           icon="notifications"
           label="নোটিফিকেশন"
+          isDark={isDark}
           right={
             <Switch
               value={notifications}
@@ -42,81 +44,82 @@ export default function SettingsScreen({ navigation }) {
             />
           }
         />
-        <View style={styles.divider} />
+        <View style={styles(isDark).divider} />
         <SettingItem
           icon="dark-mode"
           label="ডার্ক মোড"
+          isDark={isDark}
           right={
             <Switch
-              value={darkMode}
-              onValueChange={setDarkMode}
+              value={isDark}
+              onValueChange={toggleTheme}
               trackColor={{ false: '#ddd', true: '#4F46E5' }}
               thumbColor="#fff"
             />
           }
         />
-        <View style={styles.divider} />
-        <SettingItem icon="language" label="ভাষা" value="বাংলা" />
+        <View style={styles(isDark).divider} />
+        <SettingItem icon="language" label="ভাষা" isDark={isDark} />
       </View>
 
-      <SectionTitle title="অ্যাপ তথ্য" />
-      <View style={styles.card}>
-        <SettingItem icon="info" label="অ্যাপ ভার্সন" right={<Text style={styles.valueText}>1.0.0</Text>} />
-        <View style={styles.divider} />
+      <SectionTitle title="অ্যাপ তথ্য" isDark={isDark} />
+      <View style={styles(isDark).card}>
+        <SettingItem icon="info" label="অ্যাপ ভার্সন" isDark={isDark} right={<Text style={styles(isDark).valueText}>1.0.0</Text>} />
+        <View style={styles(isDark).divider} />
         <SettingItem
           icon="star-rate"
           label="অ্যাপ রেটিং দিন"
+          isDark={isDark}
           onPress={() => Linking.openURL('market://details?id=com.prophet')}
         />
-        <View style={styles.divider} />
-        <SettingItem
-          icon="share"
-          label="বন্ধুদের সাথে শেয়ার করুন"
-          onPress={() => {}}
-        />
+        <View style={styles(isDark).divider} />
+        <SettingItem icon="share" label="বন্ধুদের সাথে শেয়ার করুন" isDark={isDark} onPress={() => {}} />
       </View>
 
-      <SectionTitle title="সাপোর্ট" />
-      <View style={styles.card}>
+      <SectionTitle title="সাপোর্ট" isDark={isDark} />
+      <View style={styles(isDark).card}>
         <SettingItem
           icon="privacy-tip"
           label="প্রাইভেসি পলিসি"
+          isDark={isDark}
           onPress={() => navigation.navigate('Privacy')}
         />
-        <View style={styles.divider} />
+        <View style={styles(isDark).divider} />
         <SettingItem
           icon="description"
           label="ব্যবহারের শর্তাবলী"
+          isDark={isDark}
           onPress={() => navigation.navigate('Terms')}
         />
-        <View style={styles.divider} />
+        <View style={styles(isDark).divider} />
         <SettingItem
           icon="mail"
           label="যোগাযোগ করুন"
+          isDark={isDark}
           onPress={() => Linking.openURL('mailto:support@example.com')}
         />
       </View>
 
-      <Text style={styles.footer}>নবীদের গল্প © ২০২৪</Text>
+      <Text style={styles(isDark).footer}>নবীদের গল্প © ২০২৪</Text>
 
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+const styles = (isDark) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: isDark ? '#0f172a' : '#f5f5f5' },
   content: { padding: 16, paddingBottom: 40 },
   sectionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#888',
+    color: isDark ? '#94a3b8' : '#888',
     marginTop: 20,
     marginBottom: 8,
     marginLeft: 4,
     letterSpacing: 0.5,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1e293b' : '#fff',
     borderRadius: 14,
     overflow: 'hidden',
     elevation: 2,
@@ -132,12 +135,12 @@ const styles = StyleSheet.create({
   iconBox: {
     width: 36, height: 36,
     borderRadius: 10,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: isDark ? '#312e81' : '#EEF2FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemLabel: { fontSize: 15, color: '#1a1a1a' },
-  valueText: { fontSize: 14, color: '#888' },
-  divider: { height: 1, backgroundColor: '#f5f5f5', marginLeft: 64 },
+  itemLabel: { fontSize: 15, color: isDark ? '#f1f5f9' : '#1a1a1a' },
+  valueText: { fontSize: 14, color: isDark ? '#94a3b8' : '#888' },
+  divider: { height: 1, backgroundColor: isDark ? '#334155' : '#f5f5f5', marginLeft: 64 },
   footer: { textAlign: 'center', color: '#bbb', fontSize: 12, marginTop: 30 },
 });

@@ -6,17 +6,17 @@ export const lightTheme = {
 
   colors: {
     ...MD3LightTheme.colors,
-
     primary: colors.primary,
     secondary: colors.secondary,
-
+    onSurface: colors.text,
+    success: colors.success,
+    danger: colors.danger,    
     background: '#ffffff',
     surface: '#f9fafb',
-
-    text: colors.text,
-    onSurface: colors.text,
-
-    success: colors.success,
-    danger: colors.danger,
+    circleBackground:"#ddd",
+    circleText:"#374151",    
+    text: "#374151",
+    headerBackground:"#0F766E",
+    headerColor:"#ffffff",
   },
 };
