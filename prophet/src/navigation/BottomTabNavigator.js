@@ -34,11 +34,12 @@ export default function BottomTabNavigator() {
       })}
     >
       <Tab.Screen name="Home" component={HomeStack} options={{ tabBarLabel: 'হোম' }} />
-      <Tab.Screen name="Bookmarks" component={BookmarkStack} options={{ tabBarLabel: 'বুকমার্ক' }} />
       {/* <Tab.Screen name="Settings" component={SettingsStack} options={{ tabBarLabel: 'সেটিংস' }} /> */}
      <Tab.Screen name="Quize" component={QuizeStack} options={{ tabBarLabel: 'কুইজ' }} />
       <Tab.Screen name="Income" component={IncomeStack} options={{ tabBarLabel: 'পয়েন্ট' }} />
       <Tab.Screen name="Profile" component={ProfileStack} options={{ tabBarLabel: 'প্রোফাইল' }} />
+      <Tab.Screen name="Bookmarks" component={BookmarkStack} options={{ tabBarLabel: 'বুকমার্ক' }} />
+
     </Tab.Navigator>
   );
 }
