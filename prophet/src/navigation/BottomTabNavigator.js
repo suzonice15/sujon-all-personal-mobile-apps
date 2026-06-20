@@ -7,6 +7,8 @@ import ProfileStack from './ProfileStack';
 import BookmarkStack from './BookmarkStack';
 import SettingsStack from './SettingsStack';
 import QuizeStack from './QuizeStack';
+import HistoryStack from './HistoryStack';
+import ProductStack from './ProductStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,6 +28,7 @@ export default function BottomTabNavigator() {
             Settings: 'settings',
             Income: 'star',
             Quize: 'quiz',
+            History: 'history',
             Profile: 'person',
           };
           return <MaterialIcons name={icons[route.name] || 'home'} size={24} color={color} />;
@@ -35,7 +38,8 @@ export default function BottomTabNavigator() {
     >
       <Tab.Screen name="Home" component={HomeStack} options={{ tabBarLabel: 'হোম' }} />
       {/* <Tab.Screen name="Settings" component={SettingsStack} options={{ tabBarLabel: 'সেটিংস' }} /> */}
-     <Tab.Screen name="Quize" component={QuizeStack} options={{ tabBarLabel: 'কুইজ' }} />
+           <Tab.Screen name="Quize" component={QuizeStack} options={{ tabBarLabel: 'কুইজ' }} />
+      <Tab.Screen name="History" component={HistoryStack} options={{ tabBarLabel: 'হিস্টোরি' }} />
       <Tab.Screen name="Income" component={IncomeStack} options={{ tabBarLabel: 'পয়েন্ট' }} />
       <Tab.Screen name="Profile" component={ProfileStack} options={{ tabBarLabel: 'প্রোফাইল' }} />
       <Tab.Screen name="Bookmarks" component={BookmarkStack} options={{ tabBarLabel: 'বুকমার্ক' }} />

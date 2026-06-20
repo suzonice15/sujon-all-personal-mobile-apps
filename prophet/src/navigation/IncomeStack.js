@@ -12,7 +12,7 @@ export default function IncomeStack() {
 
   return (
     <Stack.Navigator screenOptions={getHeaderOptions(colors)}>
-      <Stack.Screen name="IncomeList" component={IncomeScreen} options={{ title: 'ইনকাম ইতিহাস' }} />
+      <Stack.Screen name="IncomeList" component={IncomeScreen} options={{ title: 'ইনকাম হিস্টোরি' }} />
       <Stack.Screen name="StoryDetail" component={StoryDetail} />
     </Stack.Navigator>
   );
