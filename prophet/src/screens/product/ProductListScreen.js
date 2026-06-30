@@ -140,15 +140,20 @@ export default function ProductListScreen({ navigation }) {
             </View>
 
             <View style={s.catSection}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}>
-                {categories.map((c) => (
-                  <TouchableOpacity key={c.id} onPress={() => setSelectedCat(c.id)} activeOpacity={0.7} style={{ alignItems: 'center' }}>
-                    <View style={[s.catCircle, selectedCat === c.id && { backgroundColor: c.color }]}>
-                      <MaterialIcons name={c.icon} size={22} color={selectedCat === c.id ? '#fff' : c.color} />
-                    </View>
-                    <Text style={[s.catLabel, selectedCat === c.id && { color: c.color, fontWeight: '700' }]}>{c.label}</Text>
-                  </TouchableOpacity>
-                ))}
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}>
+                {categories.map((c) => {
+                  const active = selectedCat === c.id;
+                  return (
+                    <TouchableOpacity
+                      key={c.id}
+                      onPress={() => setSelectedCat(c.id)}
+                      activeOpacity={0.8}
+                      style={[s.catPill, active && { backgroundColor: c.color }]}
+                    >
+                      <Text style={[s.catLabel, active && { color: '#fff' }]}>{c.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </ScrollView>
             </View>
 
@@ -229,16 +234,14 @@ const styles = (colors) => StyleSheet.create({
   dotActive: { backgroundColor: '#4F46E5', width: 20 },
 
   catSection: {
-    backgroundColor: '#fff', paddingVertical: 14,
+    backgroundColor: '#fff', paddingVertical: 12,
     borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
   },
-  catCircle: {
-    width: 52, height: 52, borderRadius: 26,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center', alignItems: 'center',
-    marginBottom: 6,
+  catPill: {
+    paddingHorizontal: 20, paddingVertical: 8,
+    borderRadius: 20, backgroundColor: '#F3F4F6',
   },
-  catLabel: { fontSize: 12, color: '#666', fontWeight: '500' },
+  catLabel: { fontSize: 14, color: '#6B7280', fontWeight: '600' },
 
   sectionHeader: {
     flexDirection: 'row', justifyContent: 'space-between',

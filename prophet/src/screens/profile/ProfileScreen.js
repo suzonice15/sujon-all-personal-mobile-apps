@@ -1,10 +1,17 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ToastAndroid, Alert, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ToastAndroid, Alert, SafeAreaView, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../../db/auth';
 import { usePoints } from '../../context/PointsContext';
+
+const infoFields = [
+  { key: 'name', label: 'নাম', icon: 'person' },
+  { key: 'email', label: 'ইমেইল', icon: 'email' },
+  { key: 'phone', label: 'ফোন', icon: 'phone', fallback: '—' },
+  { key: 'address', label: 'ঠিকানা', icon: 'location-on', fallback: '—' },
+];
 
 export default function ProfileScreen({ navigation }) {
   const [user, setUser] = useState(null);
@@ -48,34 +55,63 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.profileHeader}>
-        <View style={s.avatarBox}>
-          <Text style={s.avatarText}>{user.name?.charAt(0).toUpperCase()}</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+        <View style={s.profileHeader}>
+          <View style={s.avatarBox}>
+            <Text style={s.avatarText}>{user.name?.charAt(0).toUpperCase()}</Text>
+          </View>
+          <Text style={s.userName}>{user.name}</Text>
+          <Text style={s.userEmail}>{user.email}</Text>
+          <TouchableOpacity style={s.editBtn} onPress={() => navigation.navigate('EditProfile', { user })}>
+            <MaterialIcons name="edit" size={16} color="#fff" />
+            <Text style={s.editBtnText}>প্রোফাইল এডিট</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={s.userName}>{user.name}</Text>
-        <Text style={s.userEmail}>{user.email}</Text>
-        <TouchableOpacity style={s.editBtn} onPress={() => navigation.navigate('EditProfile', { user })}>
-          <MaterialIcons name="edit" size={16} color="#fff" />
-          <Text style={s.editBtnText}>প্রোফাইল এডিট</Text>
+
+        <View style={s.statsRow}>
+          <View style={s.statBox}>
+            <Text style={s.statValue}>⭐ {total}</Text>
+            <Text style={s.statLabel}>মোট পয়েন্ট</Text>
+          </View>
+        </View>
+
+        <Text style={s.sectionTitle}>ব্যক্তিগত তথ্য</Text>
+        <View style={s.infoCard}>
+          {infoFields.map((field, i) => (
+            <View key={field.key} style={[s.infoRow, i < infoFields.length - 1 && s.infoRowBorder]}>
+              <View style={s.infoIcon}>
+                <MaterialIcons name={field.icon} size={20} color={colors.primary} />
+              </View>
+              <View style={s.infoContent}>
+                <Text style={s.infoLabel}>{field.label}</Text>
+                <Text style={s.infoValue} numberOfLines={2}>
+                  {user[field.key] || field.fallback || '—'}
+                </Text>
+              </View>
+              <TouchableOpacity style={s.fieldEditBtn} onPress={() => navigation.navigate('EditProfile', { user })}>
+                <MaterialIcons name="edit" size={18} color={colors.onSurface} style={{ opacity: 0.3 }} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+
+        <View style={s.infoCard}>
+          <View style={s.infoRow}>
+            <View style={s.infoIcon}>
+              <MaterialIcons name="calendar-today" size={20} color={colors.primary} />
+            </View>
+            <View style={s.infoContent}>
+              <Text style={s.infoLabel}>যোগদান</Text>
+              <Text style={s.infoValue}>{user.created_at?.slice(0, 10)}</Text>
+            </View>
+          </View>
+        </View>
+
+        <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
+          <MaterialIcons name="logout" size={20} color="#EF4444" />
+          <Text style={s.logoutText}>লগআউট</Text>
         </TouchableOpacity>
-      </View>
-
-      <View style={s.statsRow}>
-        <View style={s.statBox}>
-          <Text style={s.statValue}>⭐ {total}</Text>
-          <Text style={s.statLabel}>মোট পয়েন্ট</Text>
-        </View>
-      </View>
-
-      <View style={s.infoCard}>
-        <MaterialIcons name="calendar-today" size={18} color={colors.primary} />
-        <Text style={s.infoText}>যোগদান: {user.created_at?.slice(0, 10)}</Text>
-      </View>
-
-      <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
-        <MaterialIcons name="logout" size={18} color={colors.danger} />
-        <Text style={s.logoutText}>লগআউট</Text>
-      </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -123,16 +159,33 @@ const styles = (colors) => StyleSheet.create({
   },
   statValue: { fontSize: 24, fontWeight: 'bold', color: colors.primary, marginBottom: 4 },
   statLabel: { fontSize: 13, color: colors.onSurface, opacity: 0.5 },
+  sectionTitle: {
+    fontSize: 16, fontWeight: '700', color: '#1F2937',
+    marginHorizontal: 20, marginBottom: 12,
+  },
   infoCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: colors.surface, marginHorizontal: 20,
-    borderRadius: 12, padding: 16, marginBottom: 14,
+    borderRadius: 16, padding: 4, marginBottom: 14,
+    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 6,
   },
-  infoText: { fontSize: 14, color: colors.onSurface },
+  infoRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 14, paddingHorizontal: 14, gap: 12,
+  },
+  infoRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.background },
+  infoIcon: {
+    width: 36, height: 36, borderRadius: 10,
+    backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center',
+  },
+  infoContent: { flex: 1 },
+  infoLabel: { fontSize: 11, color: colors.onSurface, opacity: 0.4, marginBottom: 2 },
+  infoValue: { fontSize: 15, color: colors.onSurface, fontWeight: '500' },
+  fieldEditBtn: { padding: 4 },
   logoutBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: colors.surface, marginHorizontal: 20,
-    borderRadius: 12, padding: 16,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    backgroundColor: '#FEF2F2', marginHorizontal: 20,
+    borderRadius: 14, padding: 16, marginTop: 4,
   },
-  logoutText: { fontSize: 14, color: colors.danger, fontWeight: '600' },
+  logoutText: { fontSize: 15, color: '#EF4444', fontWeight: '600' },
 });

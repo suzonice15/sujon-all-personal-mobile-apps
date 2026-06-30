@@ -7,6 +7,7 @@ import { registerUser } from '../../db/auth';
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
@@ -17,9 +18,9 @@ export default function RegisterScreen({ navigation }) {
     if (!name.trim() || !email.trim() || !password.trim()) { ToastAndroid.show('সব তথ্য পূরণ করুন', ToastAndroid.SHORT); return; }
     if (password.length < 6) { ToastAndroid.show('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে', ToastAndroid.SHORT); return; }
     setLoading(true);
-    const res = await registerUser(name.trim(), email.trim(), password);
+    const res = await registerUser(name.trim(), email.trim(), password, phone.trim());
     setLoading(false);
-    if (res.success) { navigation.replace('ProfileView', { user: res.user }); }
+    if (res.success) { navigation.replace('Dashboard'); }
     else { ToastAndroid.show(res.message, ToastAndroid.SHORT); }
   };
 
@@ -33,6 +34,8 @@ export default function RegisterScreen({ navigation }) {
       <TextInput style={s.input} placeholder="আপনার নাম" placeholderTextColor={colors.onSurface + '66'} value={name} onChangeText={setName} />
       <TextInput style={s.input} placeholder="ইমেইল" placeholderTextColor={colors.onSurface + '66'}
         value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+      <TextInput style={s.input} placeholder="ফোন নম্বর (ঐচ্ছিক)" placeholderTextColor={colors.onSurface + '66'}
+        value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
 
       <View style={s.passRow}>
         <TextInput style={[s.input, { flex: 1, marginBottom: 0 }]} placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)"

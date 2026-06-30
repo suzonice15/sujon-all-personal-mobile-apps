@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import PointsBadge from '../components/PointsBadge';
+import NotificationBell from '../components/NotificationBell';
 import { useTheme } from '../context/ThemeContext';
 
 const ThemeToggleButton = ({ color }) => {
@@ -16,7 +16,7 @@ const ThemeToggleButton = ({ color }) => {
 export const getHeaderOptions = (colors, { showMenu, navigation, titleFontSize = 17, iconSize = 25 } = {}) => ({
   headerStyle: {
     backgroundColor: colors.headerBackground,    
-    shadowOpacity: 0,               // আইওএস-এর জন্য শ্যডো সরানো
+    shadowOpacity: 0,
   },
   headerTintColor: colors.headerColor,
   headerTitleStyle: { fontWeight: 'bold', fontSize: titleFontSize },
@@ -24,8 +24,8 @@ export const getHeaderOptions = (colors, { showMenu, navigation, titleFontSize =
 
   headerRight: () => (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <NotificationBell color={colors.headerColor} />
       <ThemeToggleButton color={colors.headerColor} />
-      <PointsBadge textColor={colors.headerColor} />
     </View>
   ),
   ...(showMenu && navigation ? {

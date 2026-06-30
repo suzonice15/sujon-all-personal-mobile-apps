@@ -1,13 +1,13 @@
 import { getDB } from './db';
 
-export const registerUser = async (name, email, password) => {
+export const registerUser = async (name, email, password, phone = '') => {
   const db = await getDB();
   const [check] = await db.executeSql('SELECT id FROM users WHERE email = ?', [email]);
   if (check.rows.length > 0) return { success: false, message: 'এই ইমেইল আগেই নিবন্ধিত আছে' };
 
   await db.executeSql(
-    'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-    [name, email, password]
+    'INSERT INTO users (name, email, password, phone) VALUES (?, ?, ?, ?)',
+    [name, email, password, phone]
   );
   const [res] = await db.executeSql('SELECT * FROM users WHERE email = ?', [email]);
   const user = res.rows.item(0);
@@ -38,13 +38,12 @@ export const getLoggedInUser = async () => {
   return res.rows.item(0);
 };
 
-export const updateUser = async (userId, name, newPassword) => {
+export const updateUser = async (userId, name, newPassword, phone, address) => {
   const db = await getDB();
-  if (newPassword) {
-    await db.executeSql('UPDATE users SET name = ?, password = ? WHERE id = ?', [name, newPassword, userId]);
-  } else {
-    await db.executeSql('UPDATE users SET name = ? WHERE id = ?', [name, userId]);
-  }
+  await db.executeSql(
+    'UPDATE users SET name = ?, phone = ?, address = ?' + (newPassword ? ', password = ?' : '') + ' WHERE id = ?',
+    newPassword ? [name, phone, address, newPassword, userId] : [name, phone, address, userId]
+  );
   const [res] = await db.executeSql('SELECT * FROM users WHERE id = ?', [userId]);
   return res.rows.item(0);
 };

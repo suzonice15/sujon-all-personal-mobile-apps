@@ -1,24 +1,26 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Share, Linking, Alert, ToastAndroid } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../db/auth';
 
 const menu = [
-  { title: 'অ্যাপ সম্পর্কে', icon: 'info-outline', screen: 'AboutApps' },
-  { title: 'আয় করুন', icon: 'monetization-on', screen: 'AdEarn' },
-  { title: 'ডেভেলপার সম্পর্কে', icon: 'person-outline', screen: 'AboutDeveloper' },
+  { title: 'কয়েন দাবি করুন', icon: 'monetization-on', screen: 'Claim', tab: 'Home' },
+  { title: 'বুকমার্ক', icon: 'bookmark', screen: 'Bookmarks' },
+  { title: 'অ্যাপ সম্পর্কে', icon: 'info-outline', screen: 'AboutApps', tab: 'Home' },
+  { title: 'কয়েন সংগ্রহ করুন', icon: 'monetization-on', screen: 'AdEarn', tab: 'Home' },
+  { title: 'আজকের কয়েন সংগ্রহ করুন', icon: 'today', screen: 'DailyCoin', tab: 'Home' },
+  { title: 'ডেভেলপার সম্পর্কে', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
   { title: 'অ্যাপ শেয়ার করুন', icon: 'share', action: 'share' },
   { title: 'অ্যাপ রেটিং দিন', icon: 'star-border', action: 'rate' },
-  { title: 'মতামত দিন', icon: 'feedback', screen: 'Feedback' },
-  { title: 'প্রাইভেসি পলিসি', icon: 'lock-outline', screen: 'Privacy' },
+  { title: 'মতামত দিন', icon: 'feedback', screen: 'Feedback', tab: 'Home' },
+  { title: 'প্রাইভেসি পলিসি', icon: 'lock-outline', screen: 'Privacy', tab: 'Home' },
   { title: 'আরো অ্যাপ', icon: 'apps', action: 'moreApps' },
-  { title: 'সেটিংস', icon: 'settings', screen: 'SettingInfo' },
+  { title: 'সেটিংস', icon: 'settings', screen: 'SettingInfo', tab: 'Home' },
 ];
 
 export default function DrawerMenuScreen({ navigation }) {
-  const nav = useNavigation();
   const [user, setUser] = useState(null);
   const { colors } = useTheme();
   const s = styles(colors);
@@ -30,7 +32,10 @@ export default function DrawerMenuScreen({ navigation }) {
   const handlePress = async (item) => {
     if (item.screen) {
       navigation.closeDrawer();
-      nav.navigate('Home', { screen: item.screen });
+      const params = item.tab
+        ? { screen: item.tab, params: { screen: item.screen } }
+        : { screen: item.screen };
+      navigation.navigate('Home', params);
     } else if (item.action === 'share') {
       await Share.share({ message: 'নবীদের গল্প অ্যাপটি ডাউনলোড করুন: https://play.google.com/store/apps/details?id=com.prophet' });
     } else if (item.action === 'rate') {
@@ -66,7 +71,7 @@ export default function DrawerMenuScreen({ navigation }) {
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={s.menuItem} onPress={user ? handleLogout : () => nav.navigate('Profile')}>
+        <TouchableOpacity style={s.menuItem} onPress={user ? handleLogout : () => navigation.navigate('Home', { screen: 'Profile' })}>
           <MaterialIcons name={user ? 'logout' : 'login'} size={20} color={user ? colors.danger : colors.text} />
           <Text style={[s.menuText, { color: user ? colors.danger : colors.text }]}>
             {user ? 'লগআউট' : 'লগইন / নিবন্ধন'}

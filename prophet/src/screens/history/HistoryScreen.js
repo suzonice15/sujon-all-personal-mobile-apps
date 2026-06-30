@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const historyOptions = [
+  
   {
     id: 'coin', title: 'কয়েন হিস্টোরি',
     subtitle: 'আপনার অর্জিত কয়েনের বিস্তারিত দেখুন',
@@ -18,6 +19,11 @@ const historyOptions = [
     id: 'withdraw', title: 'উইথড্র হিস্টোরি',
     subtitle: 'আপনার উত্তোলনের সব রেকর্ড',
     icon: 'account-balance-wallet', color: '#4F46E5', screen: 'WithdrawHistory',
+  },
+  {
+    id: 'order', title: 'অর্ডার হিস্টোরি',
+    subtitle: 'আপনার অর্ডারের বর্তমান অবস্থা দেখুন',
+    icon: 'inventory-2', color: '#EF4444', screen: 'OrderHistory',
   },
 ];
 
@@ -57,7 +63,7 @@ const BalanceItem = ({ icon, iconColor, label, value, onPress, isVisible, mutedC
 export default function HistoryScreen({ navigation }) {
   const { colors } = useTheme();
   const s = dynStyles(colors);
-  const [visible, setVisible] = React.useState({ coin: false, point: false, withdraw: false });
+  const [visible, setVisible] = useState({ coin: false, point: false, withdraw: false });
   const timers = useRef({});
 
   const toggleVisibility = (key) => {
@@ -163,20 +169,17 @@ const dynStyles = (colors) => StyleSheet.create({
   balanceDivider: { height: 1, backgroundColor: colors.muted + '30', marginBottom: 14 },
   balanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
   balanceDot: { width: 4, height: 4, borderRadius: 2 },
-  sectionTitle: {
-    fontSize: 16, fontWeight: '700', color: colors.text,
-    marginHorizontal: 20, marginTop: 24, marginBottom: 12,
-  },
   optionCard: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: colors.surface, marginHorizontal: 16,
     marginBottom: 12, borderRadius: 16, padding: 16,
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08, shadowRadius: 8,
   },
   iconBox: {
     width: 52, height: 52, borderRadius: 14,
     justifyContent: 'center', alignItems: 'center',
+    elevation:0,
   },
   optionTextContainer: { flex: 1, marginLeft: 14 },
   optionTitle: { fontSize: 16, fontWeight: '700', color: colors.text },

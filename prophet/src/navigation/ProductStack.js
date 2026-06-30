@@ -8,6 +8,7 @@ import ProductDetailScreen from '../screens/product/ProductDetailScreen';
 import KinaKataScreen from '../screens/product/KinaKataScreen';
 import CartScreen from '../screens/product/CartScreen';
 import CheckoutScreen from '../screens/product/CheckoutScreen';
+import OrderSuccessScreen from '../screens/product/OrderSuccessScreen';
 import { useCart } from '../context/CartContext';
 import { getHeaderOptions } from './headerOptions';
 
@@ -44,11 +45,33 @@ export default function ProductStack() {
 
   return (
     <Stack.Navigator screenOptions={baseOpts}>
-      <Stack.Screen name="ProductList" component={ProductListScreen} options={({ navigation }) => ({ title: 'প্রোডাক্ট', ...cartHeader(colors, navigation) })} />
-      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'প্রোডাক্ট ডিটেইল', headerShown: false }} />
+      <Stack.Screen name="ProductList" component={ProductListScreen} options={({ navigation: nav }) => {
+        const menuOpts = getHeaderOptions(colors, { showMenu: true, navigation: nav });
+        return {
+          title: 'প্রোডাক্ট',
+          ...menuOpts,
+          headerRight: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <CartIcon navigation={nav} colors={colors} />
+              {menuOpts.headerRight ? menuOpts.headerRight({}) : null}
+            </View>
+          ),
+        };
+      }} />
+      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={({ route, navigation: nav }) => ({
+        title: route.params?.product?.title || 'প্রোডাক্ট ডিটেইল',
+        headerShown: true,
+        headerRight: () => (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <CartIcon navigation={nav} colors={colors} />
+            {baseOpts.headerRight ? baseOpts.headerRight({}) : null}
+          </View>
+        ),
+      })} />
       <Stack.Screen name="KinaKata" component={KinaKataScreen} options={({ navigation }) => ({ title: 'কিনা কাটা করুণ', ...cartHeader(colors, navigation) })} />
       <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'কার্ট' }} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'চেকআউট' }} />
+      <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ title: 'অর্ডার সফল', headerShown: false, headerLeft: () => null }} />
     </Stack.Navigator>
   );
 }

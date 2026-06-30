@@ -87,9 +87,9 @@ export default function CheckoutScreen({ navigation }) {
       Alert.alert('তথ্য দিন', 'অনুগ্রহ করে আপনার নাম, ফোন ও ঠিকানা দিন');
       return;
     }
-    Alert.alert('অর্ডার সফল', `আপনার অর্ডার গৃহীত হয়েছে!\n\nপ্রোডাক্ট: ${items.length}টি\nমোট: ৳${total}\nপেমেন্ট: ${paymentMethods.find((p) => p.id === payment)?.label}\nঠিকানা: ${address}`, [
-      { text: 'ঠিক আছে', onPress: () => { clearCart(); navigation.popToTop(); } },
-    ]);
+    const payLabel = paymentMethods.find((p) => p.id === payment)?.label;
+    clearCart();
+    navigation.replace('OrderSuccess', { total, count: items.length, payment: payLabel, address });
   };
 
   return (

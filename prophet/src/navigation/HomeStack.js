@@ -13,6 +13,8 @@ import AboutDeveloperScreen from '../screens/settings/AboutDeveloperScreen';
 import PrivacyScreen from '../screens/settings/PrivacyScreen';
 import FeedbackScreen from '../screens/settings/FeedbackScreen';
 import AdEarnScreen from '../screens/income/AdEarnScreen';
+import DailyCoinScreen from '../screens/income/DailyCoinScreen';
+import ClaimScreen from '../screens/income/ClaimScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
@@ -33,6 +35,8 @@ export default function HomeStack() {
       <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'মতামত দিন' }} />
       <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'সেটিংস' }} />
       <Stack.Screen name="AdEarn" component={AdEarnScreen} options={{ title: 'আয় করুন' }} />
+      <Stack.Screen name="DailyCoin" component={DailyCoinScreen} options={{ title: 'দৈনিক কয়েন' }} />
+      <Stack.Screen name="Claim" component={ClaimScreen} options={{ title: 'কয়েন দাবি করুন' }} />
     </Stack.Navigator>
   );
 }

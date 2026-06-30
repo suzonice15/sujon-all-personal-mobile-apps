@@ -17,6 +17,18 @@ const migrations = [
       ALTER TABLE earning_history_new RENAME TO earning_history;
     `,
   },
+  {
+    name: 'add_phone_address_to_users',
+    sql: `
+      ALTER TABLE users ADD COLUMN phone TEXT DEFAULT '';
+    `,
+  },
+  {
+    name: 'add_address_to_users',
+    sql: `
+      ALTER TABLE users ADD COLUMN address TEXT DEFAULT '';
+    `,
+  },
 ];
 
 export const runMigrations = async () => {

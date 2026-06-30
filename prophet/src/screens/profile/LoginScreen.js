@@ -17,7 +17,7 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     const res = await loginUser(email.trim(), password);
     setLoading(false);
-    if (res.success) { navigation.replace('ProfileView', { user: res.user }); }
+    if (res.success) { navigation.replace('Dashboard'); }
     else { ToastAndroid.show(res.message, ToastAndroid.SHORT); }
   };
 

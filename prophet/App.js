@@ -7,8 +7,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useEffect } from 'react';
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import { PointsProvider, usePoints } from './src/context/PointsContext';
+import { CoinsProvider } from './src/context/CoinsContext';
 import { CartProvider } from './src/context/CartContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { NotificationsProvider, useNotifications } from './src/context/NotificationsContext';
 import { claimDailyBonus } from './src/db/earnings';
 import { initDB } from './src/db/db';
 import { runMigrations } from './src/db/migrations';
@@ -17,6 +19,7 @@ import { seedDB } from './src/db/seed';
 function AppInner() {
   const { isDark } = useTheme();
   const { refreshPoints } = usePoints();
+  const { refresh: refreshNotifs } = useNotifications();
 
   useEffect(() => {
     const syncData = async () => {
@@ -26,6 +29,7 @@ function AppInner() {
       const bonus = await claimDailyBonus();
       if (bonus.added) ToastAndroid.show('🎁 দৈনিক বোনাস ১০০ পয়েন্ট পেয়েছেন!', ToastAndroid.LONG);
       await refreshPoints();
+      await refreshNotifs();
     };
     syncData();
   }, []);
@@ -44,11 +48,15 @@ function AppInner() {
 function App() {
   return (
     <PointsProvider>
-      <CartProvider>
-        <ThemeProvider>
-          <AppInner />
-        </ThemeProvider>
-      </CartProvider>
+      <CoinsProvider>
+        <CartProvider>
+          <NotificationsProvider>
+            <ThemeProvider>
+              <AppInner />
+            </ThemeProvider>
+          </NotificationsProvider>
+        </CartProvider>
+      </CoinsProvider>
     </PointsProvider>
   );
 }

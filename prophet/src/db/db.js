@@ -112,5 +112,35 @@ export const initDB = async () => {
   `);
 
 
+  await db.executeSql(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      body TEXT,
+      type TEXT DEFAULT 'general',
+      is_read INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
+  await db.executeSql(`
+    CREATE TABLE IF NOT EXISTS coin_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      amount INTEGER NOT NULL,
+      reason TEXT,
+      earned_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
+  await db.executeSql(`
+    CREATE TABLE IF NOT EXISTS pending_claims (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      content_id INTEGER NOT NULL,
+      content_title TEXT,
+      amount INTEGER NOT NULL DEFAULT 10,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
   console.log('DB initialized');
 };

@@ -7,6 +7,8 @@ import { updateUser } from '../../db/auth';
 export default function EditProfileScreen({ navigation, route }) {
   const { user } = route.params;
   const [name, setName] = useState(user.name);
+  const [phone, setPhone] = useState(user.phone || '');
+  const [address, setAddress] = useState(user.address || '');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -19,7 +21,7 @@ export default function EditProfileScreen({ navigation, route }) {
     if (newPassword && newPassword.length < 6) { ToastAndroid.show('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে', ToastAndroid.SHORT); return; }
     if (newPassword && newPassword !== confirmPassword) { ToastAndroid.show('পাসওয়ার্ড মিলছে না', ToastAndroid.SHORT); return; }
     setLoading(true);
-    await updateUser(user.id, name.trim(), newPassword || null);
+    await updateUser(user.id, name.trim(), newPassword || null, phone.trim(), address.trim());
     setLoading(false);
     ToastAndroid.show('প্রোফাইল আপডেট হয়েছে', ToastAndroid.SHORT);
     navigation.goBack();
@@ -37,6 +39,12 @@ export default function EditProfileScreen({ navigation, route }) {
 
         <Text style={s.label}>ইমেইল</Text>
         <TextInput style={[s.input, s.inputDisabled]} value={user.email} editable={false} />
+
+        <Text style={s.label}>ফোন নম্বর</Text>
+        <TextInput style={s.input} value={phone} onChangeText={setPhone} placeholder="ফোন নম্বর" placeholderTextColor={colors.onSurface + '66'} keyboardType="phone-pad" />
+
+        <Text style={s.label}>ঠিকানা</Text>
+        <TextInput style={s.input} value={address} onChangeText={setAddress} placeholder="ঠিকানা" placeholderTextColor={colors.onSurface + '66'} multiline />
 
         <Text style={s.label}>নতুন পাসওয়ার্ড (ঐচ্ছিক)</Text>
         <View style={s.passRow}>

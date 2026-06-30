@@ -4,8 +4,8 @@ import { WebView } from 'react-native-webview';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getContentFolderIds } from '../../db/bookmarks';
 import BookmarkModal from '../../components/BookmarkModal';
-import { addEarning } from '../../db/earnings';
-import { usePoints } from '../../context/PointsContext';
+import { addPendingClaim } from '../../db/claims';
+import { useCoins } from '../../context/CoinsContext';
 import { useTheme as usePaperTheme } from 'react-native-paper';
 
 const htmlTemplate = (content, fontSize, background, text) => `
@@ -46,8 +46,8 @@ export default function StoryDetail({ navigation, route }) {
   const [fontSize, setFontSize] = useState(17);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [pointProcessed, setPointProcessed] = useState(false);
-  const { refreshPoints } = usePoints();
+  const [claimProcessed, setClaimProcessed] = useState(false);
+  const { refreshCoins } = useCoins();
   const { colors, dark } = usePaperTheme();
 
   useEffect(() => { checkBookmark(); }, []);
@@ -62,17 +62,16 @@ export default function StoryDetail({ navigation, route }) {
   }, [navigation, headerTitle]);
 
   const handleReadComplete = async () => {
-    if (pointProcessed) return;
-    setPointProcessed(true);
+    if (claimProcessed) return;
+    setClaimProcessed(true);
 
     const online = await isOnline();
     if (!online) return;
 
-    // প্রতিবার story খুললে point পাবে — same session-এ double fire ঠেকাতে pointProcessed check
-    const result = await addEarning(item.id, item.title, 2);
-    if (result.added) {
-      await refreshPoints();
-      ToastAndroid.show(`🎉 ${result.points} পয়েন্ট অর্জন হয়েছে!`, ToastAndroid.SHORT);
+    const added = await addPendingClaim(item.id, item.title, 10);
+    if (added) {
+      await refreshCoins();
+      ToastAndroid.show('📖 গল্প পড়ার ১০ কয়েন দাবি করুন!', ToastAndroid.SHORT);
     }
   };
 
