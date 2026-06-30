@@ -1,1 +1,12 @@
 node_modules
+
+# Android build artifacts
+android/.gradle/
+android/app/.cxx/
+android/app/build/
+android/app/release/
+android/build/
+android/.kotlin/
+*.bin
+*.lock
+*.probe

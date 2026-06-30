@@ -7,6 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useEffect } from 'react';
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import { PointsProvider, usePoints } from './src/context/PointsContext';
+import { CartProvider } from './src/context/CartContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { claimDailyBonus } from './src/db/earnings';
 import { initDB } from './src/db/db';
@@ -43,9 +44,11 @@ function AppInner() {
 function App() {
   return (
     <PointsProvider>
-      <ThemeProvider>
-        <AppInner />
-      </ThemeProvider>
+      <CartProvider>
+        <ThemeProvider>
+          <AppInner />
+        </ThemeProvider>
+      </CartProvider>
     </PointsProvider>
   );
 }

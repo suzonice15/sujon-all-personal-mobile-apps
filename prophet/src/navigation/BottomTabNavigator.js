@@ -1,5 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import HomeStack from './HomeStack';
 import IncomeStack from './IncomeStack';
@@ -29,6 +30,7 @@ export default function BottomTabNavigator() {
             Income: 'star',
             Quize: 'quiz',
             History: 'history',
+            Product: 'store',
             Profile: 'person',
           };
           return <MaterialIcons name={icons[route.name] || 'home'} size={24} color={color} />;
@@ -40,9 +42,17 @@ export default function BottomTabNavigator() {
       {/* <Tab.Screen name="Settings" component={SettingsStack} options={{ tabBarLabel: 'সেটিংস' }} /> */}
            <Tab.Screen name="Quize" component={QuizeStack} options={{ tabBarLabel: 'কুইজ' }} />
       <Tab.Screen name="History" component={HistoryStack} options={{ tabBarLabel: 'হিস্টোরি' }} />
-      <Tab.Screen name="Income" component={IncomeStack} options={{ tabBarLabel: 'পয়েন্ট' }} />
+      {/* <Tab.Screen name="Income" component={IncomeStack} options={{ tabBarLabel: 'পয়েন্ট' }} /> */}
       <Tab.Screen name="Profile" component={ProfileStack} options={{ tabBarLabel: 'প্রোফাইল' }} />
       <Tab.Screen name="Bookmarks" component={BookmarkStack} options={{ tabBarLabel: 'বুকমার্ক' }} />
+      <Tab.Screen name="Product" component={ProductStack} options={({ route }) => {
+        const routeName = getFocusedRouteNameFromRoute(route);
+        const hideOn = ['ProductDetail', 'Cart', 'Checkout', 'KinaKata'];
+        if (routeName && hideOn.includes(routeName)) {
+          return { tabBarLabel: 'কিনা কাটা', tabBarStyle: { display: 'none' } };
+        }
+        return { tabBarLabel: 'কিনা কাটা' };
+      }} />
 
     </Tab.Navigator>
   );

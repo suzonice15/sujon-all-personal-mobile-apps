@@ -15,8 +15,7 @@ const ThemeToggleButton = ({ color }) => {
 
 export const getHeaderOptions = (colors, { showMenu, navigation, titleFontSize = 17, iconSize = 25 } = {}) => ({
   headerStyle: {
-    backgroundColor: colors.headerBackground,
-    
+    backgroundColor: colors.headerBackground,    
     shadowOpacity: 0,               // আইওএস-এর জন্য শ্যডো সরানো
   },
   headerTintColor: colors.headerColor,
