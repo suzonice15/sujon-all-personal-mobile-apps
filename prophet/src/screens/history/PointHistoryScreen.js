@@ -4,14 +4,15 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getEarnings } from '../../db/earnings';
-import { usePoints } from '../../context/PointsContext';
 import { getSingleContent } from '../../db/mobileContents';
+import { toBn } from '../../utils/helper';
 
 const filters = [
   { key: 'today', label: 'আজকের' },
   { key: 'yesterday', label: 'গতকালের' },
   { key: '7days', label: 'গত ৭ দিনের' },
   { key: '30days', label: 'গত ৩০ দিনের' },
+  { key: 'lastMonth', label: 'গত মাসের' },
   { key: 'all', label: 'সর্বমোট' },
 ];
 
@@ -31,6 +32,11 @@ const getFilteredData = (data, filterKey) => {
       case 'yesterday': return itemDate >= startOfYesterday && itemDate < startOfToday;
       case '7days': return itemDate >= startOf7Days;
       case '30days': return itemDate >= startOf30Days;
+      case 'lastMonth': {
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        return itemDate >= startOfLastMonth && itemDate < startOfThisMonth;
+      }
       default: return true;
     }
   });
@@ -40,9 +46,23 @@ const getFilteredTotal = (data, filterKey) => {
   return getFilteredData(data, filterKey).reduce((sum, item) => sum + (item.points || 0), 0);
 };
 
+const MONTHS = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+
+const formatBnDateTime = (dateStr) => {
+  const d = new Date(dateStr.replace(' ', 'T') + 'Z');
+  const day = toBn(d.getDate());
+  const month = MONTHS[d.getMonth()];
+  const year = toBn(d.getFullYear());
+  const h = d.getHours();
+  const ampm = h >= 12 ? 'পিএম' : 'এএম';
+  const h12 = h % 12 || 12;
+  const hours = toBn(h12);
+  const mins = toBn(d.getMinutes().toString().padStart(2, '0'));
+  return `${day} ${month} ${year}, ${hours}:${mins} ${ampm}`;
+};
+
 export default function PointHistoryScreen({ navigation }) {
   const [history, setHistory] = useState([]);
-  const { total } = usePoints();
   const { colors } = useTheme();
   const s = styles(colors);
   const [selectedFilter, setSelectedFilter] = useState('today');
@@ -70,10 +90,10 @@ export default function PointHistoryScreen({ navigation }) {
         </View>
         <View style={s.cardContent}>
           <Text style={s.cardTitle} numberOfLines={2}>{item.content_title}</Text>
-          <Text style={s.date}>{item.earned_at?.slice(0, 10)}</Text>
+          <Text style={s.date}>{formatBnDateTime(item.earned_at)}</Text>
         </View>
         <View style={[s.pointsBadge, { backgroundColor: '#22C55E20' }]}>
-          <Text style={s.points}>+{item.points}</Text>
+          <Text style={s.points}>+{toBn(item.points)}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -84,7 +104,7 @@ export default function PointHistoryScreen({ navigation }) {
       <View style={s.topRow}>
         <View style={s.totalBox}>
           <MaterialIcons name="star" size={22} color="#22C55E" />
-          <Text style={s.totalValue}>{filteredTotal}</Text>
+          <Text style={s.totalValue}>{toBn(filteredTotal)}</Text>
           <Text style={s.totalLabel}>পয়েন্ট</Text>
         </View>
 
@@ -119,7 +139,7 @@ export default function PointHistoryScreen({ navigation }) {
 
       {filteredData.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <MaterialIcons name="stars" size={48} color={colors.muted} />
+          <MaterialIcons name="stars" size={48} color={colors.muted || '#999'} />
           <Text style={s.emptyText}>এখনো কোনো পয়েন্ট অর্জিত হয়নি</Text>
         </View>
       ) : (
@@ -147,13 +167,13 @@ const styles = (colors) => StyleSheet.create({
     paddingVertical: 10, paddingHorizontal: 14, marginRight: 10,
     borderLeftWidth: 3, borderLeftColor: '#22C55E',
   },
-  totalLabel: { fontSize: 11, color: colors.muted, marginLeft: 4 },
+  totalLabel: { fontSize: 11, color: colors.muted || '#999', marginLeft: 4 },
   totalValue: { fontSize: 18, fontWeight: 'bold', color: '#22C55E' },
   filterWrap: { flex: 1, height: 36, justifyContent: 'center' },
   filterBtn: {
     paddingHorizontal: 10, paddingVertical: 4, borderRadius: 14,
     backgroundColor: colors.surface, marginRight: 5,
-    borderWidth: 1, borderColor: colors.muted + '40',
+    borderWidth: 1, borderColor: (colors.muted || '#999') + '40',
   },
   filterBtnActive: { backgroundColor: '#22C55E', borderColor: '#22C55E' },
   filterBtnText: { fontSize: 12, fontWeight: '500', color: colors.text },
@@ -171,10 +191,10 @@ const styles = (colors) => StyleSheet.create({
   },
   cardContent: { flex: 1, marginLeft: 12 },
   cardTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
-  date: { fontSize: 11, color: colors.muted, marginTop: 2 },
+  date: { fontSize: 11, color: colors.muted || '#999', marginTop: 2 },
   pointsBadge: {
     paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8,
   },
   points: { fontSize: 14, fontWeight: 'bold', color: '#22C55E' },
-  emptyText: { fontSize: 15, color: colors.muted, marginTop: 12, textAlign: 'center' },
+  emptyText: { fontSize: 15, color: colors.muted || '#999', marginTop: 12, textAlign: 'center' },
 });

@@ -4,19 +4,27 @@ import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { useCoins } from '../../context/CoinsContext';
-import { addCoins } from '../../db/coins';
+import { addCoins, getTodayClaimCount, getTodayClaimCoins } from '../../db/coins';
 import { getPendingClaims, getPendingCount, claimPending } from '../../db/claims';
-
-const COOLDOWN = 180;
+import { deleteNotificationByReference } from '../../db/notifications';
+import { useNotifications } from '../../context/NotificationsContext';
+import { max_claim_per_day } from '../../config/url';
+import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
+import { toBn } from '../../utils/helper';
 
 export default function ClaimScreen({ navigation }) {
-  const { total, refreshCoins } = useCoins();
+  const { refreshCoins } = useCoins();
   const [claims, setClaims] = useState([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [countdown, setCountdown] = useState(0);
   const [claimingId, setClaimingId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [todayClaimCount, setTodayClaimCount] = useState(0);
+  const [todayClaimCoins, setTodayClaimCoins] = useState(0);
+  const [totalPendingAmount, setTotalPendingAmount] = useState(0);
+  const [cooldownSec, setCooldownSec] = useState(180);
   const timerRef = useRef(null);
+  const { refresh: refreshNotifs } = useNotifications();
   const { colors } = useTheme();
   const s = styles(colors);
 
@@ -44,14 +52,30 @@ export default function ClaimScreen({ navigation }) {
 
   const load = async () => {
     setLoading(true);
-    setClaims(await getPendingClaims());
+    const pendingList = await getPendingClaims();
+    setClaims(pendingList);
     setPendingCount(await getPendingCount());
+    setTotalPendingAmount(pendingList.reduce((sum, c) => sum + c.amount, 0));
+    setTodayClaimCount(await getTodayClaimCount());
+    setTodayClaimCoins(await getTodayClaimCoins());
+    const sec = await getCooldown();
+    setCooldownSec(sec);
+    const lastClaim = await getLastClaimTime();
+    if (lastClaim > 0) {
+      const elapsed = Math.floor((Date.now() - lastClaim) / 1000);
+      const remaining = Math.max(0, sec - elapsed);
+      if (remaining > 0) setCountdown(remaining);
+    }
     refreshCoins();
     setLoading(false);
   };
 
   const handleClaim = async (id) => {
     if (claimingId || countdown > 0) return;
+    if (todayClaimCount >= max_claim_per_day) {
+      ToastAndroid.show(`আজকের দাবির সীমা শেষ! আগামীকাল আবার আসুন।`, ToastAndroid.SHORT);
+      return;
+    }
     setClaimingId(id);
     const claim = await claimPending(id);
     if (!claim) {
@@ -59,23 +83,30 @@ export default function ClaimScreen({ navigation }) {
       return;
     }
     await addCoins(claim.amount, claim.content_title);
+    await deleteNotificationByReference(claim.content_id);
+    await refreshNotifs();
+    setTodayClaimCount(prev => prev + 1);
+    setTodayClaimCoins(prev => prev + claim.amount);
+    setTotalPendingAmount(prev => prev - claim.amount);
     setClaims(prev => prev.filter(c => c.id !== id));
     setPendingCount(prev => prev - 1);
-    setCountdown(COOLDOWN);
+    await setLastClaimTime();
+    setCountdown(cooldownSec);
     refreshCoins();
     setClaimingId(null);
-    ToastAndroid.show(`🎉 ${claim.amount} কয়েন দাবি করেছেন!`, ToastAndroid.SHORT);
+    ToastAndroid.show(`🎉 ${toBn(claim.amount)} কয়েন দাবি করেছেন!`, ToastAndroid.SHORT);
   };
 
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
+    return `${toBn(m)}:${toBn(s.toString().padStart(2, '0'))}`;
   };
 
   const renderItem = ({ item }) => {
     const isClaiming = claimingId === item.id;
-    const disabled = countdown > 0 || isClaiming;
+    const limitReached = todayClaimCount >= max_claim_per_day;
+    const disabled = countdown > 0 || isClaiming || limitReached;
     return (
       <View style={s.claimRow}>
         <View style={[s.iconBox, { backgroundColor: '#22C55E15' }]}>
@@ -112,21 +143,41 @@ export default function ClaimScreen({ navigation }) {
       <View style={s.headerRow}>
         <View style={s.badge}>
           <MaterialIcons name="monetization-on" size={18} color="#F59E0B" />
-          <Text style={s.badgeText}>{total} কয়েন</Text>
+          <Text style={s.badgeText}>পেন্ডিং  {toBn(totalPendingAmount)} কয়েন</Text>
         </View>
         <View style={s.badge}>
           <MaterialIcons name="pending-actions" size={16} color="#6366F1" />
-          <Text style={s.badgeText}>বাকি {pendingCount}</Text>
+          <Text style={s.badgeText}>মোট {toBn(pendingCount)} রেকর্ড </Text>
         </View>
       </View>
 
-      {countdown > 0 && (
+      <View style={s.todayChipRow}>
+        <View style={[s.todayChip, { backgroundColor: '#22C55E' + '18' }]}>
+          <MaterialIcons name="monetization-on" size={16} color="#22C55E" />
+          <Text style={[s.todayChipLabel, { color: colors.text }]}>আজ দাবি করেছেন</Text>
+          <Text style={[s.todayChipValue, { color: '#22C55E' }]}>{toBn(todayClaimCoins)} কয়েন</Text>
+        </View>
+        <View style={[s.todayChip, { backgroundColor: '#6366F1' + '18' }]}>
+          <MaterialIcons name="pending-actions" size={16} color="#6366F1" />
+          <Text style={[s.todayChipLabel, { color: colors.text }]}>আজ দাবি করেছেন</Text>
+          <Text style={[s.todayChipValue, { color: '#6366F1' }]}>{toBn(todayClaimCount)}/{toBn(max_claim_per_day)}</Text>
+        </View>
+      </View>
+
+      
+
+      {todayClaimCount >= max_claim_per_day ? (
+        <View style={[s.limitBar, { backgroundColor: '#EF4444' }]}>
+          <MaterialIcons name="block" size={16} color="#fff" />
+          <Text style={{ flex: 1, fontSize: 13, color: '#fff', fontWeight: '600' }}>আজকের দাবির সীমা শেষ! আগামীকাল আসুন</Text>
+        </View>
+      ) : countdown > 0 ? (
         <View style={s.timerBar}>
           <MaterialIcons name="timer" size={16} color="#fff" />
           <Text style={s.timerText}>{formatTime(countdown)}</Text>
           <Text style={s.timerLabel}>পরবর্তী দাবির জন্য অপেক্ষা করুন</Text>
         </View>
-      )}
+      ) : null}
 
       {claims.length === 0 ? (
         <View style={s.emptyBox}>
@@ -165,6 +216,13 @@ const styles = (colors) => StyleSheet.create({
     backgroundColor: colors.surface, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
   },
   badgeText: { fontSize: 13, fontWeight: '600', color: colors.text },
+  todayChipRow: { flexDirection: 'row', gap: 8, marginHorizontal: 16, marginBottom: 6 },
+  todayChip: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingVertical: 8, paddingHorizontal: 10, borderRadius: 10,
+  },
+  todayChipLabel: { fontSize: 11, fontWeight: '500', opacity: 0.6 },
+  todayChipValue: { fontSize: 13, fontWeight: '800' },
   timerBar: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: '#F59E0B', marginHorizontal: 16, borderRadius: 12,
@@ -172,6 +230,12 @@ const styles = (colors) => StyleSheet.create({
   },
   timerText: { fontSize: 16, fontWeight: '700', color: '#fff', fontVariant: ['tabular-nums'] },
   timerLabel: { fontSize: 12, color: 'rgba(255,255,255,0.8)', flex: 1, textAlign: 'right' },
+  limitBar: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    marginHorizontal: 16, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 8,
+    borderRadius: 10, backgroundColor: colors.surface,
+  },
+  limitText: { fontSize: 12, fontWeight: '600' },
   list: { paddingHorizontal: 16, paddingBottom: 20 },
   claimRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,

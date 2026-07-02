@@ -1,7 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useCoins } from '../../context/CoinsContext';
+import { usePoints } from '../../context/PointsContext';
+import { getTotalWithdraw } from '../../db/withdraw';
+import { toBn } from '../../utils/helper';
 
 const historyOptions = [
   
@@ -62,9 +67,21 @@ const BalanceItem = ({ icon, iconColor, label, value, onPress, isVisible, mutedC
 
 export default function HistoryScreen({ navigation }) {
   const { colors } = useTheme();
+  const { total: totalCoins, refreshCoins } = useCoins();
+  const { total: totalPts, refreshPoints } = usePoints();
   const s = dynStyles(colors);
-  const [visible, setVisible] = useState({ coin: false, point: false, withdraw: false });
+  const [visible, setVisible] = useState({ coin: false, point: false, withdraw: false, income: false });
+  const [totalWithdraw, setTotalWithdraw] = useState(0);
   const timers = useRef({});
+
+  useFocusEffect(useCallback(() => {
+    const load = async () => {
+      await refreshCoins();
+      await refreshPoints();
+      setTotalWithdraw(await getTotalWithdraw());
+    };
+    load();
+  }, []));
 
   const toggleVisibility = (key) => {
     if (timers.current[key]) clearTimeout(timers.current[key]);
@@ -97,7 +114,7 @@ export default function HistoryScreen({ navigation }) {
           <View style={s.balanceRow}>
             <BalanceItem
               icon="monetization-on" iconColor="#F59E0B"
-              label="কয়েন দেখুন" value="১০০০"
+              label="কয়েন দেখুন" value={toBn(totalCoins)}
               isVisible={visible.coin}
               onPress={() => toggleVisibility('coin')}
               mutedColor={colors.muted}
@@ -105,7 +122,7 @@ export default function HistoryScreen({ navigation }) {
             <View style={[s.balanceDot, { backgroundColor: colors.muted }]} />
             <BalanceItem
               icon="star" iconColor="#22C55E"
-              label="পয়েন্ট দেখুন" value="৫০০"
+              label="পয়েন্ট দেখুন" value={toBn(totalPts)}
               isVisible={visible.point}
               onPress={() => toggleVisibility('point')}
               mutedColor={colors.muted}
@@ -113,9 +130,17 @@ export default function HistoryScreen({ navigation }) {
             <View style={[s.balanceDot, { backgroundColor: colors.muted }]} />
             <BalanceItem
               icon="account-balance-wallet" iconColor="#4F46E5"
-              label="উইথড্র দেখুন" value="০"
+              label="উইথড্র দেখুন" value={toBn(totalWithdraw)}
               isVisible={visible.withdraw}
               onPress={() => toggleVisibility('withdraw')}
+              mutedColor={colors.muted}
+            />
+            <View style={[s.balanceDot, { backgroundColor: colors.muted }]} />
+            <BalanceItem
+              icon="trending-up" iconColor="#6366F1"
+              label="সম্ভাব্য আয় দেখুন" value={`${toBn(Math.floor(totalCoins / 100))}৳`}
+              isVisible={visible.income}
+              onPress={() => toggleVisibility('income')}
               mutedColor={colors.muted}
             />
           </View>

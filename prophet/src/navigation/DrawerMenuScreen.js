@@ -6,11 +6,11 @@ import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../db/auth';
 
 const menu = [
-  { title: 'কয়েন দাবি করুন', icon: 'monetization-on', screen: 'Claim', tab: 'Home' },
+  { title: 'অর্জিত কয়েন গ্রহণ করুন', icon: 'card-giftcard', screen: 'Claim', tab: 'Home' },  
+  { title: 'বিজ্ঞাপন দেখে কয়েন সংগ্রহ করুন', icon: 'play-circle-outline', screen: 'AdEarn', tab: 'Home' },
+  { title: 'দৈনিক কয়েন সংগ্রহ করুন', icon: 'today', screen: 'DailyCoin', tab: 'Home' },
   { title: 'বুকমার্ক', icon: 'bookmark', screen: 'Bookmarks' },
   { title: 'অ্যাপ সম্পর্কে', icon: 'info-outline', screen: 'AboutApps', tab: 'Home' },
-  { title: 'কয়েন সংগ্রহ করুন', icon: 'monetization-on', screen: 'AdEarn', tab: 'Home' },
-  { title: 'আজকের কয়েন সংগ্রহ করুন', icon: 'today', screen: 'DailyCoin', tab: 'Home' },
   { title: 'ডেভেলপার সম্পর্কে', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
   { title: 'অ্যাপ শেয়ার করুন', icon: 'share', action: 'share' },
   { title: 'অ্যাপ রেটিং দিন', icon: 'star-border', action: 'rate' },

@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, useRef } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
@@ -9,6 +9,9 @@ import { useCoins } from '../../context/CoinsContext';
 import { getTodayEarnings, getStoriesReadCount } from '../../db/earnings';
 import { getTodayCoins } from '../../db/coins';
 import { getPendingCount } from '../../db/claims';
+import { getPendingBoxesCount } from '../../db/adBoxes';
+import { getTotalWithdraw } from '../../db/withdraw';
+import { toBn } from '../../utils/helper';
 
 const quickActions = [
   { icon: 'menu-book', label: 'গল্প', color: '#6366F1', tab: 'Home' },
@@ -17,7 +20,7 @@ const quickActions = [
   { icon: 'monetization-on', label: 'আয়', color: '#F59E0B', screen: 'AdEarn', tab: 'Home' },
   { icon: 'monetization-on', label: 'কয়েন', color: '#F59E0B', screen: 'DailyCoin', tab: 'Home' },
   { icon: 'star', label: 'পয়েন্ট', color: '#22C55E', screen: 'PointHistory', tab: 'History' },
-  { icon: 'shopping-bag', label: 'কিনা কাটা', color: '#EC4899', screen: 'KinaKata', tab: 'Product' },
+  { icon: 'shopping-bag', label: 'কিনা কাটা', color: '#EC4899', screen: 'ProductList', tab: 'ProductList' },
 ];
 
 export default function DashboardScreen({ navigation }) {
@@ -29,8 +32,58 @@ export default function DashboardScreen({ navigation }) {
   const [storiesRead, setStoriesRead] = useState(0);
   const [todayCoins, setTodayCoins] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
-  const { total: totalPts } = usePoints();
-  const { total: totalCoins } = useCoins();
+  const [pendingBoxes, setPendingBoxes] = useState(0);
+  const [totalWithdraw, setTotalWithdraw] = useState(0);
+  const [visible, setVisible] = useState({ coin: false, point: false, income: false, withdraw: false });
+  const timers = useRef({});
+
+  const toggleVisibility = (key) => {
+    if (timers.current[key]) clearTimeout(timers.current[key]);
+    setVisible((prev) => {
+      const newVal = !prev[key];
+      if (newVal) {
+        timers.current[key] = setTimeout(() => {
+          setVisible((p) => ({ ...p, [key]: false }));
+        }, 30000);
+      }
+      return { ...prev, [key]: newVal };
+    });
+  };
+
+  const BalanceItem = ({ icon, iconColor, label, value, onPress, isVisible, mutedColor }) => {
+    const animVal = useRef(new Animated.Value(0)).current;
+
+    React.useEffect(() => {
+      Animated.timing(animVal, {
+        toValue: isVisible ? 1 : 0, duration: 250, useNativeDriver: true,
+      }).start();
+    }, [isVisible]);
+
+    const labelOpacity = animVal.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 1, 0] });
+    const amountOpacity = animVal.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0, 1] });
+    const labelTranslate = animVal.interpolate({ inputRange: [0, 1], outputRange: [0, -20] });
+    const amountTranslate = animVal.interpolate({ inputRange: [0, 1], outputRange: [20, 0] });
+
+    return (
+      <View style={s.balanceItem}>
+        <MaterialIcons name={icon} size={20} color={iconColor} />
+        <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={s.toggleArea}>
+          <Animated.Text
+            style={[s.labelText, { color: mutedColor, opacity: labelOpacity, transform: [{ translateX: labelTranslate }] }]}
+          >
+            {label}
+          </Animated.Text>
+          <Animated.Text
+            style={[s.amountText, { color: iconColor, opacity: amountOpacity, transform: [{ translateX: amountTranslate }], position: 'absolute' }]}
+          >
+            {value}
+          </Animated.Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+  const { total: totalPts, refreshPoints } = usePoints();
+  const { total: totalCoins, refreshCoins } = useCoins();
 
   useFocusEffect(useCallback(() => {
     setChecking(true);
@@ -41,10 +94,14 @@ export default function DashboardScreen({ navigation }) {
     const u = await getLoggedInUser();
     if (!u) { navigation.navigate('Login'); return; }
     setUser(u);
+    await refreshCoins();
+    await refreshPoints();
     setTodayPts(await getTodayEarnings());
     setTodayCoins(await getTodayCoins());
     setStoriesRead(await getStoriesReadCount());
     setPendingCount(await getPendingCount());
+    setPendingBoxes(await getPendingBoxesCount());
+    setTotalWithdraw(await getTotalWithdraw());
     setChecking(false);
   };
 
@@ -86,49 +143,91 @@ export default function DashboardScreen({ navigation }) {
             <Text style={s.balanceHeaderText}>মোট ব্যালেন্স</Text>
           </View>
           <View style={s.balanceRow}>
-            <View style={s.balanceItem}>
-              <Text style={s.balanceValue}>{totalCoins}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <MaterialIcons name="monetization-on" size={12} color="#F59E0B" />
-                <Text style={s.balanceLabel}>কয়েন</Text>
-              </View>
-            </View>
-            <View style={s.balanceVr} />
-            <View style={s.balanceItem}>
-              <Text style={s.balanceValue}>{totalPts}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <MaterialIcons name="stars" size={12} color="#6366F1" />
-                <Text style={s.balanceLabel}>পয়েন্ট</Text>
-              </View>
-            </View>
+            <BalanceItem
+              icon="monetization-on" iconColor="#F59E0B"
+              label="কয়েন দেখুন" value={toBn(totalCoins)}
+              isVisible={visible.coin}
+              onPress={() => toggleVisibility('coin')}
+              mutedColor={colors.muted || '#9CA3AF'}
+            />
+            <View style={[s.balanceVr, { backgroundColor: colors.muted || '#E5E7EB' }]} />
+            <BalanceItem
+              icon="star" iconColor="#22C55E"
+              label="পয়েন্ট দেখুন" value={toBn(totalPts)}
+              isVisible={visible.point}
+              onPress={() => toggleVisibility('point')}
+              mutedColor={colors.muted || '#9CA3AF'}
+            />
+            <View style={[s.balanceVr, { backgroundColor: colors.muted || '#E5E7EB' }]} />
+            <BalanceItem
+              icon="account-balance-wallet" iconColor="#EF4444"
+              label="উইথড্র দেখুন" value={toBn(totalWithdraw)}
+              isVisible={visible.withdraw}
+              onPress={() => toggleVisibility('withdraw')}
+              mutedColor={colors.muted || '#9CA3AF'}
+            />
+            <View style={[s.balanceVr, { backgroundColor: colors.muted || '#E5E7EB' }]} />
+            <BalanceItem
+              icon="trending-up" iconColor="#6366F1"
+              label="সম্ভাব্য আয় দেখুন" value={`${toBn(Math.floor(totalCoins / 100))}৳`}
+              isVisible={visible.income}
+              onPress={() => toggleVisibility('income')}
+              mutedColor={colors.muted || '#9CA3AF'}
+            />
           </View>
         </View>
 
         <View style={s.grid}>
           <View style={[s.gridCard, { backgroundColor: '#D1FAE5' }]}>
             <View style={s.gridTop}>
-              <Text style={[s.gridValue, { color: '#22C55E' }]}>{todayCoins}</Text>
+              <Text style={[s.gridValue, { color: '#22C55E' }]}>{toBn(todayCoins)}</Text>
               <MaterialIcons name="today" size={18} color="#22C55E" />
             </View>
             <Text style={s.gridLabel}>আজকের কয়েন</Text>
           </View>
           <View style={[s.gridCard, { backgroundColor: '#EDE9FE' }]}>
             <View style={s.gridTop}>
-              <Text style={[s.gridValue, { color: '#8B5CF6' }]}>{todayPts}</Text>
+              <Text style={[s.gridValue, { color: '#8B5CF6' }]}>{toBn(todayPts)}</Text>
               <MaterialIcons name="trending-up" size={18} color="#8B5CF6" />
             </View>
             <Text style={s.gridLabel}>আজকের পয়েন্ট</Text>
           </View>
           <View style={[s.gridCard, { backgroundColor: '#FEF3C7' }]}>
             <View style={s.gridTop}>
-              <Text style={[s.gridValue, { color: '#F59E0B' }]}>{storiesRead}</Text>
+              <Text style={[s.gridValue, { color: '#F59E0B' }]}>{toBn(storiesRead)}</Text>
               <MaterialIcons name="menu-book" size={18} color="#F59E0B" />
             </View>
             <Text style={s.gridLabel}>গল্প পড়েছেন</Text>
           </View>
         </View>
 
+     
+
         <View style={s.menuSection}>
+          <Text style={s.menuTitle}>কয়েন সংগ্রহ</Text>
+          <View style={s.coinMenu}>
+            {[
+              { title: 'অর্জিত কয়েন গ্রহণ করুন', icon: 'card-giftcard', screen: 'Claim', tab: 'Home', badge: pendingCount },
+              { title: 'বিজ্ঞাপন দেখে কয়েন সংগ্রহ করুন', icon: 'play-circle-outline', screen: 'AdEarn', tab: 'Home', badge: pendingBoxes },
+              { title: 'দৈনিক কয়েন সংগ্রহ করুন', icon: 'today', screen: 'DailyCoin', tab: 'Home' },
+            ].map((item, i) => (
+              <TouchableOpacity key={i} style={s.coinCard} onPress={() => navigation.navigate(item.tab, { screen: item.screen })} activeOpacity={0.7}>
+                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F59E0B15', justifyContent: 'center', alignItems: 'center' }}>
+                  <MaterialIcons name={item.icon} size={20} color="#F59E0B" />
+                </View>
+                <Text style={s.coinCardTitle}>{item.title}</Text>
+                {item.badge > 0 && (
+                  <View style={s.badge}>
+                    <Text style={s.badgeText}>{toBn(item.badge)}</Text>
+                  </View>
+                )}
+                <MaterialIcons name="chevron-right" size={18} color="#9CA3AF" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+           <View style={s.menuSection}>
           <Text style={s.menuTitle}>দ্রুত লিংক</Text>
           <View style={s.menuGrid}>
             {quickActions.map((item, i) => (
@@ -141,21 +240,6 @@ export default function DashboardScreen({ navigation }) {
             ))}
           </View>
         </View>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Home', { screen: 'Claim' })}
-          style={{ marginHorizontal: 16, marginTop: 24, backgroundColor: '#fff', borderRadius: 16, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 10, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6 }}>
-          <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: '#F59E0B15', justifyContent: 'center', alignItems: 'center' }}>
-            <MaterialIcons name="monetization-on" size={22} color="#F59E0B" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#1F2937' }}>কয়েন দাবি করুন</Text>
-            <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 1 }}>
-              {pendingCount > 0 ? `${pendingCount}টি দাবি বাকি` : 'গল্প পড়ে কয়েন সংগ্রহ করুন'}
-            </Text>
-          </View>
-          <MaterialIcons name="chevron-right" size={20} color="#9CA3AF" />
-        </TouchableOpacity>
 
         {!user ? (
           <View style={s.guestBox}>
@@ -208,10 +292,14 @@ const styles = (colors) => StyleSheet.create({
   balanceHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
   balanceHeaderText: { fontSize: 12, color: '#6B7280', fontWeight: '600' },
   balanceRow: { flexDirection: 'row', alignItems: 'center' },
-  balanceItem: { flex: 1, alignItems: 'center', gap: 4 },
+  balanceItem: { alignItems: 'center', flex: 1 },
+  toggleArea: { marginTop: 6, minHeight: 22, justifyContent: 'center', alignItems: 'center' },
+  amountText: { fontSize: 16, fontWeight: 'bold' },
+  labelText: { fontSize: 12, fontWeight: '500' },
   balanceValue: { fontSize: 22, fontWeight: 'bold', color: '#1F2937' },
   balanceLabel: { fontSize: 11, color: '#9CA3AF', fontWeight: '500' },
-  balanceVr: { width: 1, height: 36, backgroundColor: '#F0F0F0' },
+  balanceVr: { width: 1, height: 36 },
+  balanceDivider: { height: 1, marginVertical: 12, opacity: 0.3 },
   grid: {
     flexDirection: 'row', flexWrap: 'wrap',
     paddingHorizontal: 8, marginTop: 10, gap: 6,
@@ -224,6 +312,20 @@ const styles = (colors) => StyleSheet.create({
   gridLabel: { fontSize: 9, color: '#6B7280', fontWeight: '500' },
   menuSection: { marginTop: 16, paddingHorizontal: 8 },
   menuTitle: { fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 12 },
+  coinMenu: { gap: 6 },
+  coinCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#fff', borderRadius: 12, padding: 12,
+    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03, shadowRadius: 3,
+  },
+  coinCardTitle: { flex: 1, fontSize: 13, color: '#374151', fontWeight: '500' },
+  badge: {
+    minWidth: 20, height: 20, borderRadius: 10,
+    backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center',
+    paddingHorizontal: 6,
+  },
+  badgeText: { fontSize: 10, fontWeight: '700', color: '#fff' },
   menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   menuCard: {
     width: '23%', backgroundColor: '#fff', borderRadius: 12,

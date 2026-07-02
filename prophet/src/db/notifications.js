@@ -36,3 +36,16 @@ export const markAllRead = async () => {
   const db = await getDB();
   await db.executeSql('UPDATE notifications SET is_read = 1 WHERE is_read = 0');
 };
+
+export const addLocalNotification = async (title, body, type = 'general', referenceId = 0) => {
+  const db = await getDB();
+  await db.executeSql(
+    'INSERT INTO notifications (title, body, type, reference_id) VALUES (?, ?, ?, ?)',
+    [title, body, type, referenceId]
+  );
+};
+
+export const deleteNotificationByReference = async (referenceId) => {
+  const db = await getDB();
+  await db.executeSql('DELETE FROM notifications WHERE reference_id = ?', [referenceId]);
+};

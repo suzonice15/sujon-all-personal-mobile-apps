@@ -1,4 +1,7 @@
 const BN_MAP = { '০': 0, '১': 1, '২': 2, '৩': 3, '৪': 4, '৫': 5, '৬': 6, '৭': 7, '৮': 8, '৯': 9 };
+const EN_TO_BN = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
+export const toBn = (num) => String(num).replace(/\d/g, d => EN_TO_BN[parseInt(d)]);
 
 export const bnToNumber = (str) => {
   if (typeof str === 'number') return str;

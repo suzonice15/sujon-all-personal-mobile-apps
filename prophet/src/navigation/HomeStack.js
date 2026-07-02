@@ -34,9 +34,9 @@ export default function HomeStack() {
       <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'প্রাইভেসি পলিসি' }} />
       <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'মতামত দিন' }} />
       <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'সেটিংস' }} />
-      <Stack.Screen name="AdEarn" component={AdEarnScreen} options={{ title: 'আয় করুন' }} />
-      <Stack.Screen name="DailyCoin" component={DailyCoinScreen} options={{ title: 'দৈনিক কয়েন' }} />
-      <Stack.Screen name="Claim" component={ClaimScreen} options={{ title: 'কয়েন দাবি করুন' }} />
+      <Stack.Screen name="AdEarn" component={AdEarnScreen} options={{ title: 'বিজ্ঞাপন দেখে কয়েন সংগ্রহ করুন' }} />
+      <Stack.Screen name="DailyCoin" component={DailyCoinScreen} options={{ title: 'দৈনিক কয়েন সংগ্রহ করুন' }} />
+      <Stack.Screen name="Claim" component={ClaimScreen} options={{ title: 'অর্জিত কয়েন গ্রহণ করুন' }} />
     </Stack.Navigator>
   );
 }

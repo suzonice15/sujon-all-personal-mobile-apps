@@ -11,12 +11,12 @@ export default function NotificationBell({ color, onPress }) {
   const handlePress = onPress || (() => navigation.navigate('Notifications'));
 
   return (
-    <TouchableOpacity onPress={handlePress} style={{ marginRight: 8 }}>
-      <View>
-        <MaterialIcons name="notifications" size={22} color={color} />
+    <TouchableOpacity onPress={handlePress} style={{ marginRight: 6 }}>
+      <View style={s.wrap}>
+        <MaterialIcons name="notifications" size={24} color={color} />
         {unread > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{unread > 99 ? '99+' : unread}</Text>
+          <View style={s.badge}>
+            <Text style={s.badgeText}>{unread > 99 ? '99+' : unread}</Text>
           </View>
         )}
       </View>
@@ -24,13 +24,17 @@ export default function NotificationBell({ color, onPress }) {
   );
 }
 
-const styles = StyleSheet.create({
-  badge: {
-    position: 'absolute', top: -4, right: -6,
-    backgroundColor: 'red', borderRadius: 8,
-    minWidth: 16, height: 16,
+const s = StyleSheet.create({
+  wrap: {
+    width: 34, height: 34,
     justifyContent: 'center', alignItems: 'center',
-    paddingHorizontal: 3,
   },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  badge: {
+    position: 'absolute', top: 0, right: 0,
+    backgroundColor: '#EF4444', borderRadius: 12,
+    minWidth: 22, height: 22,
+    justifyContent: 'center', alignItems: 'center',
+    borderWidth: 2, borderColor: '#fff',
+  },
+  badgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
 });

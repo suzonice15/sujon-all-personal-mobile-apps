@@ -60,7 +60,7 @@ export default function OrderHistoryScreen({ navigation }) {
                 style={[s.tab, isActive && s.tabActive]}
                 onPress={() => setActiveTab(tab.key)}
               >
-                <MaterialIcons name={tab.icon} size={13} color={isActive ? '#fff' : '#6B7280'} />
+                <MaterialIcons name={tab.icon} size={16} color={isActive ? '#fff' : '#6B7280'} />
                 <Text style={[s.tabLabel, isActive && s.tabLabelActive]}>{tab.label}</Text>
                 <View style={[s.tabCount, isActive && s.tabCountActive]}>
                   <Text style={[s.tabCountText, isActive && s.tabCountTextActive]}>{cnt}</Text>
@@ -120,11 +120,11 @@ const styles = (colors) => StyleSheet.create({
   },
   tab: {
     flexDirection: 'row', alignItems: 'center', gap: 3,
-    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14,
+    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 14,
     backgroundColor: '#F3F4F6',
   },
   tabActive: { backgroundColor: '#EF4444' },
-  tabLabel: { fontSize: 10, fontWeight: '600', color: '#6B7280' },
+  tabLabel: { fontSize: 13, fontWeight: '600', color: '#6B7280' },
   tabLabelActive: { color: '#fff' },
   tabCount: {
     minWidth: 15, height: 15, borderRadius: 8,
@@ -132,7 +132,7 @@ const styles = (colors) => StyleSheet.create({
     paddingHorizontal: 3,
   },
   tabCountActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
-  tabCountText: { fontSize: 8, fontWeight: '700', color: '#6B7280' },
+  tabCountText: { fontSize: 11, fontWeight: '700', color: '#6B7280' },
   tabCountTextActive: { color: '#fff' },
   card: {
     flexDirection: 'row', backgroundColor: '#fff',
@@ -145,16 +145,16 @@ const styles = (colors) => StyleSheet.create({
   dotIndicator: { flex: 1 },
   body: { flex: 1, padding: 10 },
   row1: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  id: { fontSize: 11, fontWeight: '700', color: '#1F2937' },
+  id: { fontSize: 14, fontWeight: '700', color: '#1F2937' },
   pill: { borderRadius: 8, paddingHorizontal: 7, paddingVertical: 2 },
-  pillText: { fontSize: 9, fontWeight: '600' },
+  pillText: { fontSize: 12, fontWeight: '600' },
   row2: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
-  date: { fontSize: 9, color: '#9CA3AF' },
-  dotSep: { fontSize: 9, color: '#D1D5DB' },
-  items: { fontSize: 10, color: '#6B7280', flex: 1 },
+  date: { fontSize: 12, color: '#9CA3AF' },
+  dotSep: { fontSize: 12, color: '#D1D5DB' },
+  items: { fontSize: 13, color: '#6B7280', flex: 1 },
   row3: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  totalLabel: { fontSize: 9, color: '#9CA3AF' },
-  total: { fontSize: 12, fontWeight: 'bold', color: colors.primary },
+  totalLabel: { fontSize: 12, color: '#9CA3AF' },
+  total: { fontSize: 15, fontWeight: 'bold', color: colors.primary },
   emptyBox: { alignItems: 'center', paddingVertical: 40 },
   emptyText: { fontSize: 13, color: '#9CA3AF', marginTop: 6 },
 });

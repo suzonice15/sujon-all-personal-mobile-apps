@@ -34,6 +34,7 @@ export default function BottomTabNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        unmountOnBlur: true,
         tabBarShowLabel: true,
         tabBarActiveTintColor: '#25D366',
         tabBarInactiveTintColor: '#777',
@@ -60,7 +61,7 @@ export default function BottomTabNavigator() {
       <Tab.Screen name="Quize" component={QuizeStack} options={{ tabBarLabel: 'কুইজ' }} />
       <Tab.Screen name="History" component={HistoryStack} options={{ tabBarLabel: 'হিস্টোরি' }} />
       {/* <Tab.Screen name="Income" component={IncomeStack} options={{ tabBarLabel: 'পয়েন্ট' }} /> */}
-      <Tab.Screen name="Product" component={ProductStack} options={({ route }) => {
+      <Tab.Screen name="ProductList" component={ProductStack} options={({ route }) => {
         const routeName = getFocusedRouteNameFromRoute(route);
         const hideOn = ['ProductDetail', 'Cart', 'Checkout', 'KinaKata'];
         if (routeName && hideOn.includes(routeName)) {

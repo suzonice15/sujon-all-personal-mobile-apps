@@ -25,6 +25,32 @@ export const getRecentCoins = async (limit = 10) => {
   return rows;
 };
 
+export const getTodayClaimCount = async () => {
+  const db = await getDB();
+  const today = new Date().toISOString().slice(0, 10);
+  const [res] = await db.executeSql(
+    `SELECT COUNT(*) as count FROM coin_history WHERE date(earned_at) = ? AND reason != 'বিজ্ঞাপন বক্স' AND reason != 'দৈনিক কয়েন সংগ্রহ'`,
+    [today]
+  );
+  return res.rows.item(0).count || 0;
+};
+
+export const getDailyCoinStats = async () => {
+  const db = await getDB();
+  const [res] = await db.executeSql("SELECT COUNT(*) as count, SUM(amount) as total FROM coin_history WHERE reason = 'দৈনিক কয়েন সংগ্রহ'");
+  return { total: res.rows.item(0).total || 0, count: res.rows.item(0).count || 0 };
+};
+
+export const getTodayClaimCoins = async () => {
+  const db = await getDB();
+  const today = new Date().toISOString().slice(0, 10);
+  const [res] = await db.executeSql(
+    `SELECT SUM(amount) as total FROM coin_history WHERE date(earned_at) = ? AND reason != 'বিজ্ঞাপন বক্স' AND reason != 'দৈনিক কয়েন সংগ্রহ'`,
+    [today]
+  );
+  return res.rows.item(0).total || 0;
+};
+
 export const getTodayCoins = async () => {
   const db = await getDB();
   const today = new Date().toISOString().slice(0, 10);

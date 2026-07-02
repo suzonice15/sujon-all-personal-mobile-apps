@@ -16,6 +16,10 @@ export const initDB = async () => {
       dark_mode INTEGER DEFAULT 0
     );
   `);
+
+  try { await db.executeSql('ALTER TABLE settings ADD COLUMN cooldown_seconds INTEGER DEFAULT 180'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE settings ADD COLUMN last_claim_time INTEGER DEFAULT 0'); } catch (e) {}
+  await db.executeSql('INSERT OR IGNORE INTO settings (id, dark_mode, cooldown_seconds) VALUES (1, 0, 180)');
 // mobile_contents  table 
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS mobile_contents (
@@ -119,9 +123,12 @@ export const initDB = async () => {
       body TEXT,
       type TEXT DEFAULT 'general',
       is_read INTEGER DEFAULT 0,
+      reference_id INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);
+
+  try { await db.executeSql('ALTER TABLE notifications ADD COLUMN reference_id INTEGER DEFAULT 0'); } catch (e) { console.log('reference_id col exists'); }
 
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS coin_history (
@@ -133,11 +140,34 @@ export const initDB = async () => {
   `);
 
   await db.executeSql(`
+    CREATE TABLE IF NOT EXISTS ad_boxes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      box_number INTEGER NOT NULL,
+      status TEXT DEFAULT 'pending',
+      points INTEGER DEFAULT 10,
+      claimed_at TEXT,
+      claim_date TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
+  await db.executeSql(`
     CREATE TABLE IF NOT EXISTS pending_claims (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       content_id INTEGER NOT NULL,
       content_title TEXT,
       amount INTEGER NOT NULL DEFAULT 10,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
+  await db.executeSql(`
+    CREATE TABLE IF NOT EXISTS withdraw_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      amount INTEGER NOT NULL,
+      method TEXT,
+      account TEXT,
+      status TEXT DEFAULT 'pending',
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);

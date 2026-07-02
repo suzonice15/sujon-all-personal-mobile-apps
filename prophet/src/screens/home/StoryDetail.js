@@ -5,8 +5,12 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getContentFolderIds } from '../../db/bookmarks';
 import BookmarkModal from '../../components/BookmarkModal';
 import { addPendingClaim } from '../../db/claims';
+import { addLocalNotification } from '../../db/notifications';
+import { addEarning } from '../../db/earnings';
+import { useNotifications } from '../../context/NotificationsContext';
 import { useCoins } from '../../context/CoinsContext';
 import { useTheme as usePaperTheme } from 'react-native-paper';
+import { story_detail_per_box, story_detail_points } from '../../config/url';
 
 const htmlTemplate = (content, fontSize, background, text) => `
   <!DOCTYPE html>
@@ -47,6 +51,7 @@ export default function StoryDetail({ navigation, route }) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [claimProcessed, setClaimProcessed] = useState(false);
+  const { refresh: refreshNotifs } = useNotifications();
   const { refreshCoins } = useCoins();
   const { colors, dark } = usePaperTheme();
 
@@ -68,11 +73,13 @@ export default function StoryDetail({ navigation, route }) {
     const online = await isOnline();
     if (!online) return;
 
-    const added = await addPendingClaim(item.id, item.title, 10);
+    const added = await addPendingClaim(item.id, item.title, story_detail_per_box);
     if (added) {
-      await refreshCoins();
-      ToastAndroid.show('📖 গল্প পড়ার ১০ কয়েন দাবি করুন!', ToastAndroid.SHORT);
+      await addLocalNotification('কয়েন দাবি করুন', `📖 "${item.title}" পড়ার ${story_detail_per_box} কয়েন দাবি করুন`, 'claim', item.id);
+      await refreshNotifs();
+      ToastAndroid.show(`📖 গল্প পড়ার ${story_detail_per_box} কয়েন দাবি করুন!`, ToastAndroid.SHORT);
     }
+    await addEarning(item.id, item.title, story_detail_points);
   };
 
   return (

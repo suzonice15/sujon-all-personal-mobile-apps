@@ -4,16 +4,20 @@ import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { useCoins } from '../../context/CoinsContext';
-import { addCoins, getTodayCoins } from '../../db/coins';
-
-const COOLDOWN = 180;
+import { addCoins, getTodayCoins, getDailyCoinStats } from '../../db/coins';
+import { daily_coin_count } from '../../config/url';
+import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
+import { toBn } from '../../utils/helper';
 
 export default function DailyCoinScreen() {
-  const { total, refreshCoins } = useCoins();
+  const { refreshCoins } = useCoins();
   const [todayCoins, setTodayCoins] = useState(0);
+  const [totalDailyCoin, setTotalDailyCoin] = useState(0);
+  const [dailyCount, setDailyCount] = useState(0);
   const [countdown, setCountdown] = useState(0);
   const [collecting, setCollecting] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [cooldownSec, setCooldownSec] = useState(180);
   const timerRef = useRef(null);
   const { colors } = useTheme();
   const s = styles(colors);
@@ -21,9 +25,20 @@ export default function DailyCoinScreen() {
   useFocusEffect(useCallback(() => {
     setInitialLoading(true);
     setCountdown(0);
+    (async () => {
+      const sec = await getCooldown();
+      setCooldownSec(sec);
+      const lastClaim = await getLastClaimTime();
+      if (lastClaim > 0) {
+        const elapsed = Math.floor((Date.now() - lastClaim) / 1000);
+        const remaining = Math.max(0, sec - elapsed);
+        if (remaining > 0) setCountdown(remaining);
+      }
+    })();
     setInitialLoading(false);
 
     getTodayCoins().then(setTodayCoins);
+    getDailyCoinStats().then(({ total, count }) => { setTotalDailyCoin(total); setDailyCount(count); });
     refreshCoins();
 
     return () => {
@@ -47,19 +62,23 @@ export default function DailyCoinScreen() {
   }, [countdown]);
 
   const startCooldown = () => {
-    setCountdown(COOLDOWN);
+    setCountdown(cooldownSec);
   };
 
   const handleCollect = async () => {
     if (collecting) return;
     setCollecting(true);
     try {
-      await addCoins(500, 'দৈনিক কয়েন সংগ্রহ');
+      await addCoins(daily_coin_count, 'দৈনিক কয়েন সংগ্রহ');
       await refreshCoins();
+      await setLastClaimTime();
       const today = await getTodayCoins();
       setTodayCoins(today);
+      const stats = await getDailyCoinStats();
+      setTotalDailyCoin(stats.total);
+      setDailyCount(stats.count);
       startCooldown();
-      ToastAndroid.show('🎉 ৫০০ কয়েন সংগ্রহ হয়েছে!', ToastAndroid.SHORT);
+      ToastAndroid.show(`🎉 ${toBn(daily_coin_count)} কয়েন সংগ্রহ হয়েছে!`, ToastAndroid.SHORT);
     } catch (error) {
       ToastAndroid.show('সমস্যা হয়েছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
     } finally {
@@ -70,7 +89,7 @@ export default function DailyCoinScreen() {
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
+    return `${toBn(m)}:${toBn(s.toString().padStart(2, '0'))}`;
   };
 
   if (initialLoading) {
@@ -86,13 +105,17 @@ export default function DailyCoinScreen() {
   return (
     <SafeAreaView style={s.container}>
       <View style={s.headerRow}>
-        <View style={s.coinBadge}>
-          <MaterialIcons name="monetization-on" size={20} color="#F59E0B" />
-          <Text style={s.coinText}>{total}</Text>
-        </View>
-        <View style={s.coinBadge}>
-          <MaterialIcons name="today" size={18} color={colors.primary} />
-          <Text style={s.todayText}>আজ: {todayCoins}</Text>
+        <View style={s.statsCard}>
+          <MaterialIcons name="history" size={20} color="#F59E0B" />
+          <View>
+            <Text style={s.statsLabel}>মোট সংগ্রহ</Text>
+            <Text style={s.statsValue}>{toBn(totalDailyCoin)} কয়েন</Text>
+          </View>
+          <View style={s.statsDivider} />
+          <View>
+            <Text style={s.statsLabel}>মোট বার</Text>
+            <Text style={s.statsValue}>{toBn(dailyCount)} বার</Text>
+          </View>
         </View>
       </View>
 
@@ -112,7 +135,7 @@ export default function DailyCoinScreen() {
             ) : (
               <>
                 <MaterialIcons name="touch-app" size={28} color="#fff" />
-                <Text style={s.collectText}>+৫০০ কয়েন</Text>
+                <Text style={s.collectText}>+{toBn(daily_coin_count)} কয়েন</Text>
               </>
             )}
           </TouchableOpacity>
@@ -127,7 +150,7 @@ export default function DailyCoinScreen() {
       <View style={s.infoBox}>
         <MaterialIcons name="info-outline" size={18} color={colors.primary} />
         <Text style={s.infoText}>
-          প্রতিবার {COOLDOWN / 60} মিনিট পর পর একটি কয়েন বক্স পাবেন। বক্সে ক্লিক করে ৫০০ কয়েন সংগ্রহ করুন।
+           প্রতিবার {toBn(cooldownSec / 60)} মিনিট পর পর একটি কয়েন বক্স পাবেন। বক্সে ক্লিক করে {toBn(daily_coin_count)} কয়েন সংগ্রহ করুন।
         </Text>
       </View>
     </SafeAreaView>
@@ -138,15 +161,17 @@ const styles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
   headerRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
+    flexDirection: 'row', justifyContent: 'center',
     paddingHorizontal: 20, paddingTop: 16,
   },
-  coinBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: colors.surface, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
+  statsCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 16,
+    backgroundColor: colors.surface, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 6, elevation: 3,
   },
-  coinText: { fontSize: 16, fontWeight: 'bold', color: '#F59E0B' },
-  todayText: { fontSize: 13, color: colors.primary, fontWeight: '500' },
+  statsLabel: { fontSize: 11, color: colors.text, opacity: 0.6, fontWeight: '500' },
+  statsValue: { fontSize: 18, fontWeight: '800', color: '#F59E0B', marginTop: 2 },
+  statsDivider: { width: 1, height: 36, backgroundColor: colors.text, opacity: 0.15 },
   card: {
     margin: 20, padding: 40, borderRadius: 24,
     backgroundColor: colors.surface,
