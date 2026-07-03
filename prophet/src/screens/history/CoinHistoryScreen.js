@@ -95,6 +95,7 @@ export default function CoinHistoryScreen() {
           rawCoins: r.amount,
           date: r.earned_at,
           type: mapType(r),
+          synced: r.synced || 0,
         })),
         ...pendingRows.map(r => ({
           id: `pending-${r.id}`,
@@ -103,6 +104,7 @@ export default function CoinHistoryScreen() {
           rawCoins: r.amount,
           date: r.created_at,
           type: 'pending',
+          synced: r.synced || 0,
         })),
       ];
       setAllData(mapped);
@@ -117,13 +119,18 @@ export default function CoinHistoryScreen() {
     const isPending = item.type === 'pending';
     const isEarn = item.type === 'earn';
     const isSummation = item.type === 'summation';
+    const isSynced = item.synced && item.synced > 0;
     const iconColor = isPending ? '#3B82F6' : isSummation ? '#8B5CF6' : isEarn ? '#22C55E' : '#EF4444';
     const iconName = isPending ? 'hourglass-empty' : isSummation ? 'archive' : isEarn ? 'add-circle' : 'remove-circle';
     return (
       <View style={s.card}>
         <View style={s.cardLeft}>
-          <View style={[s.iconBox, { backgroundColor: iconColor + '20' }]}>
-            <MaterialIcons name={iconName} size={22} color={iconColor} />
+          <View style={[s.iconBox, { backgroundColor: isSynced ? '#10B981' + '20' : iconColor + '20' }]}>
+            {isSynced ? (
+              <MaterialIcons name="check" size={22} color="#10B981" />
+            ) : (
+              <MaterialIcons name={iconName} size={22} color={iconColor} />
+            )}
           </View>
           <View style={s.cardInfo}>
             <Text style={s.cardTitle}>{item.title}</Text>

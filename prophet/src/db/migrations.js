@@ -31,23 +31,19 @@ const migrations = [
     `,
   },
   {
-    name: 'add_device_id_to_coin_history',
+    name: 'add_gender_to_users',
     sql: `
-      ALTER TABLE coin_history ADD COLUMN device_id TEXT DEFAULT '';
+      ALTER TABLE users ADD COLUMN gender TEXT DEFAULT 'male';
     `,
   },
   {
-    name: 'add_type_to_coin_history',
+    name: 'add_district_id_to_users',
     sql: `
-      ALTER TABLE coin_history ADD COLUMN type TEXT DEFAULT 'income';
+      ALTER TABLE users ADD COLUMN district_id INTEGER DEFAULT 0;
     `,
   },
-  {
-    name: 'add_type_to_earning_history',
-    sql: `
-      ALTER TABLE earning_history ADD COLUMN type TEXT DEFAULT 'income';
-    `,
-  },
+
+
 ];
 
 export const runMigrations = async () => {

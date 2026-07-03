@@ -16,9 +16,12 @@ import { initDB } from './src/db/db';
 import { runMigrations } from './src/db/migrations';
 import { seedDB } from './src/db/seed';
 import { claimDailyCoinPending } from './src/db/claims';
-import { getLastClaimTime } from './src/db/settings';
+import { getLastClaimTime, getLastSyncAt, setLastSyncAt } from './src/db/settings';
+import { saveAppSettings, getAppSettingInt } from './src/db/appSettings';
+import { getAppInfo } from './src/api/homeApi';
 import { consolidateCoinHistory } from './src/db/coins';
 import { consolidatePointHistory } from './src/db/earnings';
+import { syncCoinsToServer, syncPointsToServer } from './src/db/sync';
 import { daily_bonus_coin } from './src/config/url';
 
 const navigationRef = createNavigationContainerRef();
@@ -49,6 +52,25 @@ function AppInner() {
       }
       await consolidateCoinHistory();
       await consolidatePointHistory();
+      try {
+        const info = await getAppInfo();
+        if (info?.data) {
+          // console.log('App info data keys:', Object.keys(info.data));
+          await saveAppSettings(info.data);
+          // console.log('App settings saved successfully');
+        } else {
+          console.log('App info response missing data:', info);
+        }
+      } catch (e) {
+        console.log('App info fetch failed:', e.message);
+      }
+      const lastSync = await getLastSyncAt();
+      const interval = (await getAppSettingInt('sync_time_minute', 60)) * 60 * 1000;
+      if (Date.now() - lastSync > interval) {
+        await syncCoinsToServer();
+        await syncPointsToServer();
+        await setLastSyncAt();
+      }
       await refreshPoints();
       await refreshNotifs();
       seedDB();

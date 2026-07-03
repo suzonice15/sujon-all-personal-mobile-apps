@@ -11,6 +11,7 @@ const menu = [
   { title: 'দৈনিক কয়েন সংগ্রহ করুন', icon: 'today', screen: 'DailyCoin', tab: 'Home' },
   { title: 'বুকমার্ক', icon: 'bookmark', screen: 'Bookmarks' },
   { title: 'অ্যাপ সম্পর্কে', icon: 'info-outline', screen: 'AboutApps', tab: 'Home' },
+  { title: 'সহযোগিতা করুন', icon: 'volunteer-activism', screen: 'Donation', tab: 'Home' },
   { title: 'ডেভেলপার সম্পর্কে', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
   { title: 'অ্যাপ শেয়ার করুন', icon: 'share', action: 'share' },
   { title: 'অ্যাপ রেটিং দিন', icon: 'star-border', action: 'rate' },

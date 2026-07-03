@@ -11,8 +11,8 @@ export const addCoins = async (amount, reason, type = 'income') => {
   const db = await getDB();
   const deviceId = await getDeviceId();
   await db.executeSql(
-    'INSERT INTO coin_history (device_id, amount, reason, type, earned_at) VALUES (?, ?, ?, ?, ?)',
-    [deviceId, amount, reason, type, localNow()]
+    'INSERT INTO coin_history (device_id, name, email, amount, reason, type, earned_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [deviceId, '', '', amount, reason, type, localNow()]
   );
 };
 
@@ -88,7 +88,7 @@ export const consolidateCoinHistory = async () => {
     [firstOfMonth]
   );
   await db.executeSql(
-    'INSERT INTO coin_history (device_id, amount, reason, type, earned_at) VALUES (?, ?, ?, ?, ?)',
-    ['', total, 'পূর্বের জমা', 'summation', firstOfMonth]
+    'INSERT INTO coin_history (device_id, name, email, amount, reason, type, earned_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    ['', '', '', total, 'পূর্বের জমা', 'summation', firstOfMonth]
   );
 };

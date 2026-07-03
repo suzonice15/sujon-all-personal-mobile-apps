@@ -62,7 +62,10 @@ export const getEarnings = async () => {
   for (let i = 0; i < res.rows.length; i++) rows.push(res.rows.item(i));
 
    console.log('rows point ', rows);
-  return rows;
+  return rows.map(row => ({
+    ...row,
+    synced: row.synced > 0,
+  }));
 };
 
 export const getTotalPoints = async () => {

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, Switch, Linking,
+  TouchableOpacity, Switch, Linking, Modal,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
+import { getAllAppSettings } from '../../db/appSettings';
 
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
@@ -24,7 +25,22 @@ const SectionTitle = ({ title, isDark }) => (
 
 export default function SettingsScreen({ navigation }) {
   const [notifications, setNotifications] = useState(true);
+  const [serverSettings, setServerSettings] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const { isDark, toggleTheme } = useTheme();
+
+  const loadServerSettings = async () => {
+    try {
+      const data = await getAllAppSettings();
+      console.log('Server Settings:', data);
+      setServerSettings(data);
+      setShowModal(true);
+    } catch (e) {
+      console.log('loadServerSettings error:', e.message);
+    }
+  };
+
+  console.log('Server Settings:', serverSettings);
 
   return (
     <ScrollView style={styles(isDark).container} contentContainerStyle={styles(isDark).content}>
@@ -75,6 +91,33 @@ export default function SettingsScreen({ navigation }) {
         <View style={styles(isDark).divider} />
         <SettingItem icon="share" label="বন্ধুদের সাথে শেয়ার করুন" isDark={isDark} onPress={() => {}} />
       </View>
+
+      <SectionTitle title="সার্ভার সেটিংস" isDark={isDark} />
+      <View style={styles(isDark).card}>
+        <SettingItem icon="cloud" label="সার্ভার থেকে সেটিংস দেখুন" isDark={isDark} onPress={loadServerSettings} />
+      </View>
+
+      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
+        <View style={styles(isDark).modalOverlay}>
+          <View style={styles(isDark).modalContent}>
+            <Text style={styles(isDark).modalTitle}>সার্ভার সেটিংস</Text>
+            <ScrollView style={{ maxHeight: 400 }}>
+              {serverSettings && Object.entries(serverSettings).map(([key, value]) => (
+                <View key={key} style={styles(isDark).modalRow}>
+                  <Text style={styles(isDark).modalKey}>{key}</Text>
+                  <Text style={styles(isDark).modalValue}>{value}</Text>
+                </View>
+              ))}
+              {serverSettings && Object.keys(serverSettings).length === 0 && (
+                <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>কোনো সেটিংস নেই</Text>
+              )}
+            </ScrollView>
+            <TouchableOpacity style={styles(isDark).modalClose} onPress={() => setShowModal(false)}>
+              <Text style={styles(isDark).modalCloseText}>বন্ধ করুন</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <SectionTitle title="সাপোর্ট" isDark={isDark} />
       <View style={styles(isDark).card}>
@@ -143,4 +186,29 @@ const styles = (isDark) => StyleSheet.create({
   valueText: { fontSize: 14, color: isDark ? '#94a3b8' : '#888' },
   divider: { height: 1, backgroundColor: isDark ? '#334155' : '#f5f5f5', marginLeft: 64 },
   footer: { textAlign: 'center', color: '#bbb', fontSize: 12, marginTop: 30 },
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center', padding: 20,
+  },
+  modalContent: {
+    backgroundColor: isDark ? '#1e293b' : '#fff',
+    borderRadius: 16, padding: 20, maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 18, fontWeight: '700',
+    color: isDark ? '#f1f5f9' : '#1a1a1a',
+    marginBottom: 16, textAlign: 'center',
+  },
+  modalRow: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    paddingVertical: 8, borderBottomWidth: 1,
+    borderBottomColor: isDark ? '#334155' : '#eee',
+  },
+  modalKey: { fontSize: 14, color: isDark ? '#94a3b8' : '#666', flex: 1 },
+  modalValue: { fontSize: 14, color: isDark ? '#f1f5f9' : '#1a1a1a', flex: 1, textAlign: 'right' },
+  modalClose: {
+    marginTop: 16, backgroundColor: '#4F46E5',
+    padding: 12, borderRadius: 10, alignItems: 'center',
+  },
+  modalCloseText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 });

@@ -5,16 +5,22 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../../db/auth';
 import { usePoints } from '../../context/PointsContext';
+import { fetchDistricts, getDistrictName } from '../../data/districts';
+
+const genderLabels = { male: 'পুরুষ', female: 'মহিলা', other: 'অন্যান্য' };
 
 const infoFields = [
   { key: 'name', label: 'নাম', icon: 'person' },
   { key: 'email', label: 'ইমেইল', icon: 'email' },
   { key: 'phone', label: 'ফোন', icon: 'phone', fallback: '—' },
+  { key: 'gender', label: 'লিঙ্গ', icon: 'wc', fallback: '—' },
+  { key: 'district', label: 'জেলা', icon: 'map', fallback: '—' },
   { key: 'address', label: 'ঠিকানা', icon: 'location-on', fallback: '—' },
 ];
 
 export default function ProfileScreen({ navigation }) {
   const [user, setUser] = useState(null);
+  const [districts, setDistricts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { total } = usePoints();
   const { colors } = useTheme();
@@ -22,6 +28,7 @@ export default function ProfileScreen({ navigation }) {
 
   useFocusEffect(useCallback(() => {
     getLoggedInUser().then(u => { setUser(u); setLoading(false); });
+    fetchDistricts().then(setDistricts);
   }, []));
 
   const handleLogout = () => {
@@ -77,22 +84,25 @@ export default function ProfileScreen({ navigation }) {
 
         <Text style={s.sectionTitle}>ব্যক্তিগত তথ্য</Text>
         <View style={s.infoCard}>
-          {infoFields.map((field, i) => (
-            <View key={field.key} style={[s.infoRow, i < infoFields.length - 1 && s.infoRowBorder]}>
-              <View style={s.infoIcon}>
-                <MaterialIcons name={field.icon} size={20} color={colors.primary} />
+          {infoFields.map((field, i) => {
+            let value = user[field.key] || field.fallback || '—';
+            if (field.key === 'gender') value = genderLabels[user.gender] || '—';
+            if (field.key === 'district') value = getDistrictName(user.district_id, districts);
+            return (
+              <View key={field.key} style={[s.infoRow, i < infoFields.length - 1 && s.infoRowBorder]}>
+                <View style={s.infoIcon}>
+                  <MaterialIcons name={field.icon} size={20} color={colors.primary} />
+                </View>
+                <View style={s.infoContent}>
+                  <Text style={s.infoLabel}>{field.label}</Text>
+                  <Text style={s.infoValue} numberOfLines={2}>{value}</Text>
+                </View>
+                <TouchableOpacity style={s.fieldEditBtn} onPress={() => navigation.navigate('EditProfile', { user })}>
+                  <MaterialIcons name="edit" size={18} color={colors.onSurface} style={{ opacity: 0.3 }} />
+                </TouchableOpacity>
               </View>
-              <View style={s.infoContent}>
-                <Text style={s.infoLabel}>{field.label}</Text>
-                <Text style={s.infoValue} numberOfLines={2}>
-                  {user[field.key] || field.fallback || '—'}
-                </Text>
-              </View>
-              <TouchableOpacity style={s.fieldEditBtn} onPress={() => navigation.navigate('EditProfile', { user })}>
-                <MaterialIcons name="edit" size={18} color={colors.onSurface} style={{ opacity: 0.3 }} />
-              </TouchableOpacity>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         <View style={s.infoCard}>

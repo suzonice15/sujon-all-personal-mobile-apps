@@ -1,52 +1,66 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import RenderHtml from 'react-native-render-html';
 import { useTheme } from 'react-native-paper';
+import { getAllAppSettings } from '../../db/appSettings';
 
-const Section = ({ title, text, colors }) => (
-  <View style={sectionStyles(colors).section}>
-    <Text style={sectionStyles(colors).sectionTitle}>{title}</Text>
-    <Text style={sectionStyles(colors).sectionText}>{text}</Text>
-  </View>
-);
-
-const sectionStyles = (colors) => StyleSheet.create({
-  section: { padding: 16 },
-  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: colors.primary, marginBottom: 6 },
-  sectionText: { fontSize: 14, color: colors.onSurface, opacity: 0.6, lineHeight: 22 },
-});
+const { width } = Dimensions.get('window');
 
 export default function PrivacyScreen() {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
+  const [settings, setSettings] = useState(null);
+  const isDark = dark;
   const s = styles(colors);
 
-  return (
-    <ScrollView style={s.container} contentContainerStyle={s.content}>
-      <View style={s.hero}>
-        <MaterialIcons name="privacy-tip" size={48} color={colors.primary} />
-        <Text style={s.heroTitle}>প্রাইভেসি পলিসি</Text>
-        <Text style={s.heroSub}>সর্বশেষ আপডেট: জানুয়ারি ২০২৫</Text>
-      </View>
+  useEffect(() => {
+    getAllAppSettings().then(setSettings);
+  }, []);
 
-      <View style={s.card}>
-        <Section colors={colors} title="তথ্য সংগ্রহ" text="এই অ্যাপটি কোনো ব্যক্তিগত তথ্য সংগ্রহ করে না। সমস্ত ডেটা আপনার ডিভাইসে সংরক্ষিত থাকে।" />
-        <View style={s.divider} />
-        <Section colors={colors} title="ইন্টারনেট ব্যবহার" text="অ্যাপটি শুধুমাত্র প্রথমবার content আপডেটের জন্য ইন্টারনেট ব্যবহার করে। এরপর সম্পূর্ণ অফলাইনে কাজ করে।" />
-        <View style={s.divider} />
-        <Section colors={colors} title="তৃতীয় পক্ষ" text="আমরা কোনো তৃতীয় পক্ষের সাথে আপনার তথ্য শেয়ার করি না।" />
-        <View style={s.divider} />
-        <Section colors={colors} title="যোগাযোগ" text="প্রাইভেসি সংক্রান্ত যেকোনো প্রশ্নের জন্য আমাদের সাথে যোগাযোগ করুন: support@example.com" />
+  if (!settings) {
+    return <ActivityIndicator style={{ marginTop: 60 }} color={colors.primary} />;
+  }
+
+  const htmlContent = settings.privacy_policy || '';
+
+  if (!htmlContent) {
+    return (
+      <View style={s.emptyWrap}>
+        <MaterialIcons name="privacy-tip" size={64} color={colors.primary} />
+        <Text style={s.emptyText}>প্রাইভেসি পলিসি শীঘ্রই যোগ করা হবে</Text>
       </View>
+    );
+  }
+
+  return (
+    <ScrollView style={s.container} contentContainerStyle={s.content} maximumZoomScale={1} minimumZoomScale={1}>
+      <RenderHtml
+        contentWidth={width - 32}
+        source={{ html: htmlContent }}
+        baseStyle={{
+          fontSize: 15,
+          lineHeight: 24,
+          color: isDark ? '#e2e8f0' : '#1a1a1a',
+        }}
+        tagsStyles={{
+          h1: { fontSize: 20, color: colors.primary, marginBottom: 6 },
+          h2: { fontSize: 17, color: colors.primary, marginTop: 20, marginBottom: 6 },
+          h3: { fontSize: 15, color: isDark ? '#94a3b8' : '#333', marginTop: 16, marginBottom: 4 },
+          p: { marginBottom: 10 },
+          ul: { paddingLeft: 20, marginBottom: 10 },
+          ol: { paddingLeft: 20, marginBottom: 10 },
+          li: { marginBottom: 4 },
+          a: { color: colors.primary },
+          strong: { fontWeight: '600' },
+        }}
+      />
     </ScrollView>
   );
 }
 
 const styles = (colors) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { paddingBottom: 40 },
-  hero: { alignItems: 'center', backgroundColor: colors.surface, paddingVertical: 30, marginBottom: 16 },
-  heroTitle: { fontSize: 20, fontWeight: 'bold', color: colors.onSurface, marginTop: 12 },
-  heroSub: { fontSize: 12, color: colors.onSurface, opacity: 0.4, marginTop: 4 },
-  card: { backgroundColor: colors.surface, borderRadius: 14, marginHorizontal: 16, overflow: 'hidden' },
-  divider: { height: 1, backgroundColor: colors.background },
+  container: { flex: 1 },
+  content: { padding: 16 },
+  emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
+  emptyText: { fontSize: 15, color: colors.onSurface, opacity: 0.5, marginTop: 12, textAlign: 'center' },
 });

@@ -10,6 +10,7 @@ import DataScreen from '../screens/home/DataScreen';
 import StoryDetail from '../screens/home/StoryDetail';
 import AboutAppsScreen from '../screens/settings/AboutAppsScreen';
 import AboutDeveloperScreen from '../screens/settings/AboutDeveloperScreen';
+import DonationScreen from '../screens/settings/DonationScreen';
 import PrivacyScreen from '../screens/settings/PrivacyScreen';
 import FeedbackScreen from '../screens/settings/FeedbackScreen';
 import AdEarnScreen from '../screens/income/AdEarnScreen';
@@ -30,6 +31,7 @@ export default function HomeStack() {
       <Stack.Screen name="DataScreen" component={DataScreen} />
       <Stack.Screen name="StoryDetail" component={StoryDetail} />
       <Stack.Screen name="AboutApps" component={AboutAppsScreen} options={{ title: 'অ্যাপ সম্পর্কে' }} />
+      <Stack.Screen name="Donation" component={DonationScreen} options={{ title: 'সহযোগিতা করুন' }} />
       <Stack.Screen name="AboutDeveloper" component={AboutDeveloperScreen} options={{ title: 'ডেভেলপার সম্পর্কে' }} />
       <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'প্রাইভেসি পলিসি' }} />
       <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'মতামত দিন' }} />
