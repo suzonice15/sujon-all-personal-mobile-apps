@@ -49,7 +49,7 @@ const getFilteredTotal = (data, filterKey) => {
 const MONTHS = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
 
 const formatBnDateTime = (dateStr) => {
-  const d = new Date(dateStr.replace(' ', 'T') + 'Z');
+  const d = new Date(dateStr.replace(' ', 'T'));
   const day = toBn(d.getDate());
   const month = MONTHS[d.getMonth()];
   const year = toBn(d.getFullYear());
@@ -75,6 +75,7 @@ export default function PointHistoryScreen({ navigation }) {
 
   const filteredData = useMemo(() => getFilteredData(history, selectedFilter), [history, selectedFilter]);
   const filteredTotal = useMemo(() => getFilteredTotal(history, selectedFilter), [history, selectedFilter]);
+// console.log('filteredData point', filteredData);
 
   const handlePress = async (item) => {
     if (item.content_id <= 0 || item.content_id === 2000) return;
@@ -82,22 +83,31 @@ export default function PointHistoryScreen({ navigation }) {
     if (story) navigation.navigate('StoryDetail', { item: story, title: story.title });
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={s.card} onPress={() => handlePress(item)} activeOpacity={item.content_id > 0 ? 0.7 : 1}>
-      <View style={s.cardRow}>
-        <View style={[s.iconBox, { backgroundColor: '#22C55E20' }]}>
-          <MaterialIcons name="auto-stories" size={20} color="#22C55E" />
+  const renderItem = ({ item }) => {
+    const t = item.type || 'income';
+    const isWithdraw = t === 'withdraw';
+    const isSummation = t === 'summation';
+    const isStory = item.content_id > 0 && item.content_id !== 2000 && !isSummation;
+    const iconColor = isWithdraw ? '#EF4444' : isSummation ? '#8B5CF6' : '#22C55E';
+    const iconName = isWithdraw ? 'remove-circle' : isSummation ? 'archive' : 'auto-stories';
+    const pointsText = isWithdraw ? `${toBn(item.points)}` : `+${toBn(item.points)}`;
+    return (
+      <TouchableOpacity style={s.card} onPress={() => handlePress(item)} activeOpacity={isStory ? 0.7 : 1}>
+        <View style={s.cardRow}>
+          <View style={[s.iconBox, { backgroundColor: iconColor + '20' }]}>
+            <MaterialIcons name={iconName} size={20} color={iconColor} />
+          </View>
+          <View style={s.cardContent}>
+            <Text style={s.cardTitle} numberOfLines={2}>{item.content_title}</Text>
+            <Text style={s.date}>{formatBnDateTime(item.earned_at)}</Text>
+          </View>
+          <View style={[s.pointsBadge, { backgroundColor: iconColor + '20' }]}>
+            <Text style={[s.points, { color: iconColor }]}>{pointsText}</Text>
+          </View>
         </View>
-        <View style={s.cardContent}>
-          <Text style={s.cardTitle} numberOfLines={2}>{item.content_title}</Text>
-          <Text style={s.date}>{formatBnDateTime(item.earned_at)}</Text>
-        </View>
-        <View style={[s.pointsBadge, { backgroundColor: '#22C55E20' }]}>
-          <Text style={s.points}>+{toBn(item.points)}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={s.container}>

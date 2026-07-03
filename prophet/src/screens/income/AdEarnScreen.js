@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ToastAndroid, ActivityIndicator, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ToastAndroid, ActivityIndicator, SafeAreaView, useWindowDimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
@@ -7,9 +7,9 @@ import { useCoins } from '../../context/CoinsContext';
 import { isOnline, toBn } from '../../utils/helper';
 import { initTodayBoxes, getTodayBoxes, claimBox } from '../../db/adBoxes';
 import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
+import { video_coin_per_box } from '../../config/url';
 
-const { width } = Dimensions.get('window');
-const BOX_SIZE = (width - 48) / 3;
+
 
 export default function AdEarnScreen() {
   const { refreshCoins } = useCoins();
@@ -19,8 +19,10 @@ export default function AdEarnScreen() {
   const [cooldown, setCooldown] = useState(0);
   const [cooldownSec, setCooldownSec] = useState(180);
   const timerRef = useRef(null);
+  const { width } = useWindowDimensions();
+  const BOX_SIZE = (width - 38) / 4;
   const { colors } = useTheme();
-  const s = styles(colors);
+  const s = styles(colors, BOX_SIZE);
 
   useEffect(() => {
     return () => {
@@ -88,7 +90,7 @@ export default function AdEarnScreen() {
         b.id === box.id ? { ...b, status: 'claimed', claim_date: new Date().toISOString().slice(0, 10) } : b
       ));
       setCooldown(cooldownSec);
-      ToastAndroid.show(`🎉 বক্স ${toBn(box.box_number)} এর ${toBn(10)} কয়েন অর্জন হয়েছে!`, ToastAndroid.SHORT);
+      ToastAndroid.show(`বিজ্ঞাপন বক্স ${toBn(box.box_number)} এর ${toBn(video_coin_per_box)} কয়েন অর্জন হয়েছে!`, ToastAndroid.SHORT);
     } catch (error) {
       ToastAndroid.show('কয়েন যোগ করতে সমস্যা হয়েছে', ToastAndroid.SHORT);
     } finally {
@@ -136,7 +138,7 @@ export default function AdEarnScreen() {
             <View style={[s.boxIconWrap, { backgroundColor: '#EF444420' }]}>
               <MaterialIcons name="lock" size={24} color="#EF4444" />
             </View>
-            <Text style={[s.boxNumber, { color: '#EF4444' }]}>{toBn(item.box_number)}</Text>
+            <Text style={[s.boxNumber, { color: '#EF4444' }]}>বিজ্ঞাপন বক্স {toBn(item.box_number)}</Text>
             <Text style={{ fontSize: 9, color: '#EF4444', fontWeight: '600' }}>অপেক্ষা</Text>
           </>
         ) : (
@@ -144,10 +146,10 @@ export default function AdEarnScreen() {
             <View style={[s.boxIconWrap, { backgroundColor: isNext ? '#EF444420' : colors.primary + '20' }]}>
               <MaterialIcons name="redeem" size={24} color={isNext ? '#EF4444' : colors.primary} />
             </View>
-            <Text style={[s.boxNumber, { color: colors.text }]}>{toBn(item.box_number)}</Text>
+            <Text style={[s.boxNumber, { color: colors.text }]}>বিজ্ঞাপন বক্স {toBn(item.box_number)}</Text>
             <View style={[s.coinBadge, isNext && { backgroundColor: '#EF4444' }]}>
               <MaterialIcons name="monetization-on" size={10} color="#fff" />
-              <Text style={s.coinBadgeText}>10</Text>
+              <Text style={s.coinBadgeText}>{video_coin_per_box}</Text>
             </View>
           </>
         )}
@@ -175,12 +177,12 @@ export default function AdEarnScreen() {
           <View style={[s.statChip, { backgroundColor: '#22C55E' + '18' }]}>
             <MaterialIcons name="monetization-on" size={16} color="#22C55E" />
             <Text style={[s.statChipLabel, { color: colors.text }]}>আজ পেয়েছেন</Text>
-            <Text style={[s.statChipValue, { color: '#22C55E' }]}>{toBn(totalClaimed * 10)} কয়েন</Text>
+            <Text style={[s.statChipValue, { color: '#22C55E' }]}>{toBn(totalClaimed * video_coin_per_box)} কয়েন</Text>
           </View>
           <View style={[s.statChip, { backgroundColor: '#F59E0B' + '18' }]}>
             <MaterialIcons name="hourglass-empty" size={16} color="#F59E0B" />
-            <Text style={[s.statChipLabel, { color: colors.text }]}>বাকি</Text>
-            <Text style={[s.statChipValue, { color: '#F59E0B' }]}>{toBn(totalBoxes - totalClaimed)} টি • {toBn((totalBoxes - totalClaimed) * 10)} কয়েন</Text>
+            <Text style={[s.statChipLabel, { color: colors.text }]}>অবশিষ্ট </Text>
+            <Text style={[s.statChipValue, { color: '#F59E0B' }]}>{toBn(totalBoxes - totalClaimed)} টি • {toBn((totalBoxes - totalClaimed) * video_coin_per_box)} কয়েন</Text>
           </View>
         </View>
         <View style={s.progressRow}>
@@ -194,16 +196,16 @@ export default function AdEarnScreen() {
         ) : cooldown > 0 ? (
           <View style={s.cooldownRow}>
             <MaterialIcons name="timer" size={16} color="#EF4444" />
-            <Text style={[s.cooldownText, { color: '#EF4444' }]}>পরবর্তী বক্স {formatTime(cooldown)}</Text>
+            <Text style={[s.cooldownText, { color: '#EF4444' }]}>পরবর্তী বিজ্ঞাপন বক্স {formatTime(cooldown)}</Text>
           </View>
         ) : (
-          <Text style={[s.hintText, { color: colors.text }]}>বক্সে ট্যাপ করুন, ভিডিও দেখুন, {toBn(10)} কয়েন নিন</Text>
+          <Text style={[s.hintText, { color: colors.text }]}>বক্সে ট্যাপ করুন, ভিডিও দেখুন, {toBn(video_coin_per_box)} কয়েন নিন</Text>
         )}
       </View>
       <FlatList
         data={boxes}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={3}
+        numColumns={4}
         renderItem={renderBox}
         contentContainerStyle={s.grid}
         showsVerticalScrollIndicator={false}
@@ -213,21 +215,21 @@ export default function AdEarnScreen() {
   );
 }
 
-const styles = (colors) => StyleSheet.create({
+const styles = (colors, BOX_SIZE) => StyleSheet.create({
   container: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { marginTop: 10, fontSize: 14, opacity: 0.6 },
   headerCard: {
-    margin: 14, padding: 16,
-    borderRadius: 16, gap: 12,
+    margin: 14, padding: 10,
+    borderRadius: 16, gap: 6,
     elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08, shadowRadius: 6,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerTitle: { fontSize: 15, fontWeight: '700' },
   statsRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    marginTop: 12, marginBottom: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    marginTop: 6, marginBottom: 4,
   },
   statChip: {
     flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4,
@@ -246,25 +248,28 @@ const styles = (colors) => StyleSheet.create({
   grid: { paddingHorizontal: 10, paddingBottom: 20 },
   row: { gap: 6, marginBottom: 6 },
   box: {
-    width: BOX_SIZE, height: BOX_SIZE,
-    borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 4,
-    borderWidth: 1,
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    width: BOX_SIZE, height: BOX_SIZE - 8,
+    borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 5,
+    paddingHorizontal: 4, paddingVertical: 20,
+    borderWidth: 0,
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06, shadowRadius: 4,
   },
   boxClaimed: { opacity: 0.45 },
   boxNextLocked: { opacity: 0.7 },
   boxIconWrap: {
-    width: 42, height: 42, borderRadius: 21,
+    marginTop: 15,
+    width: 35, height: 35, borderRadius: 21,
     justifyContent: 'center', alignItems: 'center',
     marginBottom: 2,
   },
-  boxNumber: { fontSize: 12, fontWeight: '600', opacity: 0.6 },
+  boxNumber: { fontSize: 9, fontWeight: '600', opacity: 0.6 },
   coinBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 2,
     backgroundColor: '#F59E0B', paddingHorizontal: 8, paddingVertical: 2,
     borderRadius: 10,
+    marginBottom: 15,
   },
-  coinBadgeText: { fontSize: 10, fontWeight: '700', color: '#fff' },
-  boxDoneLabel: { fontSize: 12, fontWeight: '600' },
+  coinBadgeText: { fontSize: 10, fontWeight: '700', color: '#fff', },
+  boxDoneLabel: { fontSize: 11, fontWeight: '600' },
 });

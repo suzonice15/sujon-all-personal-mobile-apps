@@ -55,7 +55,7 @@ const getTotalCoins = (data, filterKey) => {
 const MONTHS = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
 
 const formatBnDateTime = (dateStr) => {
-  const d = new Date(dateStr.replace(' ', 'T') + 'Z');
+  const d = new Date(dateStr.replace(' ', 'T'));
   const day = toBn(d.getDate());
   const month = MONTHS[d.getMonth()];
   const year = toBn(d.getFullYear());
@@ -78,15 +78,23 @@ export default function CoinHistoryScreen() {
   useFocusEffect(useCallback(() => {
     const load = async () => {
       const coinRows = await getRecentCoins(500);
+
+      console.log('coinRows', coinRows);
       const pendingRows = await getPendingClaims();
+      const mapType = (r) => {
+        const t = r.type || 'income';
+        if (t === 'withdraw') return 'spend';
+        if (t === 'summation') return 'summation';
+        return 'earn';
+      };
       const mapped = [
         ...coinRows.map(r => ({
           id: `coin-${r.id}`,
           title: r.reason || 'কয়েন',
-          coins: r.amount > 0 ? `+${toBn(r.amount)}` : `${toBn(r.amount)}`,
+          coins: r.amount >= 0 ? `+${toBn(r.amount)}` : `${toBn(r.amount)}`,
           rawCoins: r.amount,
           date: r.earned_at,
-          type: r.amount > 0 ? 'earn' : 'spend',
+          type: mapType(r),
         })),
         ...pendingRows.map(r => ({
           id: `pending-${r.id}`,
@@ -104,12 +112,13 @@ export default function CoinHistoryScreen() {
 
   const filteredData = useMemo(() => getFilteredData(allData, selectedFilter), [allData, selectedFilter]);
   const totalCoins = useMemo(() => getTotalCoins(allData, selectedFilter), [allData, selectedFilter]);
-
+// console.log('filteredData', filteredData);
   const renderItem = ({ item }) => {
     const isPending = item.type === 'pending';
     const isEarn = item.type === 'earn';
-    const iconColor = isPending ? '#3B82F6' : isEarn ? '#22C55E' : '#EF4444';
-    const iconName = isPending ? 'hourglass-empty' : isEarn ? 'add-circle' : 'remove-circle';
+    const isSummation = item.type === 'summation';
+    const iconColor = isPending ? '#3B82F6' : isSummation ? '#8B5CF6' : isEarn ? '#22C55E' : '#EF4444';
+    const iconName = isPending ? 'hourglass-empty' : isSummation ? 'archive' : isEarn ? 'add-circle' : 'remove-circle';
     return (
       <View style={s.card}>
         <View style={s.cardLeft}>

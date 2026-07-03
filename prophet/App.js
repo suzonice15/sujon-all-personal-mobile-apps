@@ -3,11 +3,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 import { lightTheme } from './src/theme/lightTheme';
 import { darkTheme } from './src/theme/darkTheme';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { useEffect } from 'react';
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import { PointsProvider, usePoints } from './src/context/PointsContext';
-import { CoinsProvider } from './src/context/CoinsContext';
+import { CoinsProvider, useCoins } from './src/context/CoinsContext';
 import { CartProvider } from './src/context/CartContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { NotificationsProvider, useNotifications } from './src/context/NotificationsContext';
@@ -15,29 +15,50 @@ import { claimDailyBonus } from './src/db/earnings';
 import { initDB } from './src/db/db';
 import { runMigrations } from './src/db/migrations';
 import { seedDB } from './src/db/seed';
+import { claimDailyCoinPending } from './src/db/claims';
+import { getLastClaimTime } from './src/db/settings';
+import { consolidateCoinHistory } from './src/db/coins';
+import { consolidatePointHistory } from './src/db/earnings';
+import { daily_bonus_coin } from './src/config/url';
+
+const navigationRef = createNavigationContainerRef();
 
 function AppInner() {
   const { isDark } = useTheme();
   const { refreshPoints } = usePoints();
+  const { refreshCoins } = useCoins();
   const { refresh: refreshNotifs } = useNotifications();
 
   useEffect(() => {
-    const syncData = async () => {
+    (async () => {
       await initDB();
       await runMigrations();
-      await seedDB();
       const bonus = await claimDailyBonus();
       if (bonus.added) ToastAndroid.show('🎁 দৈনিক বোনাস ১০০ পয়েন্ট পেয়েছেন!', ToastAndroid.LONG);
+      if (daily_bonus_coin > 0) {
+        const lastClaim = await getLastClaimTime();
+        const todayStr = new Date().toDateString();
+        const lastClaimDate = lastClaim > 0 ? new Date(lastClaim).toDateString() : '';
+        if (lastClaimDate !== todayStr) {
+          const coinPending = await claimDailyCoinPending();
+          if (coinPending.added) {
+            ToastAndroid.show(`🎉 দৈনিক ${coinPending.amount} কয়েন পেন্ডিং হয়েছে!`, ToastAndroid.SHORT);
+            refreshCoins();
+          }
+        }
+      }
+      await consolidateCoinHistory();
+      await consolidatePointHistory();
       await refreshPoints();
       await refreshNotifs();
-    };
-    syncData();
+      seedDB();
+    })();
   }, []);
 
   return (
     <SafeAreaProvider>
       <PaperProvider theme={isDark ? darkTheme : lightTheme}>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <DrawerNavigator />
         </NavigationContainer>
       </PaperProvider>

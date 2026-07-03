@@ -18,8 +18,11 @@ export const initTodayBoxes = async () => {
     [today]
   );
   if (res.rows.item(0).count > 0) return;
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const localNow = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
   const values = Array.from({ length: DAILY_BOXES }, (_, i) =>
-    `(${i + 1}, 'pending', 10, datetime('now'))`
+    `(${i + 1}, 'pending', 10, '${localNow}')`
   ).join(',');
   await db.executeSql(
     `INSERT INTO ad_boxes (box_number, status, points, created_at) VALUES ${values}`

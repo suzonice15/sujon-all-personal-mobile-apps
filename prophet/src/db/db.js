@@ -3,10 +3,18 @@ import SQLite from 'react-native-sqlite-storage';
 SQLite.enablePromise(true);
 
 const dbPromise = SQLite.openDatabase({ name: 'app.db', location: 'default' });
+let initPromise = null;
 
-export const getDB = () => dbPromise;
+export const getDB = async () => {
+  if (!initPromise) initPromise = initDB();
+  await initPromise;
+  return dbPromise;
+};
 
+let _initialized = false;
 export const initDB = async () => {
+  if (_initialized) return;
+  _initialized = true;
   const db = await dbPromise;
  
 
@@ -64,7 +72,7 @@ export const initDB = async () => {
     CREATE TABLE IF NOT EXISTS bookmark_folders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE,
-      created_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
 // bookmark_items  table 
@@ -94,7 +102,8 @@ export const initDB = async () => {
       content_id INTEGER NOT NULL,
       content_title TEXT,
       points INTEGER DEFAULT 0,
-      earned_at TEXT DEFAULT (datetime('now'))
+      type TEXT DEFAULT 'income',
+      earned_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
 // users  table 
@@ -104,7 +113,7 @@ export const initDB = async () => {
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      created_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
 // auth_session  table 
@@ -124,7 +133,7 @@ export const initDB = async () => {
       type TEXT DEFAULT 'general',
       is_read INTEGER DEFAULT 0,
       reference_id INTEGER DEFAULT 0,
-      created_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
 
@@ -133,9 +142,11 @@ export const initDB = async () => {
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS coin_history (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      device_id TEXT DEFAULT '',
       amount INTEGER NOT NULL,
       reason TEXT,
-      earned_at TEXT DEFAULT (datetime('now'))
+      type TEXT DEFAULT 'income',
+      earned_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
 
@@ -147,7 +158,7 @@ export const initDB = async () => {
       points INTEGER DEFAULT 10,
       claimed_at TEXT,
       claim_date TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
 
@@ -157,7 +168,7 @@ export const initDB = async () => {
       content_id INTEGER NOT NULL,
       content_title TEXT,
       amount INTEGER NOT NULL DEFAULT 10,
-      created_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
 
@@ -168,7 +179,7 @@ export const initDB = async () => {
       method TEXT,
       account TEXT,
       status TEXT DEFAULT 'pending',
-      created_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
 

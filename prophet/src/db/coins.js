@@ -1,10 +1,18 @@
 import { getDB } from './db';
+import { getDeviceId } from './earnings';
 
-export const addCoins = async (amount, reason) => {
+const localNow = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
+
+export const addCoins = async (amount, reason, type = 'income') => {
   const db = await getDB();
+  const deviceId = await getDeviceId();
   await db.executeSql(
-    'INSERT INTO coin_history (amount, reason) VALUES (?, ?)',
-    [amount, reason]
+    'INSERT INTO coin_history (device_id, amount, reason, type, earned_at) VALUES (?, ?, ?, ?, ?)',
+    [deviceId, amount, reason, type, localNow()]
   );
 };
 
@@ -17,7 +25,7 @@ export const getTotalCoins = async () => {
 export const getRecentCoins = async (limit = 10) => {
   const db = await getDB();
   const [res] = await db.executeSql(
-    'SELECT * FROM coin_history ORDER BY earned_at DESC LIMIT ?',
+    'SELECT * FROM coin_history ORDER BY id DESC LIMIT ?',
     [limit]
   );
   const rows = [];
@@ -59,4 +67,28 @@ export const getTodayCoins = async () => {
     [today]
   );
   return res.rows.item(0).total || 0;
+};
+
+export const withdrawCoins = async (amount, reason = 'উত্তোলন') => {
+  await addCoins(-Math.abs(amount), reason, 'withdraw');
+};
+
+export const consolidateCoinHistory = async () => {
+  const db = await getDB();
+  const now = new Date();
+  const firstOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+  const [res] = await db.executeSql(
+    `SELECT SUM(amount) as total FROM coin_history WHERE (type IS NULL OR type = 'income') AND earned_at < ?`,
+    [firstOfMonth]
+  );
+  const total = res.rows.item(0).total || 0;
+  if (total === 0) return;
+  await db.executeSql(
+    `DELETE FROM coin_history WHERE (type IS NULL OR type = 'income') AND earned_at < ?`,
+    [firstOfMonth]
+  );
+  await db.executeSql(
+    'INSERT INTO coin_history (device_id, amount, reason, type, earned_at) VALUES (?, ?, ?, ?, ?)',
+    ['', total, 'পূর্বের জমা', 'summation', firstOfMonth]
+  );
 };

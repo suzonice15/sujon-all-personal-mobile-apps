@@ -10,9 +10,10 @@ const migrations = [
         content_id INTEGER NOT NULL,
         content_title TEXT,
         points INTEGER DEFAULT 0,
-        earned_at TEXT DEFAULT (datetime('now'))
+        type TEXT DEFAULT 'income',
+        earned_at TEXT DEFAULT (datetime('now', 'localtime'))
       );
-      INSERT OR IGNORE INTO earning_history_new SELECT id, device_id, content_id, content_title, points, earned_at FROM earning_history;
+      INSERT OR IGNORE INTO earning_history_new SELECT id, device_id, content_id, content_title, points, 'income', earned_at FROM earning_history;
       DROP TABLE earning_history;
       ALTER TABLE earning_history_new RENAME TO earning_history;
     `,
@@ -27,6 +28,24 @@ const migrations = [
     name: 'add_address_to_users',
     sql: `
       ALTER TABLE users ADD COLUMN address TEXT DEFAULT '';
+    `,
+  },
+  {
+    name: 'add_device_id_to_coin_history',
+    sql: `
+      ALTER TABLE coin_history ADD COLUMN device_id TEXT DEFAULT '';
+    `,
+  },
+  {
+    name: 'add_type_to_coin_history',
+    sql: `
+      ALTER TABLE coin_history ADD COLUMN type TEXT DEFAULT 'income';
+    `,
+  },
+  {
+    name: 'add_type_to_earning_history',
+    sql: `
+      ALTER TABLE earning_history ADD COLUMN type TEXT DEFAULT 'income';
     `,
   },
 ];

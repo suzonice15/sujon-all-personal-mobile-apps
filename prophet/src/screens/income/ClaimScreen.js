@@ -8,7 +8,7 @@ import { addCoins, getTodayClaimCount, getTodayClaimCoins } from '../../db/coins
 import { getPendingClaims, getPendingCount, claimPending } from '../../db/claims';
 import { deleteNotificationByReference } from '../../db/notifications';
 import { useNotifications } from '../../context/NotificationsContext';
-import { max_claim_per_day } from '../../config/url';
+import { max_claim_per_day, story_detail_per_box } from '../../config/url';
 import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
 import { toBn } from '../../utils/helper';
 
@@ -73,7 +73,7 @@ export default function ClaimScreen({ navigation }) {
   const handleClaim = async (id) => {
     if (claimingId || countdown > 0) return;
     if (todayClaimCount >= max_claim_per_day) {
-      ToastAndroid.show(`আজকের দাবির সীমা শেষ! আগামীকাল আবার আসুন।`, ToastAndroid.SHORT);
+      ToastAndroid.show(`আজকের সংগ্রহের সীমা শেষ! আগামীকাল আবার আসুন।`, ToastAndroid.SHORT);
       return;
     }
     setClaimingId(id);
@@ -94,7 +94,7 @@ export default function ClaimScreen({ navigation }) {
     setCountdown(cooldownSec);
     refreshCoins();
     setClaimingId(null);
-    ToastAndroid.show(`🎉 ${toBn(claim.amount)} কয়েন দাবি করেছেন!`, ToastAndroid.SHORT);
+    ToastAndroid.show(` ${toBn(claim.amount)} কয়েন সংগ্রহ করেছেন!`, ToastAndroid.SHORT);
   };
 
   const formatTime = (sec) => {
@@ -123,7 +123,7 @@ export default function ClaimScreen({ navigation }) {
           {isClaiming ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text style={s.claimBtnText}>দাবি</Text>
+            <Text style={s.claimBtnText}>সংগ্রহ করুন</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -154,13 +154,15 @@ export default function ClaimScreen({ navigation }) {
       <View style={s.todayChipRow}>
         <View style={[s.todayChip, { backgroundColor: '#22C55E' + '18' }]}>
           <MaterialIcons name="monetization-on" size={16} color="#22C55E" />
-          <Text style={[s.todayChipLabel, { color: colors.text }]}>আজ দাবি করেছেন</Text>
+          <Text style={[s.todayChipLabel, { color: colors.text }]}>আজ পেয়েছেন </Text>
           <Text style={[s.todayChipValue, { color: '#22C55E' }]}>{toBn(todayClaimCoins)} কয়েন</Text>
         </View>
         <View style={[s.todayChip, { backgroundColor: '#6366F1' + '18' }]}>
           <MaterialIcons name="pending-actions" size={16} color="#6366F1" />
-          <Text style={[s.todayChipLabel, { color: colors.text }]}>আজ দাবি করেছেন</Text>
-          <Text style={[s.todayChipValue, { color: '#6366F1' }]}>{toBn(todayClaimCount)}/{toBn(max_claim_per_day)}</Text>
+          <Text style={[s.todayChipLabel, { color: colors.text }]}>অবশিষ্ট</Text>
+          <Text style={[s.todayChipValue, { color: '#6366F1' }]}>{toBn(max_claim_per_day-todayClaimCount)} টি • {toBn((max_claim_per_day - todayClaimCount) * story_detail_per_box)} কয়েন
+          </Text>
+         
         </View>
       </View>
 
@@ -169,13 +171,13 @@ export default function ClaimScreen({ navigation }) {
       {todayClaimCount >= max_claim_per_day ? (
         <View style={[s.limitBar, { backgroundColor: '#EF4444' }]}>
           <MaterialIcons name="block" size={16} color="#fff" />
-          <Text style={{ flex: 1, fontSize: 13, color: '#fff', fontWeight: '600' }}>আজকের দাবির সীমা শেষ! আগামীকাল আসুন</Text>
+          <Text style={{ flex: 1, fontSize: 13, color: '#fff', fontWeight: '600' }}>আজকের সংগ্রহের সীমা শেষ! আগামীকাল আসুন</Text>
         </View>
       ) : countdown > 0 ? (
         <View style={s.timerBar}>
           <MaterialIcons name="timer" size={16} color="#fff" />
           <Text style={s.timerText}>{formatTime(countdown)}</Text>
-          <Text style={s.timerLabel}>পরবর্তী দাবির জন্য অপেক্ষা করুন</Text>
+          <Text style={s.timerLabel}>পরবর্তী সংগ্রহের জন্য অপেক্ষা করুন</Text>
         </View>
       ) : null}
 

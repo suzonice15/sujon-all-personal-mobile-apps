@@ -134,7 +134,7 @@ export default function DailyCoinScreen() {
               <ActivityIndicator color="#fff" />
             ) : (
               <>
-                <MaterialIcons name="touch-app" size={28} color="#fff" />
+                <MaterialIcons name="monetization-on" size={28} color="#fff" />
                 <Text style={s.collectText}>+{toBn(daily_coin_count)} কয়েন</Text>
               </>
             )}
@@ -150,7 +150,7 @@ export default function DailyCoinScreen() {
       <View style={s.infoBox}>
         <MaterialIcons name="info-outline" size={18} color={colors.primary} />
         <Text style={s.infoText}>
-           প্রতিবার {toBn(cooldownSec / 60)} মিনিট পর পর একটি কয়েন বক্স পাবেন। বক্সে ক্লিক করে {toBn(daily_coin_count)} কয়েন সংগ্রহ করুন।
+           প্রতি {toBn(cooldownSec / 60)} মিনিটে একটি কয়েন বক্স মিলবে। ক্লিক করে {toBn(daily_coin_count)} কয়েন নিন |
         </Text>
       </View>
     </SafeAreaView>
@@ -173,7 +173,7 @@ const styles = (colors) => StyleSheet.create({
   statsValue: { fontSize: 18, fontWeight: '800', color: '#F59E0B', marginTop: 2 },
   statsDivider: { width: 1, height: 36, backgroundColor: colors.text, opacity: 0.15 },
   card: {
-    margin: 20, padding: 40, borderRadius: 24,
+    margin: 20, padding: 10, borderRadius: 24,
     backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center', gap: 16,
   },
@@ -189,7 +189,7 @@ const styles = (colors) => StyleSheet.create({
   timerLabel: { fontSize: 13, color: colors.text, opacity: 0.5 },
   infoBox: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    marginHorizontal: 20, padding: 14, backgroundColor: colors.surface, borderRadius: 12,
+    marginHorizontal: 20, padding: 4, backgroundColor: colors.surface, borderRadius: 12,
   },
   infoText: { flex: 1, fontSize: 13, color: colors.text, lineHeight: 20 },
 });

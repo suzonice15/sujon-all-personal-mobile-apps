@@ -1,12 +1,19 @@
 import { getDB } from './db';
+import { daily_bonus_coin } from '../config/url';
+
+const localNow = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
 
 export const addPendingClaim = async (contentId, contentTitle, amount) => {
   const db = await getDB();
   const existing = await getPendingByContent(contentId);
   if (existing) return false;
   await db.executeSql(
-    'INSERT INTO pending_claims (content_id, content_title, amount) VALUES (?, ?, ?)',
-    [contentId, contentTitle, amount]
+    'INSERT INTO pending_claims (content_id, content_title, amount, created_at) VALUES (?, ?, ?, ?)',
+    [contentId, contentTitle, amount, localNow()]
   );
   return true;
 };
@@ -57,4 +64,17 @@ export const claimAllPending = async () => {
   if (rows.length === 0) return [];
   await db.executeSql('DELETE FROM pending_claims');
   return rows;
+};
+
+export const claimDailyCoinPending = async () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const contentId = 'daily_coin_' + today;
+  const existing = await getPendingByContent(contentId);
+  if (existing) return { added: false };
+  const db = await getDB();
+  await db.executeSql(
+    'INSERT INTO pending_claims (content_id, content_title, amount, created_at) VALUES (?, ?, ?, ?)',
+    [contentId, 'দৈনিক কয়েন', daily_bonus_coin, localNow()]
+  );
+  return { added: true, amount: daily_bonus_coin };
 };
