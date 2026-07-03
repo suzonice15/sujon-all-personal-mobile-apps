@@ -77,9 +77,7 @@ export default function CoinHistoryScreen() {
 
   useFocusEffect(useCallback(() => {
     const load = async () => {
-      const coinRows = await getRecentCoins(500);
-
-      console.log('coinRows', coinRows);
+      const coinRows = await getRecentCoins(500); 
       const pendingRows = await getPendingClaims();
       const mapType = (r) => {
         const t = r.type || 'income';

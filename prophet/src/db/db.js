@@ -112,6 +112,7 @@ export const initDB = async () => {
       synced INTEGER DEFAULT 0
     );
   `);
+  try { await db.executeSql('ALTER TABLE earning_history ADD COLUMN synced INTEGER DEFAULT 0'); } catch (e) {}
 // users  table 
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS users (

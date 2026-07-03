@@ -87,15 +87,16 @@ export default function PointHistoryScreen({ navigation }) {
     const t = item.type || 'income';
     const isWithdraw = t === 'withdraw';
     const isSummation = t === 'summation';
+    const isSynced = item.synced && item.synced > 0;
     const isStory = item.content_id > 0 && item.content_id !== 2000 && !isSummation;
     const iconColor = isWithdraw ? '#EF4444' : isSummation ? '#8B5CF6' : '#22C55E';
-    const iconName = isWithdraw ? 'remove-circle' : isSummation ? 'archive' : 'auto-stories';
+    const iconName = isSynced ? 'check' : (isWithdraw ? 'remove-circle' : isSummation ? 'archive' : 'auto-stories');
     const pointsText = isWithdraw ? `${toBn(item.points)}` : `+${toBn(item.points)}`;
     return (
       <TouchableOpacity style={s.card} onPress={() => handlePress(item)} activeOpacity={isStory ? 0.7 : 1}>
         <View style={s.cardRow}>
-          <View style={[s.iconBox, { backgroundColor: iconColor + '20' }]}>
-            <MaterialIcons name={iconName} size={20} color={iconColor} />
+          <View style={[s.iconBox, { backgroundColor: isSynced ? '#10B981' + '20' : iconColor + '20' }]}>
+            <MaterialIcons name={iconName} size={20} color={isSynced ? '#10B981' : iconColor} />
           </View>
           <View style={s.cardContent}>
             <Text style={s.cardTitle} numberOfLines={2}>{item.content_title}</Text>

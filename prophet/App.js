@@ -55,22 +55,17 @@ function AppInner() {
       try {
         const info = await getAppInfo();
         if (info?.data) {
-          // console.log('App info data keys:', Object.keys(info.data));
-          await saveAppSettings(info.data);
-          // console.log('App settings saved successfully');
-        } else {
+           await saveAppSettings(info.data);
+         } else {
           console.log('App info response missing data:', info);
         }
       } catch (e) {
         console.log('App info fetch failed:', e.message);
       }
-      const lastSync = await getLastSyncAt();
-      const interval = (await getAppSettingInt('sync_time_minute', 60)) * 60 * 1000;
-      if (Date.now() - lastSync > interval) {
+       
         await syncCoinsToServer();
         await syncPointsToServer();
-        await setLastSyncAt();
-      }
+       
       await refreshPoints();
       await refreshNotifs();
       seedDB();
