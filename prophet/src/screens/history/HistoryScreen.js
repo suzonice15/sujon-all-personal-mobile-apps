@@ -184,7 +184,7 @@ const dynStyles = (colors) => StyleSheet.create({
   balanceCard: {
     backgroundColor: colors.surface, marginHorizontal: 16, marginTop: 16,
     borderRadius: 16, padding: 18,
-    elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1, shadowRadius: 10,
   },
   balanceHeader: {

@@ -1,5 +1,6 @@
 import { getDB } from './db';
 import { getDeviceId } from './earnings';
+import { getUnsyncedWithdraws, markWithdrawsSynced } from './withdraw';
 import { api_url, apps_slug } from '../config/url';
 
 export const getUnsyncedCoins = async () => {
@@ -84,6 +85,29 @@ export const syncPointsToServer = async () => {
     return { synced: data.synced_ids?.length || 0 };
   } catch (e) {
     console.log('Sync points failed:', e.message);
+    return { synced: 0, error: e.message };
+  }
+};
+
+export const syncWithdrawToServer = async () => {
+  try {
+    const deviceId = await getDeviceId();
+    const records = await getUnsyncedWithdraws();
+    if (!records || records.length === 0) return { synced: 0 };
+    const localIds = records.map(r => r.id);
+    const body = { device_id: deviceId, slug: apps_slug, records: records };
+    const res = await fetch(`${api_url}/v1/sync/withdraw`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.synced_ids) await markWithdrawsSynced(data.synced_ids);
+    if (data.server_id_map) {
+      const db = await getDB();
+      for (const m of data.server_id_map) {
+        await db.executeSql('UPDATE withdraw_history SET server_id = ? WHERE id = ?', [m.server_id, m.local_id]);
+      }
+    }
+    return { synced: data.synced_ids?.length || 0 };
+  } catch (e) {
+    console.log('Sync withdraw failed:', e.message);
     return { synced: 0, error: e.message };
   }
 };

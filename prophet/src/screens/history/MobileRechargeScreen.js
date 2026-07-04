@@ -13,23 +13,27 @@ import { getDeviceId } from '../../db/earnings';
 import { isOnline } from '../../utils/helper';
 
 const DEFAULT_COIN_RATE = 100;
-const DEFAULT_MIN_TK = 100;
-const DEFAULT_FEE_TK = 5;
+const DEFAULT_MIN_RECHARGE = 50;
 
-
-
+const sims = [
+  { id: 'grameenphone', label: 'গ্রামীণফোন', color: '#007B3E' },
+  { id: 'robl', label: 'রবি', color: '#ED1C24' },
+  { id: 'banglalink', label: 'বাংলালিংক', color: '#004B93' },
+  { id: 'teletalk', label: 'টেলিটক', color: '#1BA64A' },
+];
 
 const quickAmounts = [50, 100, 200, 500, 1000];
 
-export default function WithdrawRequestScreen({ navigation }) {
+export default function MobileRechargeScreen({ navigation }) {
   const { colors } = useTheme();
   const s = styles(colors);
   const { total: userCoins, refreshCoins } = useCoins();
   const { refresh: refreshNotifications } = useNotifications();
   const [coinRate, setCoinRate] = useState(DEFAULT_COIN_RATE);
-  const [minTk, setMinTk] = useState(DEFAULT_MIN_TK);
-  const [feeTk, setFeeTk] = useState(DEFAULT_FEE_TK);
-  const [accountNumber, setAccountNumber] = useState('');
+  const [minRechargeTk, setMinRechargeTk] = useState(DEFAULT_MIN_RECHARGE);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [selectedSim, setSelectedSim] = useState(null);
+  const [connectionType, setConnectionType] = useState(null);
   const [amountTk, setAmountTk] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -38,26 +42,28 @@ export default function WithdrawRequestScreen({ navigation }) {
     getMobileCoinRate().then((res) => {
       if (res?.success && res?.data) {
         setCoinRate(Number(res.data.coin_rate) || DEFAULT_COIN_RATE);
-        setMinTk(Number(res.data.withdraw_minimum_amount) || DEFAULT_MIN_TK);
-        setFeeTk(Number(res.data.withdraw_minimum_fee) || DEFAULT_FEE_TK);
+        setMinRechargeTk(Number(res.data.min_mobile_recharge_amount) || DEFAULT_MIN_RECHARGE);
       }
     }).catch(() => {});
   }, []);
 
-  const feeCoins = feeTk * coinRate;
   const amountCoins = amountTk ? parseInt(amountTk) * coinRate : 0;
-  const totalCoins = amountCoins + feeCoins;
+  const totalCoins = amountCoins;
 
-  const canSubmit = accountNumber.trim().length >= 11
+  const canSubmit = phoneNumber.trim().length >= 11
+    && selectedSim
+    && connectionType
     && amountTk
-    && parseInt(amountTk) >= minTk
+    && parseInt(amountTk) >= minRechargeTk
     && totalCoins <= userCoins;
 
   const handleSubmit = async () => {
     try {
       if (submitting) return;
-      if (accountNumber.trim().length < 11) return Alert.alert('ত্রুটি', 'সঠিক বিকাশ নম্বর দিন (১১ ডিজিট)');
-      if (!amountTk || parseInt(amountTk) < minTk) return Alert.alert('ত্রুটি', `ন্যূনতম ${minTk} টাকা`);
+      if (phoneNumber.trim().length < 11) return Alert.alert('ত্রুটি', 'সঠিক মোবাইল নম্বর দিন (১১ ডিজিট)');
+      if (!selectedSim) return Alert.alert('ত্রুটি', 'সিম নির্বাচন করুন');
+      if (!connectionType) return Alert.alert('ত্রুটি', 'প্রিপেইড/পোস্টপেইড নির্বাচন করুন');
+      if (!amountTk || parseInt(amountTk) < minRechargeTk) return Alert.alert('ত্রুটি', `ন্যূনতম ${minRechargeTk} টাকা`);
       if (totalCoins > userCoins) return Alert.alert('ত্রুটি', 'পর্যাপ্ত কয়েন নেই');
 
       setSubmitting(true);
@@ -72,13 +78,14 @@ export default function WithdrawRequestScreen({ navigation }) {
         const res = await submitWithdrawRequest({
           device_id: deviceId,
           slug: apps_slug,
-          type: 'withdraw',
-          method: 'bkash',
-          account: accountNumber,
+          type: 'recharge',
+          method: selectedSim,
+          account: phoneNumber,
+          connection_type: connectionType,
           amount: parseInt(amountTk),
           coins_used: totalCoins,
           coin_rate: coinRate,
-          fee_coins: feeCoins,
+          fee_coins: 0,
         });
         if (res?.data?.id) serverId = res.data.id;
       } catch (e) {
@@ -87,15 +94,16 @@ export default function WithdrawRequestScreen({ navigation }) {
       }
 
       try {
-        await addCoins(-Math.abs(totalCoins), 'উত্তোলন', 'withdraw');
+        await addCoins(-Math.abs(totalCoins), 'মোবাইল রিচার্জ', 'withdraw');
         await addWithdrawRecord({
-          type: 'withdraw',
-          method: 'bkash',
-          account: accountNumber,
+          type: 'recharge',
+          method: selectedSim,
+          account: phoneNumber,
+          connection_type: connectionType,
           amount: parseInt(amountTk),
           coins_used: totalCoins,
           coin_rate: coinRate,
-          fee_coins: feeCoins,
+          fee_coins: 0,
           status: 'pending',
           synced: 1,
           server_id: serverId,
@@ -108,7 +116,7 @@ export default function WithdrawRequestScreen({ navigation }) {
 
       setSubmitting(false);
       refreshCoins().catch(() => {});
-      addLocalNotification('উত্তোলন', `${amountTk} টাকার উত্তোলন অনুরোধ পাঠানো হয়েছে`, 'withdraw').catch(() => {});
+      addLocalNotification('মোবাইল রিচার্জ', `${amountTk} টাকার রিচার্জ অনুরোধ পাঠানো হয়েছে`, 'recharge').catch(() => {});
       refreshNotifications().catch(() => {});
       navigation.goBack();
     } catch (e) {
@@ -123,12 +131,12 @@ export default function WithdrawRequestScreen({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 12 }}>
         <View style={s.brandCard}>
           <View style={s.brandRow}>
-            <View style={s.bkashCircle}>
-              <MaterialIcons name="phone-iphone" size={22} color="#fff" />
+            <View style={s.rechargeCircle}>
+              <MaterialIcons name="sim-card" size={22} color="#fff" />
             </View>
             <View style={{ flex: 1, marginLeft: 10 }}>
-              <Text style={s.brandTitle}>বিকাশ উইথড্র</Text>
-              <Text style={s.brandSub}>কয়েন টাকায় রূপান্তর করে উত্তোলন</Text>
+              <Text style={s.brandTitle}>মোবাইল রিচার্জ</Text>
+              <Text style={s.brandSub}>কয়েন দিয়ে রিচার্জ করুন, কোনো ফি নেই</Text>
             </View>
           </View>
           <View style={s.balanceBadge}>
@@ -141,28 +149,68 @@ export default function WithdrawRequestScreen({ navigation }) {
         </View>
 
         <View style={s.fieldBox}>
-          <Text style={s.label}>বিকাশ পার্সোনাল নম্বর</Text>
+          <Text style={s.label}>মোবাইল নম্বর</Text>
           <View style={s.inputRow}>
             <View style={s.prefixBox}>
-              <MaterialIcons name="phone-iphone" size={16} color="#E2136E" />
+              <MaterialIcons name="smartphone" size={16} color="#4F46E5" />
             </View>
             <TextInput
               style={s.input}
               placeholder="০১XXXXXXXXX"
               placeholderTextColor={colors.muted + '80'}
-              value={accountNumber}
-              onChangeText={setAccountNumber}
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
               keyboardType="phone-pad"
               maxLength={11}
             />
           </View>
         </View>
 
+        <Text style={s.label}>সিম নির্বাচন করুন</Text>
+        <View style={s.simGrid}>
+          {sims.map((sim) => {
+            const active = selectedSim === sim.id;
+            return (
+              <TouchableOpacity
+                key={sim.id}
+                style={[s.simCard, active && { borderColor: sim.color, backgroundColor: sim.color + '12' }]}
+                onPress={() => setSelectedSim(sim.id)}
+                activeOpacity={0.7}
+              >
+                <View style={[s.simDot, { backgroundColor: sim.color }]} />
+                <Text style={[s.simLabel, active && { color: sim.color, fontWeight: '700' }]}>{sim.label}</Text>
+                {active && <MaterialIcons name="check-circle" size={14} color={sim.color} style={{ marginLeft: 'auto' }} />}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <Text style={s.label}>কানেকশন টাইপ</Text>
+        <View style={s.connRow}>
+          {[
+            { id: 'prepaid', label: 'প্রিপেইড', icon: 'credit-card' },
+            { id: 'postpaid', label: 'পোস্টপেইড', icon: 'receipt' },
+          ].map((type) => {
+            const active = connectionType === type.id;
+            return (
+              <TouchableOpacity
+                key={type.id}
+                style={[s.connBtn, active && s.connBtnActive]}
+                onPress={() => setConnectionType(type.id)}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name={type.icon} size={15} color={active ? '#fff' : colors.muted} />
+                <Text style={[s.connLabel, active && { color: '#fff' }]}>{type.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
         <View style={s.fieldBox}>
-          <Text style={s.label}>পরিমাণ <Text style={{ color: colors.muted, fontWeight: 400 }}>(ন্যূনতম {minTk} টাকা)</Text></Text>
+          <Text style={s.label}>পরিমাণ <Text style={{ color: colors.muted, fontWeight: 400 }}>(ন্যূনতম {minRechargeTk} টাকা)</Text></Text>
           <View style={s.inputRow}>
             <View style={s.prefixBox}>
-              <MaterialIcons name="attach-money" size={16} color="#E2136E" />
+              <MaterialIcons name="attach-money" size={16} color="#4F46E5" />
             </View>
             <TextInput
               style={s.input}
@@ -187,9 +235,9 @@ export default function WithdrawRequestScreen({ navigation }) {
 
         {amountTk && parseInt(amountTk) > 0 && (
           <View style={s.summaryCard}>
-            <Text style={s.summaryTitle}>লেনদেন বিবরণ</Text>
+            <Text style={s.summaryTitle}>রিচার্জ বিবরণ</Text>
             <View style={s.summaryRow}>
-              <Text style={s.summaryLabel}>উত্তোলন</Text>
+              <Text style={s.summaryLabel}>রিচার্জ পরিমাণ</Text>
               <Text style={s.summaryValue}>{amountTk} টাকা</Text>
             </View>
             <View style={s.summaryRow}>
@@ -197,13 +245,13 @@ export default function WithdrawRequestScreen({ navigation }) {
               <Text style={s.summaryValue}>{amountCoins.toLocaleString()} কয়েন</Text>
             </View>
             <View style={s.summaryRow}>
-              <Text style={s.summaryLabel}>ট্রানজেকশন ফি ({feeTk} টাকা)</Text>
-              <Text style={[s.summaryValue, { color: '#EF4444' }]}>+{feeCoins.toLocaleString()} কয়েন</Text>
+              <Text style={s.summaryLabel}>ট্রানজেকশন ফি</Text>
+              <Text style={[s.summaryValue, { color: '#22C55E' }]}>ফ্রি</Text>
             </View>
             <View style={s.summaryDivider} />
             <View style={s.summaryRow}>
               <Text style={[s.summaryLabel, { fontWeight: '700', color: colors.text }]}>মোট খরচ</Text>
-              <Text style={[s.summaryValue, { fontWeight: '700', color: '#E2136E' }]}>{totalCoins.toLocaleString()} কয়েন</Text>
+              <Text style={[s.summaryValue, { fontWeight: '700', color: '#4F46E5' }]}>{totalCoins.toLocaleString()} কয়েন</Text>
             </View>
             {totalCoins > userCoins && (
               <View style={s.errorBox}>
@@ -215,9 +263,9 @@ export default function WithdrawRequestScreen({ navigation }) {
         )}
 
         <View style={s.infoBox}>
-          <MaterialIcons name="info-outline" size={15} color="#E2136E" />
+          <MaterialIcons name="info-outline" size={15} color="#4F46E5" />
           <Text style={s.infoText}>
-            • {feeTk} টাকা ফি • {coinRate} কয়েন = ১ টাকা • সকাল ৯টা - রাত ১০টা
+            • কোন ফি নেই • {coinRate} কয়েন = ১ টাকা • সকাল ৯টা - রাত ১০টা
           </Text>
         </View>
 
@@ -228,7 +276,7 @@ export default function WithdrawRequestScreen({ navigation }) {
           disabled={!canSubmit || submitting}
         >
           <MaterialIcons name="send" size={18} color="#fff" />
-          <Text style={s.submitText}>{submitting ? 'প্রক্রিয়াকরণ...' : 'উইথড্র রিকোয়েস্ট জমা দিন'}</Text>
+          <Text style={s.submitText}>{submitting ? 'প্রক্রিয়াকরণ...' : 'রিচার্জ রিকোয়েস্ট জমা দিন'}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -244,7 +292,7 @@ const styles = (colors) => StyleSheet.create({
     padding: 12,
     marginBottom: 14,
     borderLeftWidth: 3,
-    borderLeftColor: '#E2136E',
+    borderLeftColor: '#4F46E5',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -252,11 +300,11 @@ const styles = (colors) => StyleSheet.create({
     shadowRadius: 4,
   },
   brandRow: { flexDirection: 'row', alignItems: 'center' },
-  bkashCircle: {
+  rechargeCircle: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#E2136E',
+    backgroundColor: '#4F46E5',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -300,18 +348,48 @@ const styles = (colors) => StyleSheet.create({
     color: colors.text,
   },
 
+  simGrid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10, gap: 6 },
+  simCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '48%',
+    paddingVertical: 9,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.muted + '40',
+    backgroundColor: colors.surface,
+  },
+  simDot: { width: 7, height: 7, borderRadius: 3, marginRight: 6 },
+  simLabel: { fontSize: 12, fontWeight: '500', color: colors.text },
+
+  connRow: { flexDirection: 'row', marginBottom: 12, gap: 8 },
+  connBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 9,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.muted + '40',
+    backgroundColor: colors.surface,
+  },
+  connBtnActive: { backgroundColor: '#4F46E5', borderColor: '#4F46E5' },
+  connLabel: { fontSize: 12, fontWeight: '600', color: colors.text, marginLeft: 5 },
+
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
   chip: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E2136E',
+    borderColor: '#4F46E5',
     marginRight: 6,
     marginBottom: 6,
-    backgroundColor: '#E2136E' + '10',
+    backgroundColor: '#4F46E5' + '10',
   },
-  chipText: { fontSize: 11, fontWeight: '600', color: '#E2136E' },
+  chipText: { fontSize: 11, fontWeight: '600', color: '#4F46E5' },
 
   summaryCard: {
     backgroundColor: colors.surface,
@@ -322,11 +400,7 @@ const styles = (colors) => StyleSheet.create({
     borderColor: colors.muted + '20',
   },
   summaryTitle: { fontSize: 12, fontWeight: 'bold', color: colors.text, marginBottom: 7 },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 3,
-  },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 },
   summaryLabel: { fontSize: 11, color: colors.muted },
   summaryValue: { fontSize: 11, fontWeight: '600', color: colors.text },
   summaryDivider: { height: 1, backgroundColor: colors.muted + '25', marginVertical: 5 },
@@ -343,22 +417,22 @@ const styles = (colors) => StyleSheet.create({
   infoBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#FDF2F8',
+    backgroundColor: '#EEF2FF',
     borderRadius: 10,
     padding: 8,
     marginBottom: 14,
   },
-  infoText: { fontSize: 11, color: '#9D174D', marginLeft: 8, flex: 1, lineHeight: 16 },
+  infoText: { fontSize: 11, color: '#4338CA', marginLeft: 8, flex: 1, lineHeight: 16 },
 
   submitBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E2136E',
+    backgroundColor: '#4F46E5',
     borderRadius: 12,
     paddingVertical: 12,
     elevation: 2,
-    shadowColor: '#E2136E',
+    shadowColor: '#4F46E5',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
     shadowRadius: 6,

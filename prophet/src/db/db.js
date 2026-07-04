@@ -187,13 +187,30 @@ export const initDB = async () => {
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS withdraw_history (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      amount INTEGER NOT NULL,
+      type TEXT DEFAULT 'withdraw',
       method TEXT,
       account TEXT,
+      connection_type TEXT,
+      amount INTEGER NOT NULL,
+      coins_used INTEGER DEFAULT 0,
+      coin_rate INTEGER DEFAULT 100,
+      fee_coins INTEGER DEFAULT 0,
       status TEXT DEFAULT 'pending',
+      synced INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN type TEXT DEFAULT \'withdraw\''); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN connection_type TEXT'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN coins_used INTEGER DEFAULT 0'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN coin_rate INTEGER DEFAULT 100'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN fee_coins INTEGER DEFAULT 0'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN synced INTEGER DEFAULT 0'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN connection_type TEXT'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN transaction_id TEXT'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN admin_note TEXT'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE withdraw_history ADD COLUMN server_id INTEGER'); } catch (e) {}
+  try { await db.executeSql("ALTER TABLE withdraw_history ADD COLUMN refunded INTEGER DEFAULT 0"); } catch (e) {}
 
   console.log('DB initialized');
 };

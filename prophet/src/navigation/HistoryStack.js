@@ -7,6 +7,7 @@ import CoinHistoryScreen from '../screens/history/CoinHistoryScreen';
 import PointHistoryScreen from '../screens/history/PointHistoryScreen';
 import WithdrawHistoryScreen from '../screens/history/WithdrawHistoryScreen';
 import WithdrawRequestScreen from '../screens/history/WithdrawRequestScreen';
+import MobileRechargeScreen from '../screens/history/MobileRechargeScreen';
 import StoryDetail from '../screens/home/StoryDetail';
 import OrderHistoryScreen from '../screens/history/OrderHistoryScreen';
 import OrderDetailScreen from '../screens/history/OrderDetailScreen';
@@ -25,7 +26,8 @@ export default function HistoryStack() {
       <Stack.Screen name="CoinHistory" component={CoinHistoryScreen} options={{ title: 'কয়েন হিস্টোরি' }} />
       <Stack.Screen name="PointHistory" component={PointHistoryScreen} options={{ title: 'পয়েন্ট হিস্টোরি' }} />
       <Stack.Screen name="WithdrawHistory" component={WithdrawHistoryScreen} options={{ title: 'উইথড্র হিস্টোরি' }} />
-      <Stack.Screen name="WithdrawRequest" component={WithdrawRequestScreen} options={{ title: 'উইথড্র রিকোয়েস্ট' }} />
+      <Stack.Screen name="WithdrawRequest" component={WithdrawRequestScreen} options={{ title: 'বিকাশ উইথড্র' }} />
+      <Stack.Screen name="MobileRecharge" component={MobileRechargeScreen} options={{ title: 'মোবাইল রিচার্জ' }} />
       <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ title: 'অর্ডার হিস্টোরি' }} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: 'অর্ডার ডিটেইল' }} />
       <Stack.Screen name="StoryDetail" component={StoryDetail} />

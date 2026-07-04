@@ -17,8 +17,8 @@ const quickActions = [
   { icon: 'menu-book', label: 'গল্প', color: '#6366F1', tab: 'Home' },
   { icon: 'quiz', label: 'কুইজ', color: '#22C55E', tab: 'Quize' },
   { icon: 'inventory-2', label: 'অর্ডার', color: '#EF4444', screen: 'OrderHistory', tab: 'History' },
-  { icon: 'monetization-on', label: 'আয়', color: '#F59E0B', screen: 'AdEarn', tab: 'Home' },
-  { icon: 'monetization-on', label: 'কয়েন', color: '#F59E0B', screen: 'DailyCoin', tab: 'Home' },
+  { icon: 'monetization-on', label: 'উইথড্র', color: '#F59E0B', screen: 'WithdrawHistory', tab: 'History' },
+  { icon: 'monetization-on', label: 'কয়েন', color: '#F59E0B', screen: 'CoinHistory', tab: 'History' },
   { icon: 'star', label: 'পয়েন্ট', color: '#22C55E', screen: 'PointHistory', tab: 'History' },
   { icon: 'shopping-bag', label: 'কিনা কাটা', color: '#EC4899', screen: 'ProductList', tab: 'ProductList' },
 ];
@@ -316,7 +316,7 @@ const styles = (colors) => StyleSheet.create({
   coinCard: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: '#fff', borderRadius: 12, padding: 12,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03, shadowRadius: 3,
   },
   coinCardTitle: { flex: 1, fontSize: 13, color: '#374151', fontWeight: '500' },

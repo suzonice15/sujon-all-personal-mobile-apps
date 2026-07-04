@@ -37,7 +37,7 @@ function AppInner() {
       await initDB();
       await runMigrations();
       const bonus = await claimDailyBonus();
-      if (bonus.added) ToastAndroid.show('🎁 দৈনিক বোনাস ১০০ পয়েন্ট পেয়েছেন!', ToastAndroid.LONG);
+      if (bonus.added) ToastAndroid.show('দৈনিক বোনাস ১০০ পয়েন্ট পেয়েছেন!', ToastAndroid.LONG);
       if (daily_bonus_coin > 0) {
         const lastClaim = await getLastClaimTime();
         const todayStr = new Date().toDateString();
@@ -45,7 +45,7 @@ function AppInner() {
         if (lastClaimDate !== todayStr) {
           const coinPending = await claimDailyCoinPending();
           if (coinPending.added) {
-            ToastAndroid.show(`🎉 দৈনিক ${coinPending.amount} কয়েন পেন্ডিং হয়েছে!`, ToastAndroid.SHORT);
+            ToastAndroid.show(`দৈনিক ${coinPending.amount} কয়েন পেন্ডিং হয়েছে!`, ToastAndroid.SHORT);
             refreshCoins();
           }
         }
