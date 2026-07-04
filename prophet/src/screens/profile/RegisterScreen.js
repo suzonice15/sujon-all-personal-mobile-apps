@@ -17,6 +17,7 @@ export default function RegisterScreen({ navigation }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [gender, setGender] = useState('male');
+  const [referralCode, setReferralCode] = useState('');
   const [districtId, setDistrictId] = useState(0);
   const [districts, setDistricts] = useState([]);
   const [address, setAddress] = useState('');
@@ -41,7 +42,7 @@ export default function RegisterScreen({ navigation }) {
     }
     if (password.length < 6) { ToastAndroid.show('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে', ToastAndroid.SHORT); return; }
     setLoading(true);
-    const res = await registerUser(name.trim(), email.trim(), password, phone.trim(), gender, districtId, address.trim());
+    const res = await registerUser(name.trim(), email.trim(), password, phone.trim(), gender, districtId, address.trim(), referralCode.trim());
     setLoading(false);
     if (res.success) { navigation.replace('Dashboard'); }
     else { ToastAndroid.show(res.message, ToastAndroid.SHORT); }
@@ -82,6 +83,9 @@ export default function RegisterScreen({ navigation }) {
 
         <TextInput style={s.input} placeholder="ঠিকানা *" placeholderTextColor={colors.onSurface + '66'}
           value={address} onChangeText={setAddress} multiline />
+
+        <TextInput style={s.input} placeholder="রেফারেল কোড (যদি থাকে)"
+          placeholderTextColor={colors.onSurface + '66'} value={referralCode} onChangeText={setReferralCode} autoCapitalize="characters" />
 
         <View style={s.passRow}>
           <TextInput style={[s.input, { flex: 1, marginBottom: 0 }]} placeholder="পাসওয়ার্ড * (কমপক্ষে ৬ অক্ষর)"

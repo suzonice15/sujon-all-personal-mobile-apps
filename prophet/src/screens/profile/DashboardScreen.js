@@ -227,7 +227,15 @@ export default function DashboardScreen({ navigation }) {
           </View>
         </View>
 
-           <View style={s.menuSection}>
+        <TouchableOpacity style={s.referBtn} onPress={() => navigation.navigate('Referral')} activeOpacity={0.7}>
+          <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#4F46E515', justifyContent: 'center', alignItems: 'center' }}>
+            <MaterialIcons name="people-alt" size={20} color="#4F46E5" />
+          </View>
+          <Text style={s.referBtnText}>রেফারেল সিস্টেম</Text>
+          <MaterialIcons name="chevron-right" size={18} color="#9CA3AF" />
+        </TouchableOpacity>
+
+        <View style={s.menuSection}>
           <Text style={s.menuTitle}>দ্রুত লিংক</Text>
           <View style={s.menuGrid}>
             {quickActions.map((item, i) => (
@@ -364,4 +372,10 @@ const styles = (colors) => StyleSheet.create({
     borderWidth: 1.5, borderColor: colors.primary, borderRadius: 14, paddingVertical: 13,
   },
   registerBtnText: { color: colors.primary, fontSize: 14, fontWeight: 'bold' },
+  referBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#EEF2FF', marginHorizontal: 8, marginTop: 16,
+    borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#C7D2FE',
+  },
+  referBtnText: { flex: 1, fontSize: 14, fontWeight: '700', color: '#4338CA' },
 });

@@ -42,8 +42,12 @@ const migrations = [
       ALTER TABLE users ADD COLUMN district_id INTEGER DEFAULT 0;
     `,
   },
-
-
+  {
+    name: 'add_server_id_to_users',
+    sql: `
+      ALTER TABLE users ADD COLUMN server_id INTEGER DEFAULT 0;
+    `,
+  },
 ];
 
 export const runMigrations = async () => {

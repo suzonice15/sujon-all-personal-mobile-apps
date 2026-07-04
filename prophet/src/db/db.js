@@ -120,6 +120,11 @@ export const initDB = async () => {
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
+      phone TEXT DEFAULT '',
+      gender TEXT DEFAULT 'male',
+      district_id INTEGER DEFAULT 0,
+      address TEXT DEFAULT '',
+      server_id INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);

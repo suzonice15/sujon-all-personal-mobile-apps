@@ -9,7 +9,6 @@ import { getTotalWithdraw } from '../../db/withdraw';
 import { toBn } from '../../utils/helper';
 
 const historyOptions = [
-  
   {
     id: 'coin', title: 'কয়েন হিস্টোরি',
     subtitle: 'আপনার অর্জিত কয়েনের বিস্তারিত দেখুন',
@@ -29,6 +28,11 @@ const historyOptions = [
     id: 'order', title: 'অর্ডার হিস্টোরি',
     subtitle: 'আপনার অর্ডারের বর্তমান অবস্থা দেখুন',
     icon: 'inventory-2', color: '#EF4444', screen: 'OrderHistory',
+  },
+  {
+    id: 'referral', title: 'রেফারেল সিস্টেম',
+    subtitle: 'রেফারেল কোড, টিম, আয় ও আরও অনেক কিছু',
+    icon: 'people-alt', color: '#4F46E5', screen: 'Referral', tab: 'Profile',
   },
 ];
 
@@ -151,7 +155,7 @@ export default function HistoryScreen({ navigation }) {
           <TouchableOpacity
             key={item.id}
             style={s.optionCard}
-            onPress={() => navigation.navigate(item.screen)}
+            onPress={() => item.tab ? navigation.navigate(item.tab, { screen: item.screen }) : navigation.navigate(item.screen)}
             activeOpacity={0.7}
           >
             <View style={[s.iconBox, { backgroundColor: item.color + '20' }]}>
