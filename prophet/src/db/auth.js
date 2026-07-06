@@ -1,5 +1,5 @@
 import { getDB } from './db';
-import { registerUser as apiRegister, loginUser as apiLogin } from '../api/userApi';
+import { registerUser as apiRegister, loginUser as apiLogin, updateProfile as apiUpdateProfile } from '../api/userApi';
 import { apps_slug } from '../config/url';
 import { getDeviceId } from './earnings';
 
@@ -14,6 +14,7 @@ export const registerUser = async (name, email, password, phone, gender = 'male'
     district_id: districtId, address,
     referral_code: referralCode,
     device_id: deviceId,
+    app_slug: apps_slug,
   });
 
   if (!apiRes.success) {
@@ -21,8 +22,8 @@ export const registerUser = async (name, email, password, phone, gender = 'male'
   }
 
   await db.executeSql(
-    'INSERT INTO users (name, email, password, phone, gender, district_id, address) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [name, email, password, phone, gender, districtId, address]
+    'INSERT INTO users (name, email, password, phone, gender, district_id, address, device_id, referral_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [name, email, password, phone, gender, districtId, address, deviceId, referralCode]
   );
   const [res] = await db.executeSql('SELECT * FROM users WHERE email = ?', [email]);
   const user = res.rows.item(0);
@@ -34,16 +35,21 @@ export const registerUser = async (name, email, password, phone, gender = 'male'
     } catch (e) {}
   }
 
-  if (apiRes.user?.referral_code) {
+  if (apiRes.token) {
     try {
-      await db.executeSql(
-        "INSERT OR REPLACE INTO settings (key, value) VALUES ('referral_code', ?)",
-        [apiRes.user.referral_code]
-      );
+      await db.executeSql("UPDATE settings SET auth_token = ? WHERE id = 1", [apiRes.token]);
     } catch (e) {}
   }
 
-  return { success: true, user };
+  let myReferralCode = '';
+  if (apiRes.user?.referral_code) {
+    try {
+      myReferralCode = apiRes.user.referral_code;
+      await db.executeSql("UPDATE settings SET referral_code = ? WHERE id = 1", [myReferralCode]);
+    } catch (e) {}
+  }
+
+  return { success: true, user, referral_code: myReferralCode };
 };
 
 export const loginUser = async (email, password) => {
@@ -51,44 +57,48 @@ export const loginUser = async (email, password) => {
 
   const deviceId = await getDeviceId();
   const apiRes = await apiLogin(email, password, deviceId);
-  if (!apiRes.success) {
-    return { success: false, message: apiRes.message || 'ইমেইল বা পাসওয়ার্ড ভুল' };
+
+  if (apiRes.success) {
+    const serverUser = apiRes.user;
+    const token = apiRes.token;
+
+    const [existing] = await db.executeSql('SELECT id FROM users WHERE email = ?', [email]);
+    let user;
+    if (existing.rows.length > 0) {
+      const localId = existing.rows.item(0).id;
+      await db.executeSql(
+        'UPDATE users SET name = ?, phone = ?, gender = ?, address = ?, district_id = ?, server_id = ?, device_id = ? WHERE id = ?',
+        [serverUser.name, serverUser.phone || '', serverUser.gender || 'male', serverUser.address || '', serverUser.district_id || 0, serverUser.id, deviceId, localId]
+      );
+      const [res] = await db.executeSql('SELECT * FROM users WHERE id = ?', [localId]);
+      user = res.rows.item(0);
+    } else {
+      await db.executeSql(
+        'INSERT INTO users (name, email, password, phone, gender, district_id, address, server_id, device_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [serverUser.name, email, password, serverUser.phone || '', serverUser.gender || 'male', serverUser.district_id || 0, serverUser.address || '', serverUser.id, deviceId]
+      );
+      const [res] = await db.executeSql('SELECT * FROM users WHERE email = ?', [email]);
+      user = res.rows.item(0);
+    }
+
+    await saveSession(user.id);
+    if (token) {
+      try { await db.executeSql("UPDATE settings SET auth_token = ? WHERE id = 1", [token]); } catch (e) {}
+    }
+    if (serverUser.id) {
+      try { await db.executeSql("UPDATE settings SET server_user_id = ? WHERE id = 1", [String(serverUser.id)]); } catch (e) {}
+    }
+
+    return { success: true, user };
   }
 
-  const serverUser = apiRes.user;
-  const token = apiRes.token;
-
-  const [existing] = await db.executeSql('SELECT id FROM users WHERE email = ?', [email]);
-  let user;
-  if (existing.rows.length > 0) {
-    const localId = existing.rows.item(0).id;
-    await db.executeSql(
-      'UPDATE users SET name = ?, phone = ?, gender = ?, address = ?, district_id = ?, server_id = ? WHERE id = ?',
-      [serverUser.name, serverUser.phone || '', serverUser.gender || 'male', serverUser.address || '', serverUser.district_id || 0, serverUser.id, localId]
-    );
-    const [res] = await db.executeSql('SELECT * FROM users WHERE id = ?', [localId]);
-    user = res.rows.item(0);
-  } else {
-    await db.executeSql(
-      'INSERT INTO users (name, email, password, phone, gender, district_id, address, server_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [serverUser.name, email, password, serverUser.phone || '', serverUser.gender || 'male', serverUser.district_id || 0, serverUser.address || '', serverUser.id]
-    );
-    const [res] = await db.executeSql('SELECT * FROM users WHERE email = ?', [email]);
-    user = res.rows.item(0);
+  // API failed — local login fallback
+  const [local] = await db.executeSql('SELECT * FROM users WHERE email = ?', [email]);
+  if (local.rows.length === 0 || local.rows.item(0).password !== password) {
+    return { success: false, message: 'ইমেইল বা পাসওয়ার্ড ভুল' };
   }
-
+  const user = local.rows.item(0);
   await saveSession(user.id);
-  if (token) {
-    try {
-      await db.executeSql("INSERT OR REPLACE INTO settings (key, value) VALUES ('auth_token', ?)", [token]);
-    } catch (e) {}
-  }
-  if (serverUser.id) {
-    try {
-      await db.executeSql("INSERT OR REPLACE INTO settings (key, value) VALUES ('server_user_id', ?)", [String(serverUser.id)]);
-    } catch (e) {}
-  }
-
   return { success: true, user };
 };
 
@@ -105,6 +115,18 @@ export const getLoggedInUser = async () => {
 
 export const updateUser = async (userId, name, newPassword, phone, address, gender, districtId = 0) => {
   const db = await getDB();
+  const deviceId = await getDeviceId();
+
+  try {
+    await apiUpdateProfile({
+      device_id: deviceId,
+      slug: apps_slug,
+      name, phone, gender, address,
+      district_id: districtId,
+      password: newPassword || undefined,
+    });
+  } catch (e) {}
+
   let sql = 'UPDATE users SET name = ?, phone = ?, address = ?, gender = ?, district_id = ?';
   const params = [name, phone, address, gender, districtId];
   if (newPassword) {
@@ -115,6 +137,14 @@ export const updateUser = async (userId, name, newPassword, phone, address, gend
   params.push(userId);
   await db.executeSql(sql, params);
   const [res] = await db.executeSql('SELECT * FROM users WHERE id = ?', [userId]);
+  return res.rows.item(0);
+};
+
+export const getUserByDeviceId = async () => {
+  const db = await getDB();
+  const deviceId = await getDeviceId();
+  const [res] = await db.executeSql('SELECT * FROM users WHERE device_id = ?', [deviceId]);
+  if (res.rows.length === 0) return null;
   return res.rows.item(0);
 };
 

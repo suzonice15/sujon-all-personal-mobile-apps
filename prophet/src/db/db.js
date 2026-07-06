@@ -32,6 +32,7 @@ export const initDB = async () => {
   try { await db.executeSql('ALTER TABLE settings ADD COLUMN sync_interval INTEGER DEFAULT 60'); } catch (e) {}
   try { await db.executeSql('ALTER TABLE settings ADD COLUMN last_sync_at INTEGER DEFAULT 0'); } catch (e) {}
   try { await db.executeSql("ALTER TABLE settings ADD COLUMN app_settings_json TEXT DEFAULT '{}'"); } catch (e) {}
+  try { await db.executeSql("ALTER TABLE settings ADD COLUMN auth_token TEXT DEFAULT ''"); } catch (e) {}
   await db.executeSql('INSERT OR IGNORE INTO settings (id, dark_mode, cooldown_seconds) VALUES (1, 0, 180)');
 // mobile_contents  table 
   await db.executeSql(`
@@ -125,6 +126,8 @@ export const initDB = async () => {
       district_id INTEGER DEFAULT 0,
       address TEXT DEFAULT '',
       server_id INTEGER DEFAULT 0,
+      device_id TEXT DEFAULT '',
+      referral_code TEXT DEFAULT '',
       created_at TEXT DEFAULT (datetime('now', 'localtime'))
     );
   `);

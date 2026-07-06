@@ -16,7 +16,7 @@ export default function EditProfileScreen({ navigation, route }) {
   const [name, setName] = useState(user.name);
   const [phone, setPhone] = useState(user.phone || '');
   const [address, setAddress] = useState(user.address || '');
-  const [gender, setGender] = useState(user.gender || 'male');
+  const [gender, setGender] = useState(user.gender || 'female');
   const [districtId, setDistrictId] = useState(user.district_id || 0);
   const [districts, setDistricts] = useState([]);
   const [showDistricts, setShowDistricts] = useState(false);
@@ -25,6 +25,7 @@ export default function EditProfileScreen({ navigation, route }) {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [districtSearch, setDistrictSearch] = useState('');
+  const [errors, setErrors] = useState({});
   const { colors } = useTheme();
   const s = styles(colors);
 
@@ -37,10 +38,16 @@ export default function EditProfileScreen({ navigation, route }) {
   });
 
   const handleSave = async () => {
-    if (!name.trim()) { ToastAndroid.show('নাম খালি রাখা যাবে না', ToastAndroid.SHORT); return; }
-    if (!districtId) { ToastAndroid.show('জেলা নির্বাচন করুন', ToastAndroid.SHORT); return; }
-    if (newPassword && newPassword.length < 6) { ToastAndroid.show('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে', ToastAndroid.SHORT); return; }
-    if (newPassword && newPassword !== confirmPassword) { ToastAndroid.show('পাসওয়ার্ড মিলছে না', ToastAndroid.SHORT); return; }
+    const newErrors = {};
+    if (!name.trim()) newErrors.name = true;
+    if (!phone.trim()) newErrors.phone = true;
+    if (!districtId) newErrors.district = true;
+    if (newPassword && newPassword.length < 6) newErrors.password = true;
+    if (newPassword && newPassword !== confirmPassword) newErrors.confirm = true;
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      ToastAndroid.show('সব তথ্য পূরণ করুন', ToastAndroid.SHORT); return;
+    }
     setLoading(true);
     await updateUser(user.id, name.trim(), newPassword || null, phone.trim(), address.trim(), gender, districtId);
     setLoading(false);
@@ -50,59 +57,46 @@ export default function EditProfileScreen({ navigation, route }) {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <ScrollView style={s.container} contentContainerStyle={{ padding: 24 }} keyboardShouldPersistTaps="handled">
-        <View style={s.avatarBox}>
-          <Text style={s.avatarText}>{name?.charAt(0).toUpperCase()}</Text>
-        </View>
+      <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
 
-        <Text style={s.label}>নাম</Text>
-        <TextInput style={s.input} value={name} onChangeText={setName} placeholder="আপনার নাম" placeholderTextColor={colors.onSurface + '66'} />
+        <TextInput style={[s.input, errors.name && s.inputError]} value={name} onChangeText={t => { setName(t); if (errors.name) setErrors(p => ({...p, name: !t.trim()})); }} placeholder="আপনার নাম" placeholderTextColor={colors.onSurface + '66'} />
 
-        <Text style={s.label}>ইমেইল</Text>
-        <TextInput style={[s.input, s.inputDisabled]} value={user.email} editable={false} />
+        <TextInput style={[s.input, s.inputDisabled]} value={user.email} editable={false} placeholder="ইমেইল" placeholderTextColor={colors.onSurface + '66'} />
 
-        <Text style={s.label}>WhatsApp/ফোন নম্বর</Text>
-        <TextInput style={s.input} value={phone} onChangeText={setPhone} placeholder="ফোন নম্বর" placeholderTextColor={colors.onSurface + '66'} keyboardType="phone-pad" />
+        <TextInput style={[s.input, errors.phone && s.inputError]} value={phone} onChangeText={t => { setPhone(t); if (errors.phone) setErrors(p => ({...p, phone: !t.trim()})); }} placeholder="WhatsApp/ফোন নম্বর" placeholderTextColor={colors.onSurface + '66'} keyboardType="phone-pad" />
 
-        <Text style={s.label}>জেলা</Text>
-        <TouchableOpacity style={s.input} onPress={() => setShowDistricts(true)} activeOpacity={0.7}>
+        <TouchableOpacity style={[s.input, errors.district && s.inputError]} onPress={() => setShowDistricts(true)} activeOpacity={0.7}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ color: selectedDistrict ? colors.onSurface : colors.onSurface + '66', fontSize: 15 }}>
               {selectedDistrict ? selectedDistrict.name : 'জেলা নির্বাচন করুন'}
             </Text>
-            <MaterialIcons name="arrow-drop-down" size={24} color={colors.onSurface + '66'} />
+            <MaterialIcons name="arrow-drop-down" size={22} color={colors.onSurface + '66'} />
           </View>
         </TouchableOpacity>
 
-        <Text style={s.label}>ঠিকানা</Text>
-        <TextInput style={s.input} value={address} onChangeText={setAddress} placeholder="ঠিকানা" placeholderTextColor={colors.onSurface + '66'} multiline />
+        <TextInput style={s.input} value={address} onChangeText={setAddress} placeholder="ঠিকানা" placeholderTextColor={colors.onSurface + '66'} />
 
-        <Text style={s.label}>লিঙ্গ</Text>
         <View style={s.genderRow}>
           {GENDERS.map((g) => (
             <TouchableOpacity key={g.value} style={[s.genderBtn, gender === g.value && s.genderActive]}
               onPress={() => setGender(g.value)}>
-              <MaterialIcons name={gender === g.value ? 'radio-button-checked' : 'radio-button-unchecked'} size={18} color={gender === g.value ? colors.primary : colors.onSurface} />
+              <MaterialIcons name={gender === g.value ? 'radio-button-checked' : 'radio-button-unchecked'} size={16} color={gender === g.value ? colors.primary : colors.onSurface} />
               <Text style={[s.genderText, gender === g.value && s.genderTextActive]}>{g.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        <Text style={s.label}>নতুন পাসওয়ার্ড (ঐচ্ছিক)</Text>
         <View style={s.passRow}>
-          <TextInput style={[s.input, { flex: 1, marginBottom: 0 }]} value={newPassword} onChangeText={setNewPassword}
-            placeholder="নতুন পাসওয়ার্ড" placeholderTextColor={colors.onSurface + '66'} secureTextEntry={!showPass} />
+          <TextInput style={[s.input, { flex: 1, marginBottom: 0 }, errors.password && s.inputError]} value={newPassword} onChangeText={t => { setNewPassword(t); if (errors.password) setErrors(p => ({...p, password: !t.trim() || t.length < 6})); }}
+            placeholder="নতুন পাসওয়ার্ড (ঐচ্ছিক)" placeholderTextColor={colors.onSurface + '66'} secureTextEntry={!showPass} />
           <TouchableOpacity style={s.eyeBtn} onPress={() => setShowPass(p => !p)}>
-            <MaterialIcons name={showPass ? 'visibility-off' : 'visibility'} size={22} color={colors.onSurface} style={{ opacity: 0.4 }} />
+            <MaterialIcons name={showPass ? 'visibility-off' : 'visibility'} size={20} color={colors.onSurface} style={{ opacity: 0.4 }} />
           </TouchableOpacity>
         </View>
 
         {newPassword.length > 0 && (
-          <>
-            <Text style={s.label}>পাসওয়ার্ড নিশ্চিত করুন</Text>
-            <TextInput style={s.input} value={confirmPassword} onChangeText={setConfirmPassword}
-              placeholder="পাসওয়ার্ড আবার লিখুন" placeholderTextColor={colors.onSurface + '66'} secureTextEntry={!showPass} />
-          </>
+          <TextInput style={[s.input, errors.confirm && s.inputError]} value={confirmPassword} onChangeText={t => { setConfirmPassword(t); if (errors.confirm) setErrors(p => ({...p, confirm: t !== newPassword})); }}
+            placeholder="পাসওয়ার্ড আবার লিখুন" placeholderTextColor={colors.onSurface + '66'} secureTextEntry={!showPass} />
         )}
 
         <TouchableOpacity style={s.btn} onPress={handleSave} disabled={loading}>
@@ -140,37 +134,31 @@ export default function EditProfileScreen({ navigation, route }) {
 }
 
 const styles = (colors) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  avatarBox: {
-    width: 80, height: 80, borderRadius: 40,
-    backgroundColor: colors.primary, alignItems: 'center',
-    justifyContent: 'center', alignSelf: 'center', marginBottom: 28,
-  },
-  avatarText: { fontSize: 36, fontWeight: 'bold', color: '#fff' },
-  label: { fontSize: 13, color: colors.onSurface, opacity: 0.6, marginBottom: 6, marginTop: 14 },
+  container: { flexGrow: 1, backgroundColor: colors.background, padding: 20, paddingTop: 24 },
   input: {
-    borderWidth: 1, borderColor: colors.surface, borderRadius: 12,
-    padding: 14, fontSize: 15, color: colors.onSurface, marginBottom: 4, backgroundColor: colors.surface,
+    borderWidth: 1, borderColor: colors.surface, borderRadius: 10,
+    padding: 12, fontSize: 14, color: colors.onSurface, backgroundColor: colors.surface, marginBottom: 10,
   },
-  inputDisabled: { opacity: 0.4 },
-  genderRow: { flexDirection: 'row', marginBottom: 4, marginHorizontal: -4 },
+  inputError: { borderColor: '#e53935', borderWidth: 1 },
+  inputDisabled: { opacity: 0.5 },
+  genderRow: { flexDirection: 'row', marginBottom: 10, marginHorizontal: -3 },
   genderBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flex: 1,
-    borderWidth: 1, borderColor: colors.surface, borderRadius: 12,
-    paddingVertical: 12, paddingHorizontal: 8, backgroundColor: colors.surface, marginHorizontal: 4,
+    borderWidth: 1, borderColor: colors.surface, borderRadius: 10,
+    paddingVertical: 10, paddingHorizontal: 6, backgroundColor: colors.surface, marginHorizontal: 3,
   },
   genderActive: { borderColor: colors.primary },
-  genderText: { fontSize: 14, color: colors.onSurface, opacity: 0.6, marginLeft: 4 },
+  genderText: { fontSize: 13, color: colors.onSurface, opacity: 0.6, marginLeft: 4 },
   genderTextActive: { color: colors.primary, fontWeight: 'bold', opacity: 1 },
-  passRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  eyeBtn: { position: 'absolute', right: 14 },
-  btn: { backgroundColor: colors.primary, borderRadius: 12, padding: 15, alignItems: 'center', marginTop: 28 },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  searchInput: { borderWidth: 1, borderColor: colors.surface, borderRadius: 10, padding: 12, fontSize: 15, color: colors.onSurface, backgroundColor: colors.surface, margin: 12, marginBottom: 4 },
+  passRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  eyeBtn: { position: 'absolute', right: 12 },
+  btn: { backgroundColor: colors.primary, borderRadius: 10, padding: 14, alignItems: 'center', marginTop: 14 },
+  btnText: { color: '#fff', fontSize: 15, fontWeight: 'bold' },
+  searchInput: { borderWidth: 1, borderColor: colors.surface, borderRadius: 10, padding: 12, fontSize: 14, color: colors.onSurface, backgroundColor: colors.surface, margin: 12, marginBottom: 4 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: colors.background, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '60%', paddingBottom: 30 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: colors.surface },
   modalTitle: { fontSize: 18, fontWeight: 'bold', color: colors.onSurface },
   modalItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 0.5, borderBottomColor: colors.onSurface + '15' },
-  modalItemText: { fontSize: 16, color: colors.onSurface },
+  modalItemText: { fontSize: 15, color: colors.onSurface },
 });

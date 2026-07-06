@@ -3,6 +3,7 @@ export const api_url='https://education.tablighshop.com/api';
 
 
 export const apps_slug='profet';
+export const quize_slug='islamic-quize';
 export const app_version='1.0.0';
 export const lastUpdate = '৩ জুলাই ২০২৬';
 export const apps_title='নবী রাসূলের জীবনী';

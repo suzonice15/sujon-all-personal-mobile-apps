@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Ani
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
-import { getLoggedInUser } from '../../db/auth';
+import { getLoggedInUser, logoutUser } from '../../db/auth';
+import { Alert } from 'react-native';
 import { usePoints } from '../../context/PointsContext';
 import { useCoins } from '../../context/CoinsContext';
 import { getTodayEarnings, getStoriesReadCount } from '../../db/earnings';
@@ -103,6 +104,13 @@ export default function DashboardScreen({ navigation }) {
     setPendingBoxes(await getPendingBoxesCount());
     setTotalWithdraw(await getTotalWithdraw());
     setChecking(false);
+  };
+
+  const handleLogout = () => {
+    Alert.alert('লগআউট', 'আপনি কি লগআউট করতে চান?', [
+      { text: 'না', style: 'cancel' },
+      { text: 'হ্যাঁ', onPress: async () => { await logoutUser(); navigation.navigate('Login'); } },
+    ]);
   };
 
   if (checking) return null;
@@ -234,6 +242,13 @@ export default function DashboardScreen({ navigation }) {
           <Text style={s.referBtnText}>রেফারেল সিস্টেম</Text>
           <MaterialIcons name="chevron-right" size={18} color="#9CA3AF" />
         </TouchableOpacity>
+
+        {user && (
+          <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
+            <MaterialIcons name="logout" size={18} color="#EF4444" />
+            <Text style={s.logoutText}>লগআউট</Text>
+          </TouchableOpacity>
+        )}
 
         <View style={s.menuSection}>
           <Text style={s.menuTitle}>দ্রুত লিংক</Text>
@@ -378,4 +393,11 @@ const styles = (colors) => StyleSheet.create({
     borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#C7D2FE',
   },
   referBtnText: { flex: 1, fontSize: 14, fontWeight: '700', color: '#4338CA' },
+  logoutBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    marginHorizontal: 16, marginTop: 20, marginBottom: 10,
+    borderWidth: 1, borderColor: '#FCA5A5', borderRadius: 12,
+    padding: 14, backgroundColor: '#FEF2F2',
+  },
+  logoutText: { fontSize: 15, color: '#EF4444', fontWeight: '600' },
 });

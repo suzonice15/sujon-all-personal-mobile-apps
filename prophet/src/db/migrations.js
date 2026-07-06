@@ -48,6 +48,24 @@ const migrations = [
       ALTER TABLE users ADD COLUMN server_id INTEGER DEFAULT 0;
     `,
   },
+  {
+    name: 'add_device_id_to_users',
+    sql: `
+      ALTER TABLE users ADD COLUMN device_id TEXT DEFAULT '';
+    `,
+  },
+  {
+    name: 'add_referral_code_to_users',
+    sql: `
+      ALTER TABLE users ADD COLUMN referral_code TEXT DEFAULT '';
+    `,
+  },
+  {
+    name: 'add_auth_token_to_settings',
+    sql: `
+      ALTER TABLE settings ADD COLUMN auth_token TEXT DEFAULT '';
+    `,
+  },
 ];
 
 export const runMigrations = async () => {

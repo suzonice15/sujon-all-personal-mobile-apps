@@ -31,6 +31,19 @@ export const getReferralInfo = async (deviceId) => {
   return api.get('/v1/referral/info', { params: { device_id: deviceId, slug: apps_slug } });
 };
 
+export const updateProfile = async (data) => {
+  try {
+    const res = await fetch(`${api_url}/user/update`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, message: e.message };
+  }
+};
+
 export const getRefCode = async (deviceId) => {
   try {
     const res = await fetch(`${api_url}/ref_code?device_id=${encodeURIComponent(deviceId)}&slug=${encodeURIComponent(apps_slug)}`);
