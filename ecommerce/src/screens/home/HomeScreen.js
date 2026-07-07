@@ -1,127 +1,98 @@
 import React, { useCallback, useState } from 'react';
 import {
   View,
-  Text,
   FlatList,
-  TouchableOpacity,
   StyleSheet,
   RefreshControl,
   SafeAreaView,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { getMobileContents } from '../../db/mobileContents';
+import { getSliders, getHomeCategory, getHomeProduct } from '../../api/homeApi';
 import { useTheme as usePaperTheme } from 'react-native-paper';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
- 
+import BannerSlider from '../../components/BannerSlider';
+import CategoryGrid from '../../components/CategoryGrid';
+import ProductCard from '../../components/ProductCard';
+
+const s = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
+
 export default function HomeScreen({ navigation }) {
-  const [data, setData] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [sliders, setSliders] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const { colors } = usePaperTheme();
-  const s = styles(colors);
 
-  const loadData = async (force = false) => {
-    if (!force && data.length > 0) return;
+  const loadData = useCallback(async (force = false) => {
+    if (!force && products.length > 0) return;
     setLoading(true);
     try {
-      const response = await getMobileContents();
-      setData(response || []);
+      const [prodRes, sliderRes, catRes] = await Promise.all([
+        getHomeProduct(),
+        getSliders(),
+        getHomeCategory(),
+      ]);
+
+      console.log('HomeScreen data:', prodRes)
+
+      const extractArray = (res) => {
+        if (Array.isArray(res)) return res;
+        if (res?.data && Array.isArray(res.data)) return res.data;
+        if (res?.sliders && Array.isArray(res.sliders)) return res.sliders;
+        if (res?.categories && Array.isArray(res.categories)) return res.categories;
+        if (res?.products && Array.isArray(res.products)) return res.products;
+        return [];
+      };
+
+      setProducts(extractArray(prodRes));
+      setSliders(extractArray(sliderRes));
+      setCategories(extractArray(catRes));
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [products.length]);
 
   useFocusEffect(
     useCallback(() => {
-      if (data.length === 0) loadData();
-    }, [data])
+      if (products.length === 0) loadData();
+    }, [products.length, loadData])
   );
 
   return (
-    <SafeAreaView style={s.container}>
+    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       <FlatList
-        data={data}
+        data={products}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={s.list}
+        numColumns={2}
         showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View>
+            <BannerSlider data={sliders} />
+            <View style={{ paddingHorizontal: 16 }}>
+              <CategoryGrid data={categories} colors={colors} onPress={(item) => navigation.navigate('DataScreen', { item })} />
+            </View>
+          </View>
+        }
+        contentContainerStyle={{ paddingBottom: 16 }}
+        columnWrapperStyle={{ gap: 12, paddingHorizontal: 16 }}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={() => loadData(true)} />
         }
-        renderItem={({ item, index }) => (
-          <TouchableOpacity
-            style={s.card}
-            onPress={() => {
-              const content = item.content || '';
-              if (content.trim().length < 15) {
-                navigation.navigate('DataScreen', { item: item, headerTitle: item.title, parent_id: item.data_id });
-              } else {
-                navigation.navigate('StoryDetail', { item: item, headerTitle: item.title });
-              }
-            }}
-          >
-            <View style={s.cardInner}>
-              <View style={s.indexCircle}>
-                <Text style={s.indexText}>{index + 1}</Text>
-              </View>
-              <View style={s.textWrapper}>
-                <Text style={s.itemTitle}>{item.title}</Text>
-                <Text style={s.itemSubtitle} numberOfLines={1}>{item.sub_title}</Text>
-              </View>
-              <MaterialIcons name="chevron-right" size={22} color={colors.onSurface} style={{ opacity: 0.3 }} />
-            </View>
-          </TouchableOpacity>
+        renderItem={({ item }) => (
+          <View style={{ flex: 1 }}>
+            <ProductCard
+              item={item}
+              colors={colors}
+              onPress={(product) => navigation.navigate('ProductDetail', { product })}
+            />
+          </View>
         )}
       />
     </SafeAreaView>
   );
 }
-
-const styles = (colors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  list: {
-    padding: 16,
-  },
-  card: {
-    borderRadius: 12,
-    marginBottom: 12,
-    backgroundColor: colors.surface,
-  },
-  cardInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-  },
-  indexCircle: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    backgroundColor: colors.circleBackground,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  indexText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.circleText,
-  },
-  textWrapper: {
-    flex: 1,
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  itemSubtitle: {
-    fontSize: 13,
-    color: colors.text,
-    fontWeight: '500',
-  },
-});

@@ -13,7 +13,7 @@ export default function NotificationBell({ color, onPress }) {
   return (
     <TouchableOpacity onPress={handlePress} style={{ marginRight: 6 }}>
       <View style={s.wrap}>
-        <MaterialIcons name="notifications" size={24} color={color} />
+        <MaterialIcons name="notifications" size={26} color={color} />
         {unread > 0 && (
           <View style={s.badge}>
             <Text style={s.badgeText}>{unread > 99 ? '99+' : unread}</Text>

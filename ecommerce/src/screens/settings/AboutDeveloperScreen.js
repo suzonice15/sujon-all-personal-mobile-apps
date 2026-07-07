@@ -2,17 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Linking, Dimensions } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
-import { getAllAppSettings } from '../../db/appSettings';
-
+ 
 const { width } = Dimensions.get('window');
 
 export default function AboutDeveloperScreen() {
   const { colors } = useTheme();
   const [settings, setSettings] = useState(null);
-
-  useEffect(() => {
-    getAllAppSettings().then(setSettings);
-  }, []);
+ 
 
   if (!settings) {
     return <ActivityIndicator style={{ marginTop: 60 }} color={colors.primary} />;

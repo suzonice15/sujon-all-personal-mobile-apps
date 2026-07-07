@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { getUnreadCount, fetchNotifications } from '../db/notifications';
-
+ 
 const NotificationsContext = createContext({ unread: 0, refresh: () => {} });
 
 export const NotificationsProvider = ({ children }) => {

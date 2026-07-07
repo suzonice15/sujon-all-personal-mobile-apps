@@ -3,8 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Dimensions } fro
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import RenderHtml from 'react-native-render-html';
 import { useTheme } from 'react-native-paper';
-import { getAllAppSettings } from '../../db/appSettings';
-
+ 
 const { width } = Dimensions.get('window');
 
 export default function PrivacyScreen() {
@@ -12,10 +11,7 @@ export default function PrivacyScreen() {
   const [settings, setSettings] = useState(null);
   const isDark = dark;
   const s = styles(colors);
-
-  useEffect(() => {
-    getAllAppSettings().then(setSettings);
-  }, []);
+ 
 
   if (!settings) {
     return <ActivityIndicator style={{ marginTop: 60 }} color={colors.primary} />;

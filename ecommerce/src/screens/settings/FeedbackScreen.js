@@ -12,7 +12,6 @@ export default function FeedbackScreen() {
   const [loading, setLoading] = useState(false);
   const [myFeedbacks, setMyFeedbacks] = useState([]);
   const [fetching, setFetching] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
   const { colors } = useTheme();
   const s = styles(colors);
 
@@ -105,41 +104,7 @@ export default function FeedbackScreen() {
           </TouchableOpacity>
         </View>
 
-        {myFeedbacks.length > 0 && (
-          <TouchableOpacity style={s.toggleBtn} onPress={() => setShowHistory(!showHistory)}>
-            <MaterialIcons name={showHistory ? 'expand-less' : 'expand-more'} size={20} color={colors.primary} />
-            <Text style={s.toggleText}>{showHistory ? 'বন্ধ করুন' : 'আমার ফিডব্যাক দেখুন'} ({myFeedbacks.length})</Text>
-          </TouchableOpacity>
-        )}
 
-        {showHistory && (
-          <View style={s.historyCard}>
-            <Text style={s.contactTitle}>আমার ফিডব্যাক সমূহ</Text>
-            {fetching ? (
-              <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 12 }} />
-            ) : (
-              myFeedbacks.map((item, i) => (
-                <View key={i} style={s.historyItem}>
-                  <View style={s.historyHeader}>
-                    <Text style={s.historyMessage} numberOfLines={showHistory ? undefined : 2}>{item.message}</Text>
-                    {item.status === 'resolved' ? (
-                      <View style={s.resolvedBadge}><Text style={s.resolvedText}>রিপ্লাই করা হয়েছে</Text></View>
-                    ) : (
-                      <View style={s.pendingBadge}><Text style={s.pendingText}>পেন্ডিং</Text></View>
-                    )}
-                  </View>
-                  {item.reply && (
-                    <View style={s.replyBox}>
-                      <MaterialIcons name="reply" size={14} color={colors.primary} />
-                      <Text style={s.replyText}>{item.reply}</Text>
-                    </View>
-                  )}
-                  <Text style={s.historyDate}>{item.created_at}</Text>
-                </View>
-              ))
-            )}
-          </View>
-        )}
 
         <View style={s.contactCard}>
           <Text style={s.contactTitle}>সরাসরি যোগাযোগ</Text>

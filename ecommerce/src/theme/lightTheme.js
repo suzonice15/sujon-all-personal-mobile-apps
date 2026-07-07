@@ -16,7 +16,7 @@ export const lightTheme = {
     circleBackground:"#ddd",
     circleText:"#374151",    
     text: "#374151",
-    headerBackground:"#0F766E",
+    headerBackground:"#000000",
     headerColor:"#ffffff",
   },
 };

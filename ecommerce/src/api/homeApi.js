@@ -21,11 +21,17 @@ export const getMobileCoinRate = () => {
   return api.post('/v1/mobile_coin_rate', { slug: apps_slug });
 };
 
-export const submitWithdrawRequest = (data) => {
-  return api.post('/v1/withdraw', data);
+export const getSliders = () => {
+  return api.get('/sliders');
 };
 
-export const getMyWithdraws = (data) => {
-  return api.post('/v1/withdraw/my-requests', data);
+export const getHomeCategory = () => {
+  return api.get('/home-category');
 };
+
+export const getHomeProduct = () => {
+  return api.get('/homeProduct');
+};
+
+
  

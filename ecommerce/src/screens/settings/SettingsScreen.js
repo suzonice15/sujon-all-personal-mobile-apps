@@ -5,9 +5,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
-import { getAllAppSettings } from '../../db/appSettings';
-import { syncCoinsToServer, syncPointsToServer } from '../../db/sync';
-
+  
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
     <View style={styles(isDark).itemLeft}>
@@ -42,19 +40,9 @@ export default function SettingsScreen({ navigation }) {
       console.log('loadServerSettings error:', e.message);
     }
   };
+ 
 
-  const handleSync = async () => {
-    setSyncing(true);
-    setSyncMsg(null);
-    const coinResult = await syncCoinsToServer();
-    const pointResult = await syncPointsToServer();
-    const total = (coinResult.synced || 0) + (pointResult.synced || 0);
-    setSyncMsg(`সিঙ্ক সম্পন্ন! ${total} টি রেকর্ড সিঙ্ক হয়েছে`);
-    setSyncing(false);
-  };
-
-  console.log('Server Settings:', serverSettings);
-
+ 
   return (
     <ScrollView style={styles(isDark).container} contentContainerStyle={styles(isDark).content}>
 
@@ -132,21 +120,7 @@ export default function SettingsScreen({ navigation }) {
         </View>
       </Modal>
 
-      <SectionTitle title="সিঙ্ক" isDark={isDark} />
-      <View style={styles(isDark).card}>
-        <SettingItem
-          icon="sync"
-          label={syncing ? 'সিঙ্ক হচ্ছে...' : 'সিঙ্ক ডাটা'}
-          isDark={isDark}
-          onPress={handleSync}
-          right={syncing ? <MaterialIcons name="sync" size={20} color="#4F46E5" /> : null}
-        />
-        {syncMsg && (
-          <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
-            <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
-          </View>
-        )}
-      </View>
+       
 
       <SectionTitle title="সাপোর্ট" isDark={isDark} />
       <View style={styles(isDark).card}>

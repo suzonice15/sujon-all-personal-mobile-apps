@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Dimensions } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
-import { getAllAppSettings } from '../../db/appSettings';
-import { api_url } from '../../config/url';
+ import { api_url } from '../../config/url';
 import { app_version, lastUpdate } from '../../config/url';
 
 const { width } = Dimensions.get('window');
@@ -11,10 +10,7 @@ const { width } = Dimensions.get('window');
 export default function AboutAppsScreen() {
   const { colors } = useTheme();
   const [settings, setSettings] = useState(null);
-
-  useEffect(() => {
-    getAllAppSettings().then(setSettings);
-  }, []);
+ 
 
   if (!settings) {
     return <ActivityIndicator style={{ marginTop: 60 }} color={colors.primary} />;

@@ -3,9 +3,7 @@ import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
-import { getDB } from '../../db/db';
-import { markAsRead } from '../../db/notifications';
-import { useNotifications } from '../../context/NotificationsContext';
+ import { useNotifications } from '../../context/NotificationsContext';
 
 const bnMonths = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
 
@@ -37,17 +35,7 @@ export default function NotificationsScreen() {
       load();
     }, [])
   );
-
-  const load = async () => {
-    const db = await getDB();
-    await refresh();
-    const [res] = await db.executeSql(
-      'SELECT * FROM notifications ORDER BY created_at DESC'
-    );
-    const rows = [];
-    for (let i = 0; i < res.rows.length; i++) rows.push(res.rows.item(i));
-    setNotifications(rows);
-  };
+ 
 
   const handlePress = async (item) => {
     if (!item.is_read) {

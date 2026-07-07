@@ -3,13 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Share, Linking, A
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
-import { getLoggedInUser, logoutUser } from '../db/auth';
-
+ 
 const menu = [
-  { title: 'অর্জিত কয়েন গ্রহণ করুন', icon: 'card-giftcard', screen: 'Claim', tab: 'Home' },  
-  { title: 'বিজ্ঞাপন দেখে কয়েন সংগ্রহ করুন', icon: 'play-circle-outline', screen: 'AdEarn', tab: 'Home' },
-  { title: 'দৈনিক কয়েন সংগ্রহ করুন', icon: 'today', screen: 'DailyCoin', tab: 'Home' },
-  { title: 'বুকমার্ক', icon: 'bookmark', screen: 'Bookmarks' },
+  
   { title: 'অ্যাপ সম্পর্কে', icon: 'info-outline', screen: 'AboutApps', tab: 'Home' },
   // { title: 'সহযোগিতা করুন', icon: 'volunteer-activism', screen: 'Donation', tab: 'Home' },
   { title: 'ডেভেলপার সম্পর্কে', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
@@ -25,10 +21,7 @@ export default function DrawerMenuScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const { colors } = useTheme();
   const s = styles(colors);
-
-  useFocusEffect(useCallback(() => {
-    getLoggedInUser().then(setUser);
-  }, []));
+ 
 
   const handlePress = async (item) => {
     if (item.screen) {

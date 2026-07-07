@@ -15,7 +15,7 @@ export const darkTheme = {
     surface: '#1e293b',
     text: '#ffffff',
     onSurface: '#ffffff',
-      headerBackground:"#111827",
+      headerBackground:"#000000",
     headerColor:"#F9FAFB",
   },
 };

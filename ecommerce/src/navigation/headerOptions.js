@@ -1,38 +1,12 @@
 import React from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import NotificationBell from '../components/NotificationBell';
-import { useTheme } from '../context/ThemeContext';
+import AppHeader from '../components/AppHeader';
 
-const ThemeToggleButton = ({ color }) => {
-  const { isDark, toggleTheme } = useTheme();
-  return (
-    <TouchableOpacity onPress={() => toggleTheme(!isDark)} style={{ marginRight: 8 }}>
-      <MaterialIcons name={isDark ? 'light-mode' : 'dark-mode'} size={22} color={color} />
-    </TouchableOpacity>
-  );
-};
-
-export const getHeaderOptions = (colors, { showMenu, navigation, titleFontSize = 17, iconSize = 25 } = {}) => ({
-  headerStyle: {
-    backgroundColor: colors.headerBackground,    
-    shadowOpacity: 0,
-  },
-  headerTintColor: colors.headerColor,
-  headerTitleStyle: { fontWeight: 'bold', fontSize: titleFontSize },
-  headerTitleAlign: 'left',
-
-  headerRight: () => (
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <NotificationBell color={colors.headerColor} />
-      <ThemeToggleButton color={colors.headerColor} />
-    </View>
+export const getHeaderOptions = (colors, { showMenu, navigation } = {}) => ({
+  header: (props) => (
+    <AppHeader
+      navigation={props.navigation}
+      colors={colors}
+      showMenu={showMenu}
+    />
   ),
-  ...(showMenu && navigation ? {
-    headerLeft: () => (
-      <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 5, paddingRight: 5 }}>
-        <MaterialIcons name="menu" size={iconSize} color={colors.headerColor} />
-      </TouchableOpacity>
-    ),
-  } : {}),
 });

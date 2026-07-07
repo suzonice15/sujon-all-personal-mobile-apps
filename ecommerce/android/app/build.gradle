@@ -85,7 +85,7 @@ android {
 
     namespace "com.prophet"
     defaultConfig {
-        applicationId "com.prophet"
+        applicationId "com.jncomputer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
