@@ -7,6 +7,10 @@ import { getHeaderOptions } from './headerOptions';
 
 import HomeScreen from '../screens/home/HomeScreen';
 import SearchProductScreen from '../screens/home/SearchProductScreen';
+import ProductDetailScreen from '../screens/product/ProductDetailScreen';
+import NotificationsScreen from '../screens/home/NotificationsScreen';
+import NotificationDetailScreen from '../screens/home/NotificationDetailScreen';
+import CategoryScreen from '../screens/categories/CategoryScreen';
 import AboutAppsScreen from '../screens/settings/AboutAppsScreen';
 import AboutDeveloperScreen from '../screens/settings/AboutDeveloperScreen';
 import PrivacyScreen from '../screens/settings/PrivacyScreen';
@@ -24,6 +28,10 @@ export default function HomeStack() {
     <Stack.Navigator screenOptions={{ ...headerOpts, headerShown: true }}>
       <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ title: apps_title }} />
       <Stack.Screen name="SearchProduct" component={SearchProductScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'পণ্যের বিবরণ' }} />
+      <Stack.Screen name="CategoryPage" component={CategoryScreen} options={{ title: 'ক্যাটেগরি' }} />
+      <Stack.Screen name="NotificationsMain" component={NotificationsScreen} options={{ title: 'নোটিফিকেশন' }} />
+      <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} options={{ title: 'বিস্তারিত' }} />
       <Stack.Screen name="AboutApps" component={AboutAppsScreen} options={{ title: 'অ্যাপ সম্পর্কে' }} />
       <Stack.Screen name="AboutDeveloper" component={AboutDeveloperScreen} options={{ title: 'ডেভেলপার সম্পর্কে' }} />
       <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'প্রাইভেসি পলিসি' }} />

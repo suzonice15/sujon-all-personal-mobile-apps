@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Share, Linking, Alert, ToastAndroid } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Share, Linking, Alert, ToastAndroid, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
+import { getHomeCategory } from '../api/homeApi';
+import { useAuth } from '../context/AuthContext';
  
 const menu = [
   
@@ -18,10 +19,27 @@ const menu = [
 ];
 
 export default function DrawerMenuScreen({ navigation }) {
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
+  const [categories, setCategories] = useState([]);
+  const [catLoading, setCatLoading] = useState(true);
   const { colors } = useTheme();
   const s = styles(colors);
- 
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      const res = await getHomeCategory();
+      const list = Array.isArray(res) ? res : res?.data || res?.categories || [];
+      setCategories(list);
+    } catch (e) {
+      console.log('Drawer categories load error:', e);
+    } finally {
+      setCatLoading(false);
+    }
+  };
 
   const handlePress = async (item) => {
     if (item.screen) {
@@ -42,7 +60,7 @@ export default function DrawerMenuScreen({ navigation }) {
   const handleLogout = () => {
     Alert.alert('লগআউট', 'আপনি কি লগআউট করতে চান?', [
       { text: 'না', style: 'cancel' },
-      { text: 'হ্যাঁ', onPress: async () => { await logoutUser(); setUser(null); ToastAndroid.show('লগআউট সফল হয়েছে', ToastAndroid.SHORT); } },
+      { text: 'হ্যাঁ', onPress: async () => { await logout(); ToastAndroid.show('লগআউট সফল হয়েছে', ToastAndroid.SHORT); } },
     ]);
   };
 
@@ -58,6 +76,26 @@ export default function DrawerMenuScreen({ navigation }) {
       </View>
 
       <View style={s.menuContainer}>
+        <Text style={s.sectionTitle}>ক্যাটেগরিসমূহ</Text>
+        {catLoading ? (
+          <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 10 }} />
+        ) : (
+          categories.slice(0, 6).map((cat, i) => (
+            <TouchableOpacity
+              key={i}
+              style={s.menuItem}
+              onPress={() => {
+                navigation.closeDrawer();
+                navigation.navigate('Home', { screen: 'CategoryPage', params: { category: cat } });
+              }}
+            >
+              <MaterialIcons name="category" size={18} color={colors.primary} />
+              <Text style={s.menuText}>{cat.category_title}</Text>
+            </TouchableOpacity>
+          ))
+        )}
+        <View style={s.divider} />
+
         {menu.map((item, index) => (
           <TouchableOpacity key={index} style={s.menuItem} onPress={() => handlePress(item)}>
             <MaterialIcons name={item.icon} size={20} color={colors.text} />
@@ -65,7 +103,7 @@ export default function DrawerMenuScreen({ navigation }) {
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={s.menuItem} onPress={user ? handleLogout : () => navigation.navigate('Home', { screen: 'Profile' })}>
+        <TouchableOpacity style={s.menuItem} onPress={user ? handleLogout : () => navigation.navigate('Account', { screen: 'Login' })}>
           <MaterialIcons name={user ? 'logout' : 'login'} size={20} color={user ? colors.danger : colors.text} />
           <Text style={[s.menuText, { color: user ? colors.danger : colors.text }]}>
             {user ? 'লগআউট' : 'লগইন / নিবন্ধন'}
@@ -99,5 +137,7 @@ const styles = (colors) => StyleSheet.create({
     borderBottomWidth: 0.5, borderBottomColor: colors.surface,
   },
   menuText: { marginLeft: 16, fontSize: 14, color: colors.text, fontWeight: '500' },
+  sectionTitle: { fontSize: 12, fontWeight: '700', color: colors.primary, marginBottom: 6, marginTop: 4 },
+  divider: { height: 1, backgroundColor: colors.surface, marginVertical: 10 },
   footer: { textAlign: 'center', color: colors.text, fontSize: 11, marginVertical: 20, opacity: 0.4 },
 });

@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import {
   View,
+  Text,
   FlatList,
   StyleSheet,
   RefreshControl,
@@ -14,9 +15,9 @@ import CategoryGrid from '../../components/CategoryGrid';
 import ProductCard from '../../components/ProductCard';
 
 const s = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
+  sectionTitle: { fontSize: 18, fontWeight: '800', marginBottom: 4 },
+  sectionSub: { fontSize: 12, color: '#999', marginBottom: 4 },
 });
 
 export default function HomeScreen({ navigation }) {
@@ -74,7 +75,11 @@ export default function HomeScreen({ navigation }) {
           <View>
             <BannerSlider data={sliders} />
             <View style={{ paddingHorizontal: 16 }}>
-              <CategoryGrid data={categories} colors={colors} onPress={(item) => navigation.navigate('DataScreen', { item })} />
+              <CategoryGrid data={categories} colors={colors} onPress={(item) => navigation.navigate('CategoryPage', { category: item })} />
+            </View>
+            <View style={{ paddingHorizontal: 16, marginTop: 8 }}>
+              <Text style={[s.sectionTitle, { color: colors.text }]}>Popular Products</Text>
+              <Text style={s.sectionSub}>Check & Get Your Desired Popular Product!</Text>
             </View>
           </View>
         }

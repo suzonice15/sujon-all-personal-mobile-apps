@@ -9,6 +9,7 @@ import DrawerNavigator from './src/navigation/DrawerNavigator';
  import { CartProvider } from './src/context/CartContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { NotificationsProvider, useNotifications } from './src/context/NotificationsContext';
+import { AuthProvider } from './src/context/AuthContext';
  
  
 const navigationRef = createNavigationContainerRef();
@@ -34,15 +35,15 @@ function AppInner() {
 
 function App() {
   return (
-     
-        <CartProvider>
-          <NotificationsProvider>
-            <ThemeProvider>
-              <AppInner />
-            </ThemeProvider>
-          </NotificationsProvider>
-        </CartProvider>
-      
+    <AuthProvider>
+      <CartProvider>
+        <NotificationsProvider>
+          <ThemeProvider>
+            <AppInner />
+          </ThemeProvider>
+        </NotificationsProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 
