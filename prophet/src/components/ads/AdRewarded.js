@@ -5,6 +5,8 @@ import { ADMOB_ENABLED, AD_UNIT_ID_REWARDED, AD_REWARDED_COOLDOWN } from '../../
 export default function useAdRewarded(onEarnedReward) {
   const lastShown = useRef(0);
   const [rewardAmount, setRewardAmount] = useState(null);
+  const callbackRef = useRef(onEarnedReward);
+  callbackRef.current = onEarnedReward;
 
   const { load, show, isLoaded, isClosed, isEarnedReward } = useRewardedAd(
     ADMOB_ENABLED ? AD_UNIT_ID_REWARDED : null,
@@ -23,9 +25,9 @@ export default function useAdRewarded(onEarnedReward) {
       const amount = isEarnedReward?.amount || 0;
       const type = isEarnedReward?.type || '';
       setRewardAmount({ amount, type });
-      if (onEarnedReward) onEarnedReward({ amount, type });
+      if (callbackRef.current) callbackRef.current({ amount, type });
     }
-  }, [ADMOB_ENABLED, isEarnedReward, onEarnedReward]);
+  }, [ADMOB_ENABLED, isEarnedReward]);
 
   const showAd = () => {
     if (!ADMOB_ENABLED) return false;

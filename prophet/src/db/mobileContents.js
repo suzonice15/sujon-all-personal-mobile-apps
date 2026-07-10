@@ -1,8 +1,8 @@
 import { getDB } from './db';
 
 export const syncMobileContents = async (items) => {
-  console.log('mobile contents sync started')
-  console.log(items)
+  // console.log('mobile contents sync started')
+  // console.log(items)
 
   const db = await getDB();
   for (const item of items) {

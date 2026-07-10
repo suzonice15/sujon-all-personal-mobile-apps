@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, ToastAndroid, Activ
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import SoundPlayer from 'react-native-sound-player';
 import { useCoins } from '../../context/CoinsContext';
 import { isOnline, toBn } from '../../utils/helper';
 import { initTodayBoxes, getTodayBoxes, claimBox } from '../../db/adBoxes';
@@ -104,6 +105,7 @@ export default function AdEarnScreen() {
       ));
       setCooldown(cooldownSec);
       ToastAndroid.show(`বিজ্ঞাপন বক্স ${toBn(box.box_number)} এর ${toBn(video_coin_per_box)} কয়েন অর্জন হয়েছে!`, ToastAndroid.SHORT);
+      try { SoundPlayer.playSoundFile('finish', 'mp3'); } catch (e) {}
     } catch (error) {
       ToastAndroid.show('কয়েন যোগ করতে সমস্যা হয়েছে', ToastAndroid.SHORT);
     } finally {

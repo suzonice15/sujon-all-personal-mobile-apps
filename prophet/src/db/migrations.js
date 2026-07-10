@@ -1,5 +1,14 @@
 import { getDB } from './db';
 
+const addColumnIfMissing = async (db, table, column, def) => {
+  const [info] = await db.executeSql(`PRAGMA table_info(${table})`);
+  const cols = [];
+  for (let i = 0; i < info.rows.length; i++) cols.push(info.rows.item(i).name);
+  if (!cols.includes(column)) {
+    await db.executeSql(`ALTER TABLE ${table} ADD COLUMN ${column} ${def}`);
+  }
+};
+
 const migrations = [
   {
     name: 'recreate_earning_history_no_unique',
@@ -20,51 +29,51 @@ const migrations = [
   },
   {
     name: 'add_phone_address_to_users',
-    sql: `
-      ALTER TABLE users ADD COLUMN phone TEXT DEFAULT '';
-    `,
+    migrate: async (db) => {
+      await addColumnIfMissing(db, 'users', 'phone', "TEXT DEFAULT ''");
+    },
   },
   {
     name: 'add_address_to_users',
-    sql: `
-      ALTER TABLE users ADD COLUMN address TEXT DEFAULT '';
-    `,
+    migrate: async (db) => {
+      await addColumnIfMissing(db, 'users', 'address', "TEXT DEFAULT ''");
+    },
   },
   {
     name: 'add_gender_to_users',
-    sql: `
-      ALTER TABLE users ADD COLUMN gender TEXT DEFAULT 'male';
-    `,
+    migrate: async (db) => {
+      await addColumnIfMissing(db, 'users', 'gender', "TEXT DEFAULT 'male'");
+    },
   },
   {
     name: 'add_district_id_to_users',
-    sql: `
-      ALTER TABLE users ADD COLUMN district_id INTEGER DEFAULT 0;
-    `,
+    migrate: async (db) => {
+      await addColumnIfMissing(db, 'users', 'district_id', 'INTEGER DEFAULT 0');
+    },
   },
   {
     name: 'add_server_id_to_users',
-    sql: `
-      ALTER TABLE users ADD COLUMN server_id INTEGER DEFAULT 0;
-    `,
+    migrate: async (db) => {
+      await addColumnIfMissing(db, 'users', 'server_id', 'INTEGER DEFAULT 0');
+    },
   },
   {
     name: 'add_device_id_to_users',
-    sql: `
-      ALTER TABLE users ADD COLUMN device_id TEXT DEFAULT '';
-    `,
+    migrate: async (db) => {
+      await addColumnIfMissing(db, 'users', 'device_id', "TEXT DEFAULT ''");
+    },
   },
   {
     name: 'add_referral_code_to_users',
-    sql: `
-      ALTER TABLE users ADD COLUMN referral_code TEXT DEFAULT '';
-    `,
+    migrate: async (db) => {
+      await addColumnIfMissing(db, 'users', 'referral_code', "TEXT DEFAULT ''");
+    },
   },
   {
     name: 'add_auth_token_to_settings',
-    sql: `
-      ALTER TABLE settings ADD COLUMN auth_token TEXT DEFAULT '';
-    `,
+    migrate: async (db) => {
+      await addColumnIfMissing(db, 'settings', 'auth_token', "TEXT DEFAULT ''");
+    },
   },
 ];
 
@@ -87,10 +96,13 @@ export const runMigrations = async () => {
       );
       if (result.rows.length > 0) continue;
 
-      // multi-statement হলে আলাদা আলাদা execute করতে হবে
-      const statements = migration.sql.split(';').map(s => s.trim()).filter(Boolean);
-      for (const stmt of statements) {
-        await db.executeSql(stmt);
+      if (migration.migrate) {
+        await migration.migrate(db);
+      } else {
+        const statements = migration.sql.split(';').map(s => s.trim()).filter(Boolean);
+        for (const stmt of statements) {
+          await db.executeSql(stmt);
+        }
       }
 
       await db.executeSql(

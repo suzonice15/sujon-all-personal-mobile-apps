@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  ToastAndroid,
 } from 'react-native';
 
 import { getQuizeData } from '../../db/quizeContents';
@@ -214,21 +215,31 @@ export default function QuizStartScreen({ route, navigation }) {
     await refreshCoins();
     setIsClaimed(true);
     setClaimingCoin(false);
-    Alert.alert('🎉 সম্পন্ন!', `আপনি ${score * 10} পয়েন্ট ও ${earnedCoins} কয়েন পেয়েছেন!`);
+    playSound('finish');
+    ToastAndroid.show(`${earnedCoins} কয়েন ও ${score * 10} পয়েন্ট পেয়েছেন!`, ToastAndroid.SHORT);
   };
+
+  const pointsClaimed = useRef(false);
 
   const handleClaimCoin = async () => {
     if (score === 0) {
       Alert.alert('😢 দুঃখিত!', 'ক্লেইম করার জন্য অন্তত একটি সঠিক উত্তর দিতে হবে।');
       return;
     }
-    // পয়েন্ট auto দিন (no ad)
-    await addEarning(fetch_data, title || 'কুইজ', score * 10);
+    // পয়েন্ট শুধু প্রথমবার
+    if (!pointsClaimed.current) {
+      await addEarning(fetch_data, title || 'কুইজ', score * 10);
+      pointsClaimed.current = true;
+    }
 
     setClaimingCoin(true);
     if (!showQuizAd()) {
       setClaimingCoin(false);
-      if (!ADMOB_ENABLED) doClaimCoin();
+      if (!ADMOB_ENABLED) {
+        doClaimCoin();
+      } else {
+        ToastAndroid.show('বিজ্ঞাপন লোড হচ্ছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
+      }
     }
   };
 
@@ -268,11 +279,13 @@ export default function QuizStartScreen({ route, navigation }) {
           </Text>
         </TouchableOpacity>
 
-        {/* রিট্রাই বাটন */}
+        {/* রিট্রাই বাটন — শুধু ভুল উত্তর থাকলে */}
+        {answers.filter(a => !a.isCorrect).length > 0 && (
         <TouchableOpacity style={styles.retryBtn} onPress={startRetry}>
           <MaterialIcons name="replay" size={20} color="#FFF" style={styles.btnIconLeft} />
           <Text style={styles.retryText}>ভুল উত্তরগুলো আবার চেষ্টা করুন</Text>
         </TouchableOpacity>
+        )}
 
         <View style={styles.reviewHeader}>
           <MaterialIcons name="analytics" size={22} color={colors.onSurface} />

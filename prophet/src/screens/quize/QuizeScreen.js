@@ -26,7 +26,7 @@ export default function QuizeScreen({ navigation }) {
     <SafeAreaView style={s.container}>
       <FlatList
         data={data}
-        keyExtractor={(item) => item.category}
+        keyExtractor={(item, index) => String(item.category ?? index)}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
         renderItem={({ item, index }) => (

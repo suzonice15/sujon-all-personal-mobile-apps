@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ToastAndroid, ActivityIndicat
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import SoundPlayer from 'react-native-sound-player';
 import { useCoins } from '../../context/CoinsContext';
 import { addCoins, getTodayCoins, getDailyCoinStats } from '../../db/coins';
 import { daily_coin_count, ADMOB_ENABLED, BOX_CLAIM_COOLDOWN_SEC } from '../../config/url';
@@ -76,6 +77,7 @@ export default function DailyCoinScreen() {
     setDailyCount(stats.count);
     setCountdown(cooldownSec);
     ToastAndroid.show(`${toBn(daily_coin_count)} কয়েন সংগ্রহ হয়েছে!`, ToastAndroid.SHORT);
+    try { SoundPlayer.playSoundFile('finish', 'mp3'); } catch (e) {}
     setCollecting(false);
   };
 
@@ -184,7 +186,7 @@ const styles = (colors) => StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
   headerRow: {
     flexDirection: 'row', justifyContent: 'center',
-    paddingHorizontal: 20, paddingTop: 16,
+    paddingHorizontal: 10, paddingTop: 10,
   },
   statsCard: {
     flexDirection: 'row', alignItems: 'center', gap: 16,
@@ -195,7 +197,7 @@ const styles = (colors) => StyleSheet.create({
   statsValue: { fontSize: 18, fontWeight: '800', color: '#F59E0B', marginTop: 2 },
   statsDivider: { width: 1, height: 36, backgroundColor: colors.text, opacity: 0.15 },
   card: {
-    margin: 20, padding: 10, borderRadius: 24,
+    margin: 10, padding: 10, borderRadius: 24,
     backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center', gap: 16,
   },
@@ -203,7 +205,7 @@ const styles = (colors) => StyleSheet.create({
   titleMuted: { color: colors.text, opacity: 0.4 },
   collectBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#F59E0B', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 30,
+    backgroundColor: '#F59E0B', paddingHorizontal: 32, paddingVertical: 10, borderRadius: 30,
   },
   collectText: { color: '#fff', fontSize: 18, fontWeight: '700' },
   timerBox: { alignItems: 'center', gap: 4 },
