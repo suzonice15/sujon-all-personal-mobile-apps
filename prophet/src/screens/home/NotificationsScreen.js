@@ -6,6 +6,8 @@ import { useTheme } from 'react-native-paper';
 import { getDB } from '../../db/db';
 import { markAsRead } from '../../db/notifications';
 import { useNotifications } from '../../context/NotificationsContext';
+import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 
 const bnMonths = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
 
@@ -84,8 +86,9 @@ export default function NotificationsScreen() {
         data={notifications}
         keyExtractor={item => String(item.id)}
         renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ padding: 16, paddingTop: 8 }}
         showsVerticalScrollIndicator={false}
+        ListHeaderComponent={<View style={{ marginBottom: 12 }}><AdNative /></View>}
         ListEmptyComponent={
           <View style={s.empty}>
             <MaterialIcons name="notifications-off" size={48} color={colors.muted} />
@@ -93,6 +96,7 @@ export default function NotificationsScreen() {
           </View>
         }
       />
+      <AdBanner />
     </SafeAreaView>
   );
 }

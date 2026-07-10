@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AdBanner from '../../components/ads/AdBanner';
 
 const { width } = Dimensions.get('window');
 const CARD_W = (width - 48) / 2;
@@ -120,6 +121,7 @@ export default function KinaKataScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
+      <View style={{ flex: 1 }}>
       <FlatList
         ListHeaderComponent={
           <>
@@ -211,6 +213,8 @@ export default function KinaKataScreen({ navigation }) {
           </View>
         }
       />
+      <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

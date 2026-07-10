@@ -7,6 +7,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getFolders, getFolderItems, deleteFolder } from '../../db/bookmarks';
+import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 
 export default function BookmarksScreen({ navigation }) {
   const [folders, setFolders] = useState([]);
@@ -101,8 +103,10 @@ export default function BookmarksScreen({ navigation }) {
             <Text style={s.emptyText}>কোনো ফোল্ডার নেই।{'\n'} গল্প পড়ার সময় 🔖 চাপুন।</Text>
           </View>
         }
+        ListFooterComponent={<View style={s.footer}><AdNative /></View>}
         renderItem={renderItem}
       />
+      <AdBanner />
     </SafeAreaView>
   );
 }
@@ -138,4 +142,5 @@ const styles = (colors) => StyleSheet.create({
   emptyBox: { alignItems: 'center', marginTop: 80, gap: 12 },
   emptyIcon: { fontSize: 48 },
   emptyText: { fontSize: 15, color: colors.text, opacity: 0.4, textAlign: 'center', lineHeight: 24 },
+  footer: { marginTop: 12, marginBottom: 4 },
 });

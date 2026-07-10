@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ToastAndroid, Acti
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { loginUser } from '../../db/auth';
+import AdBanner from '../../components/ads/AdBanner';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -46,6 +47,7 @@ export default function LoginScreen({ navigation }) {
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={s.link}>অ্যাকাউন্ট নেই? <Text style={s.linkBold}>নিবন্ধন করুন</Text></Text>
       </TouchableOpacity>
+      <AdBanner />
     </KeyboardAvoidingView>
   );
 }

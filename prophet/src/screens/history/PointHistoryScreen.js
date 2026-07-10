@@ -6,6 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getEarnings } from '../../db/earnings';
 import { getSingleContent } from '../../db/mobileContents';
 import { toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const filters = [
   { key: 'today', label: 'আজকের' },
@@ -112,7 +113,8 @@ export default function PointHistoryScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.topRow}>
+      <View style={{ flex: 1 }}>
+        <View style={s.topRow}>
         <View style={s.totalBox}>
           <MaterialIcons name="star" size={22} color="#22C55E" />
           <Text style={s.totalValue}>{toBn(filteredTotal)}</Text>
@@ -162,6 +164,8 @@ export default function PointHistoryScreen({ navigation }) {
           showsVerticalScrollIndicator={false}
         />
       )}
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

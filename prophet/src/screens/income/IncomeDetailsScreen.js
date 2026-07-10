@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import AdBanner from '../../components/ads/AdBanner';
 
 export default function IncomeDetailsScreen({ route }) {
 
@@ -19,6 +20,7 @@ export default function IncomeDetailsScreen({ route }) {
         <Text style={styles.label}>Date:</Text>
         <Text style={styles.value}>{item.date}</Text>
       </View>
+      <AdBanner />
     </View>
   );
 }

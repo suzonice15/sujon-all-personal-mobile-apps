@@ -5,6 +5,7 @@ import { useTheme } from 'react-native-paper';
 import { getAllAppSettings } from '../../db/appSettings';
 import { api_url } from '../../config/url';
 import { app_version, lastUpdate } from '../../config/url';
+import AdBanner from '../../components/ads/AdBanner';
 
 const { width } = Dimensions.get('window');
 
@@ -38,51 +39,55 @@ export default function AboutAppsScreen() {
   ];
 
   return (
-    <ScrollView style={s.container} contentContainerStyle={s.content}>
-      <View style={s.hero}>
-        <View style={s.heroOverlay} />
-        <View style={s.iconBox}>
-          {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={s.appIcon} />
-          ) : (
-            <MaterialIcons name={iconName} size={52} color="#fff" />
-          )}
-        </View>
-        <Text style={s.appName}>{title}</Text>
-        <Text style={s.version}>ভার্সন {version}</Text>
-      </View>
-
-      <View style={s.card}>
-        {infoRows.map((item, i, arr) => (
-          <View key={i}>
-            <View style={s.row}>
-              <View style={s.rowLeft}>
-                <View style={s.iconWrap}>
-                  <MaterialIcons name={item.icon} size={18} color={themeColor} />
-                </View>
-                <Text style={s.rowLabel}>{item.label}</Text>
-              </View>
-              <Text style={s.rowValue}>{item.value}</Text>
-            </View>
-            {i < arr.length - 1 && <View style={s.divider} />}
+    <View style={s.container}>
+      <ScrollView contentContainerStyle={s.content}>
+        <View style={s.hero}>
+          <View style={s.heroOverlay} />
+          <View style={s.iconBox}>
+            {imageUrl ? (
+              <Image source={{ uri: imageUrl }} style={s.appIcon} />
+            ) : (
+              <MaterialIcons name={iconName} size={52} color="#fff" />
+            )}
           </View>
-        ))}
-      </View>
-
-      {about ? (
-        <View style={s.descCard}>
-          <MaterialIcons name="info-outline" size={18} color={themeColor} style={{ marginBottom: 6 }} />
-          <Text style={s.descTitle}>অ্যাপ সম্পর্কে</Text>
-          <Text style={s.descText}>{about}</Text>
+          <Text style={s.appName}>{title}</Text>
+          <Text style={s.version}>ভার্সন {version}</Text>
         </View>
-      ) : null}
-    </ScrollView>
+
+        <View style={s.card}>
+          {infoRows.map((item, i, arr) => (
+            <View key={i}>
+              <View style={s.row}>
+                <View style={s.rowLeft}>
+                  <View style={s.iconWrap}>
+                    <MaterialIcons name={item.icon} size={18} color={themeColor} />
+                  </View>
+                  <Text style={s.rowLabel}>{item.label}</Text>
+                </View>
+                <Text style={s.rowValue}>{item.value}</Text>
+              </View>
+              {i < arr.length - 1 && <View style={s.divider} />}
+            </View>
+          ))}
+        </View>
+
+        {about ? (
+          <View style={s.descCard}>
+            <MaterialIcons name="info-outline" size={18} color={themeColor} style={{ marginBottom: 6 }} />
+            <Text style={s.descTitle}>অ্যাপ সম্পর্কে</Text>
+            <Text style={s.descText}>{about}</Text>
+          </View>
+        ) : null}
+      </ScrollView>
+
+      <AdBanner />
+    </View>
   );
 }
 
 const styles = (themeColor, colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { paddingBottom: 40 },
+  content: { flexGrow: 1 },
   hero: {
     backgroundColor: themeColor,
     alignItems: 'center',

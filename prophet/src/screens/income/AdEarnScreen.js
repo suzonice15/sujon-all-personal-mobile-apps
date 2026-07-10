@@ -7,9 +7,9 @@ import { useCoins } from '../../context/CoinsContext';
 import { isOnline, toBn } from '../../utils/helper';
 import { initTodayBoxes, getTodayBoxes, claimBox } from '../../db/adBoxes';
 import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
-import { video_coin_per_box } from '../../config/url';
-
-
+import { video_coin_per_box, ADMOB_ENABLED, BOX_CLAIM_COOLDOWN_SEC } from '../../config/url';
+import AdBanner from '../../components/ads/AdBanner';
+import useAdRewarded from '../../components/ads/AdRewarded';
 
 export default function AdEarnScreen() {
   const { refreshCoins } = useCoins();
@@ -17,8 +17,9 @@ export default function AdEarnScreen() {
   const [boxes, setBoxes] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [cooldown, setCooldown] = useState(0);
-  const [cooldownSec, setCooldownSec] = useState(180);
+  const [cooldownSec, setCooldownSec] = useState(BOX_CLAIM_COOLDOWN_SEC);
   const timerRef = useRef(null);
+  const pendingBox = useRef(null);
   const { width } = useWindowDimensions();
   const BOX_SIZE = (width - 38) / 4;
   const { colors } = useTheme();
@@ -75,13 +76,25 @@ export default function AdEarnScreen() {
       ToastAndroid.show(`অনুগ্রহ করে ${formatTime(cooldown)} অপেক্ষা করুন`, ToastAndroid.SHORT);
       return;
     }
-    setLoading(box.id);
     const online = await isOnline();
     if (!online) {
       ToastAndroid.show('ইন্টারনেট সংযোগ নেই!', ToastAndroid.SHORT);
-      setLoading(null);
       return;
     }
+    pendingBox.current = box;
+    setLoading(box.id);
+    if (!showAd()) {
+      setLoading(null);
+      pendingBox.current = null;
+      if (!ADMOB_ENABLED) {
+        doClaim(box);
+      } else {
+        ToastAndroid.show('বিজ্ঞাপন লোড হচ্ছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
+      }
+    }
+  };
+
+  const doClaim = async (box) => {
     try {
       await claimBox(box.id);
       await refreshCoins();
@@ -97,6 +110,14 @@ export default function AdEarnScreen() {
       setLoading(null);
     }
   };
+
+  const onEarned = ({ amount, type }) => {
+    const box = pendingBox.current;
+    pendingBox.current = null;
+    if (box) doClaim(box);
+  };
+
+  const { showAd } = useAdRewarded(onEarned);
 
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
@@ -168,49 +189,52 @@ export default function AdEarnScreen() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
-      <View style={[s.headerCard, { backgroundColor: colors.surface }]}>
-        <View style={s.headerRow}>
-          <MaterialIcons name="redeem" size={22} color={colors.primary} />
-          <Text style={[s.headerTitle, { color: colors.text }]}>বিজ্ঞাপন দেখে কয়েন সংগ্রহ করুন</Text>
+      <View style={{ flex: 1 }}>
+        <View style={[s.headerCard, { backgroundColor: colors.surface }]}>
+          <View style={s.headerRow}>
+            <MaterialIcons name="redeem" size={22} color={colors.primary} />
+            <Text style={[s.headerTitle, { color: colors.text }]}>বিজ্ঞাপন দেখে কয়েন সংগ্রহ করুন</Text>
+          </View>
+          <View style={s.statsRow}>
+            <View style={[s.statChip, { backgroundColor: '#22C55E' + '18' }]}>
+              <MaterialIcons name="monetization-on" size={16} color="#22C55E" />
+              <Text style={[s.statChipLabel, { color: colors.text }]}>আজ পেয়েছেন</Text>
+              <Text style={[s.statChipValue, { color: '#22C55E' }]}>{toBn(totalClaimed * video_coin_per_box)} কয়েন</Text>
+            </View>
+            <View style={[s.statChip, { backgroundColor: '#F59E0B' + '18' }]}>
+              <MaterialIcons name="hourglass-empty" size={16} color="#F59E0B" />
+              <Text style={[s.statChipLabel, { color: colors.text }]}>অবশিষ্ট </Text>
+              <Text style={[s.statChipValue, { color: '#F59E0B' }]}>{toBn(totalBoxes - totalClaimed)} টি • {toBn((totalBoxes - totalClaimed) * video_coin_per_box)} কয়েন</Text>
+            </View>
+          </View>
+          <View style={s.progressRow}>
+            <View style={[s.progressBar, { backgroundColor: colors.text + '20' }]}>
+              <View style={[s.progressFill, { width: `${(totalClaimed / totalBoxes) * 100}%`, backgroundColor: colors.primary }]} />
+            </View>
+            <Text style={[s.progressText, { color: colors.primary }]}>{toBn(totalClaimed)}/{toBn(totalBoxes)}</Text>
+          </View>
+          {totalClaimed === totalBoxes ? (
+            <Text style={[s.doneText, { color: colors.success }]}>সবগুলো বক্স সম্পন্ন! আগামীকাল আবার আসুন 🎉</Text>
+          ) : cooldown > 0 ? (
+            <View style={s.cooldownRow}>
+              <MaterialIcons name="timer" size={16} color="#EF4444" />
+              <Text style={[s.cooldownText, { color: '#EF4444' }]}>পরবর্তী বিজ্ঞাপন বক্স {formatTime(cooldown)}</Text>
+            </View>
+          ) : (
+            <Text style={[s.hintText, { color: colors.text }]}>বক্সে ট্যাপ করুন, ভিডিও দেখুন, {toBn(video_coin_per_box)} কয়েন নিন</Text>
+          )}
         </View>
-        <View style={s.statsRow}>
-          <View style={[s.statChip, { backgroundColor: '#22C55E' + '18' }]}>
-            <MaterialIcons name="monetization-on" size={16} color="#22C55E" />
-            <Text style={[s.statChipLabel, { color: colors.text }]}>আজ পেয়েছেন</Text>
-            <Text style={[s.statChipValue, { color: '#22C55E' }]}>{toBn(totalClaimed * video_coin_per_box)} কয়েন</Text>
-          </View>
-          <View style={[s.statChip, { backgroundColor: '#F59E0B' + '18' }]}>
-            <MaterialIcons name="hourglass-empty" size={16} color="#F59E0B" />
-            <Text style={[s.statChipLabel, { color: colors.text }]}>অবশিষ্ট </Text>
-            <Text style={[s.statChipValue, { color: '#F59E0B' }]}>{toBn(totalBoxes - totalClaimed)} টি • {toBn((totalBoxes - totalClaimed) * video_coin_per_box)} কয়েন</Text>
-          </View>
-        </View>
-        <View style={s.progressRow}>
-          <View style={[s.progressBar, { backgroundColor: colors.text + '20' }]}>
-            <View style={[s.progressFill, { width: `${(totalClaimed / totalBoxes) * 100}%`, backgroundColor: colors.primary }]} />
-          </View>
-          <Text style={[s.progressText, { color: colors.primary }]}>{toBn(totalClaimed)}/{toBn(totalBoxes)}</Text>
-        </View>
-        {totalClaimed === totalBoxes ? (
-          <Text style={[s.doneText, { color: colors.success }]}>সবগুলো বক্স সম্পন্ন! আগামীকাল আবার আসুন 🎉</Text>
-        ) : cooldown > 0 ? (
-          <View style={s.cooldownRow}>
-            <MaterialIcons name="timer" size={16} color="#EF4444" />
-            <Text style={[s.cooldownText, { color: '#EF4444' }]}>পরবর্তী বিজ্ঞাপন বক্স {formatTime(cooldown)}</Text>
-          </View>
-        ) : (
-          <Text style={[s.hintText, { color: colors.text }]}>বক্সে ট্যাপ করুন, ভিডিও দেখুন, {toBn(video_coin_per_box)} কয়েন নিন</Text>
-        )}
+        <FlatList
+          data={boxes}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={4}
+          renderItem={renderBox}
+          contentContainerStyle={s.grid}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={s.row}
+        />
+        <AdBanner />
       </View>
-      <FlatList
-        data={boxes}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={4}
-        renderItem={renderBox}
-        contentContainerStyle={s.grid}
-        showsVerticalScrollIndicator={false}
-        columnWrapperStyle={s.row}
-      />
     </SafeAreaView>
   );
 }
@@ -245,7 +269,7 @@ const styles = (colors, BOX_SIZE) => StyleSheet.create({
   cooldownText: { fontSize: 13, fontWeight: '600' },
   doneText: { fontSize: 13, fontWeight: '600' },
   hintText: { fontSize: 12, opacity: 0.6 },
-  grid: { paddingHorizontal: 10, paddingBottom: 20 },
+  grid: { flexGrow: 1, paddingHorizontal: 10, paddingBottom: 20 },
   row: { gap: 6, marginBottom: 6 },
   box: {
     width: BOX_SIZE, height: BOX_SIZE - 8,

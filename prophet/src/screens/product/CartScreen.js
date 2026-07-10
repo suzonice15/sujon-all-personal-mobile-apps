@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { bnToNumber } from '../../utils/helper';
 import { useCart } from '../../context/CartContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AdBanner from '../../components/ads/AdBanner';
 
 export default function CartScreen({ navigation }) {
   const { items, updateQty, removeItem } = useCart();
@@ -45,6 +46,7 @@ export default function CartScreen({ navigation }) {
 
   return (
     <SafeAreaView style={sty.container}>
+      <View style={{ flex: 1 }}>
       {cartItems.length === 0 ? (
         <View style={sty.empty}>
           <MaterialIcons name="shopping-cart" size={64} color="#DDD" />
@@ -63,6 +65,8 @@ export default function CartScreen({ navigation }) {
           showsVerticalScrollIndicator={false}
         />
       )}
+      <AdBanner />
+      </View>
 
       {cartItems.length > 0 && (
         <View style={[sty.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>

@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { api } from '../../api/client';
 import { apps_slug } from '../../config/url';
+import AdBanner from '../../components/ads/AdBanner';
 
 export default function FeedbackScreen() {
   const [name, setName] = useState('');
@@ -59,108 +60,111 @@ export default function FeedbackScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={s.container} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-        <View style={s.hero}>
-          <View style={s.iconBox}>
-            <MaterialIcons name="feedback" size={40} color={colors.primary} />
-          </View>
-          <Text style={s.heroTitle}>আপনার মতামত দিন</Text>
-          <Text style={s.heroSub}>আপনার মতামত আমাদের উন্নতিতে সাহায্য করে</Text>
-        </View>
-
-        <View style={s.card}>
-          <View style={s.field}>
-            <MaterialIcons name="person" size={18} color={colors.primary} style={s.fieldIcon} />
-            <TextInput
-              style={s.input} placeholder="আপনার নাম" placeholderTextColor={colors.onSurface + '66'}
-              value={name} onChangeText={setName}
-            />
+      <View style={s.container}>
+        <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+          <View style={s.hero}>
+            <View style={s.iconBox}>
+              <MaterialIcons name="feedback" size={40} color={colors.primary} />
+            </View>
+            <Text style={s.heroTitle}>আপনার মতামত দিন</Text>
+            <Text style={s.heroSub}>আপনার মতামত আমাদের উন্নতিতে সাহায্য করে</Text>
           </View>
 
-          <View style={s.field}>
-            <MaterialIcons name="email" size={18} color={colors.primary} style={s.fieldIcon} />
-            <TextInput
-              style={s.input} placeholder="আপনার ইমেইল" placeholderTextColor={colors.onSurface + '66'}
-              value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none"
-            />
-          </View>
+          <View style={s.card}>
+            <View style={s.field}>
+              <MaterialIcons name="person" size={18} color={colors.primary} style={s.fieldIcon} />
+              <TextInput
+                style={s.input} placeholder="আপনার নাম" placeholderTextColor={colors.onSurface + '66'}
+                value={name} onChangeText={setName}
+              />
+            </View>
 
-          <View style={[s.field, s.fieldMessage]}>
-            <MaterialIcons name="message" size={18} color={colors.primary} style={s.fieldIcon} />
-            <TextInput
-              style={[s.input, s.messageInput]} placeholder="আপনার বার্তা" placeholderTextColor={colors.onSurface + '66'}
-              multiline numberOfLines={5} value={message} onChangeText={setMessage} textAlignVertical="top"
-            />
-          </View>
+            <View style={s.field}>
+              <MaterialIcons name="email" size={18} color={colors.primary} style={s.fieldIcon} />
+              <TextInput
+                style={s.input} placeholder="আপনার ইমেইল" placeholderTextColor={colors.onSurface + '66'}
+                value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none"
+              />
+            </View>
 
-          <TouchableOpacity style={s.sendBtn} onPress={handleSend} disabled={loading} activeOpacity={0.8}>
-            {loading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <>
-                <MaterialIcons name="send" size={18} color="#fff" />
-                <Text style={s.sendText}>পাঠান</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
+            <View style={[s.field, s.fieldMessage]}>
+              <MaterialIcons name="message" size={18} color={colors.primary} style={s.fieldIcon} />
+              <TextInput
+                style={[s.input, s.messageInput]} placeholder="আপনার বার্তা" placeholderTextColor={colors.onSurface + '66'}
+                multiline numberOfLines={5} value={message} onChangeText={setMessage} textAlignVertical="top"
+              />
+            </View>
 
-        {myFeedbacks.length > 0 && (
-          <TouchableOpacity style={s.toggleBtn} onPress={() => setShowHistory(!showHistory)}>
-            <MaterialIcons name={showHistory ? 'expand-less' : 'expand-more'} size={20} color={colors.primary} />
-            <Text style={s.toggleText}>{showHistory ? 'বন্ধ করুন' : 'আমার ফিডব্যাক দেখুন'} ({myFeedbacks.length})</Text>
-          </TouchableOpacity>
-        )}
-
-        {showHistory && (
-          <View style={s.historyCard}>
-            <Text style={s.contactTitle}>আমার ফিডব্যাক সমূহ</Text>
-            {fetching ? (
-              <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 12 }} />
-            ) : (
-              myFeedbacks.map((item, i) => (
-                <View key={i} style={s.historyItem}>
-                  <View style={s.historyHeader}>
-                    <Text style={s.historyMessage} numberOfLines={showHistory ? undefined : 2}>{item.message}</Text>
-                    {item.status === 'resolved' ? (
-                      <View style={s.resolvedBadge}><Text style={s.resolvedText}>রিপ্লাই করা হয়েছে</Text></View>
-                    ) : (
-                      <View style={s.pendingBadge}><Text style={s.pendingText}>পেন্ডিং</Text></View>
-                    )}
-                  </View>
-                  {item.reply && (
-                    <View style={s.replyBox}>
-                      <MaterialIcons name="reply" size={14} color={colors.primary} />
-                      <Text style={s.replyText}>{item.reply}</Text>
-                    </View>
-                  )}
-                  <Text style={s.historyDate}>{item.created_at}</Text>
-                </View>
-              ))
-            )}
-          </View>
-        )}
-
-        <View style={s.contactCard}>
-          <Text style={s.contactTitle}>সরাসরি যোগাযোগ</Text>
-          {[
-            { icon: 'email', label: 'support@example.com', link: 'mailto:support@example.com' },
-            { icon: 'language', label: 'www.example.com', link: 'https://example.com' },
-          ].map((item, i) => (
-            <TouchableOpacity key={i} style={s.contactRow} onPress={() => Linking.openURL(item.link)}>
-              <MaterialIcons name={item.icon} size={18} color={colors.primary} />
-              <Text style={s.contactText}>{item.label}</Text>
+            <TouchableOpacity style={s.sendBtn} onPress={handleSend} disabled={loading} activeOpacity={0.8}>
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <MaterialIcons name="send" size={18} color="#fff" />
+                  <Text style={s.sendText}>পাঠান</Text>
+                </>
+              )}
             </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+          </View>
+
+          {myFeedbacks.length > 0 && (
+            <TouchableOpacity style={s.toggleBtn} onPress={() => setShowHistory(!showHistory)}>
+              <MaterialIcons name={showHistory ? 'expand-less' : 'expand-more'} size={20} color={colors.primary} />
+              <Text style={s.toggleText}>{showHistory ? 'বন্ধ করুন' : 'আমার ফিডব্যাক দেখুন'} ({myFeedbacks.length})</Text>
+            </TouchableOpacity>
+          )}
+
+          {showHistory && (
+            <View style={s.historyCard}>
+              <Text style={s.contactTitle}>আমার ফিডব্যাক সমূহ</Text>
+              {fetching ? (
+                <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 12 }} />
+              ) : (
+                myFeedbacks.map((item, i) => (
+                  <View key={i} style={s.historyItem}>
+                    <View style={s.historyHeader}>
+                      <Text style={s.historyMessage} numberOfLines={showHistory ? undefined : 2}>{item.message}</Text>
+                      {item.status === 'resolved' ? (
+                        <View style={s.resolvedBadge}><Text style={s.resolvedText}>রিপ্লাই করা হয়েছে</Text></View>
+                      ) : (
+                        <View style={s.pendingBadge}><Text style={s.pendingText}>পেন্ডিং</Text></View>
+                      )}
+                    </View>
+                    {item.reply && (
+                      <View style={s.replyBox}>
+                        <MaterialIcons name="reply" size={14} color={colors.primary} />
+                        <Text style={s.replyText}>{item.reply}</Text>
+                      </View>
+                    )}
+                    <Text style={s.historyDate}>{item.created_at}</Text>
+                  </View>
+                ))
+              )}
+            </View>
+          )}
+
+          <View style={s.contactCard}>
+            <Text style={s.contactTitle}>সরাসরি যোগাযোগ</Text>
+            {[
+              { icon: 'email', label: 'support@example.com', link: 'mailto:support@example.com' },
+              { icon: 'language', label: 'www.example.com', link: 'https://example.com' },
+            ].map((item, i) => (
+              <TouchableOpacity key={i} style={s.contactRow} onPress={() => Linking.openURL(item.link)}>
+                <MaterialIcons name={item.icon} size={18} color={colors.primary} />
+                <Text style={s.contactText}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 16, paddingBottom: 40 },
+  content: { padding: 16, flexGrow: 1 },
   hero: { alignItems: 'center', paddingVertical: 24 },
   iconBox: {
     width: 80, height: 80, borderRadius: 24,

@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert, ToastAndroid } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useCoins } from '../../context/CoinsContext';
 import { useNotifications } from '../../context/NotificationsContext';
-import { apps_slug } from '../../config/url';
+import { apps_slug, ADMOB_ENABLED } from '../../config/url';
 import { getMobileCoinRate, submitWithdrawRequest } from '../../api/homeApi';
 import { addWithdrawRecord } from '../../db/withdraw';
 import { addCoins } from '../../db/coins';
 import { addLocalNotification } from '../../db/notifications';
 import { getDeviceId } from '../../db/earnings';
 import { isOnline } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 const DEFAULT_COIN_RATE = 100;
 const DEFAULT_MIN_TK = 100;
@@ -32,6 +35,34 @@ export default function WithdrawRequestScreen({ navigation }) {
   const [accountNumber, setAccountNumber] = useState('');
   const [amountTk, setAmountTk] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [pendingNav, setPendingNav] = useState(false);
+  const entryShown = useRef(false);
+
+  const { showAd: showInterstitial, isLoaded, isClosed: adClosed } = useAdInterstitial();
+
+  // Entry ad: show when ad loads for the first time
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial(true);
+    }
+  }, [isLoaded]);
+
+  useEffect(() => {
+    if (pendingNav && adClosed) {
+      setPendingNav(false);
+      navigation.goBack();
+    }
+  }, [pendingNav, adClosed, navigation]);
+
+  const goBackOrShowAd = () => {
+    if (!ADMOB_ENABLED) return navigation.goBack();
+    if (showInterstitial()) {
+      setPendingNav(true);
+    } else {
+      ToastAndroid.show('বিজ্ঞাপন লোড হচ্ছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
+    }
+  };
 
   useEffect(() => {
     refreshCoins();
@@ -110,7 +141,7 @@ export default function WithdrawRequestScreen({ navigation }) {
       refreshCoins().catch(() => {});
       addLocalNotification('উত্তোলন', `${amountTk} টাকার উত্তোলন অনুরোধ পাঠানো হয়েছে`, 'withdraw').catch(() => {});
       refreshNotifications().catch(() => {});
-      navigation.goBack();
+      goBackOrShowAd();
     } catch (e) {
       console.log('Unhandled error:', e);
       setSubmitting(false);
@@ -120,8 +151,9 @@ export default function WithdrawRequestScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 12 }}>
-        <View style={s.brandCard}>
+      <View style={{ flex: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 12, flexGrow: 1 }}>
+          <View style={s.brandCard}>
           <View style={s.brandRow}>
             <View style={s.bkashCircle}>
               <MaterialIcons name="phone-iphone" size={22} color="#fff" />
@@ -221,6 +253,7 @@ export default function WithdrawRequestScreen({ navigation }) {
           </Text>
         </View>
 
+
         <TouchableOpacity
           style={[s.submitBtn, (!canSubmit || submitting) && { opacity: 0.5 }]}
           onPress={handleSubmit}
@@ -230,7 +263,12 @@ export default function WithdrawRequestScreen({ navigation }) {
           <MaterialIcons name="send" size={18} color="#fff" />
           <Text style={s.submitText}>{submitting ? 'প্রক্রিয়াকরণ...' : 'উইথড্র রিকোয়েস্ট জমা দিন'}</Text>
         </TouchableOpacity>
-      </ScrollView>
+                <AdNative style={{ marginTop: 10 }} />
+
+
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

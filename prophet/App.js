@@ -22,7 +22,9 @@ import { getAppInfo } from './src/api/homeApi';
 import { consolidateCoinHistory } from './src/db/coins';
 import { consolidatePointHistory } from './src/db/earnings';
 import { syncCoinsToServer, syncPointsToServer } from './src/db/sync';
+import { ADMOB_ENABLED, ADMOB_TEST_MODE } from './src/config/url';
 import { daily_bonus_coin } from './src/config/url';
+import MobileAds from 'react-native-google-mobile-ads';
 
 const navigationRef = createNavigationContainerRef();
 
@@ -34,6 +36,14 @@ function AppInner() {
 
   useEffect(() => {
     (async () => {
+      if (ADMOB_ENABLED) {
+        await MobileAds().initialize();
+        if (ADMOB_TEST_MODE) {
+          MobileAds().setRequestConfiguration({
+            testDeviceIdentifiers: [],
+          });
+        }
+      }
       await initDB();
       await runMigrations();
       const bonus = await claimDailyBonus();

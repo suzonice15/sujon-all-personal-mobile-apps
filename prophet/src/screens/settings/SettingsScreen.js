@@ -7,6 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
 import { getAllAppSettings } from '../../db/appSettings';
 import { syncCoinsToServer, syncPointsToServer } from '../../db/sync';
+import AdBanner from '../../components/ads/AdBanner';
 
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
@@ -56,131 +57,134 @@ export default function SettingsScreen({ navigation }) {
   console.log('Server Settings:', serverSettings);
 
   return (
-    <ScrollView style={styles(isDark).container} contentContainerStyle={styles(isDark).content}>
+    <View style={styles(isDark).container}>
+      <ScrollView contentContainerStyle={styles(isDark).content}>
 
-      <SectionTitle title="সাধারণ" isDark={isDark} />
-      <View style={styles(isDark).card}>
-        <SettingItem
-          icon="notifications"
-          label="নোটিফিকেশন"
-          isDark={isDark}
-          right={
-            <Switch
-              value={notifications}
-              onValueChange={setNotifications}
-              trackColor={{ false: '#ddd', true: '#4F46E5' }}
-              thumbColor="#fff"
-            />
-          }
-        />
-        <View style={styles(isDark).divider} />
-        <SettingItem
-          icon="dark-mode"
-          label="ডার্ক মোড"
-          isDark={isDark}
-          right={
-            <Switch
-              value={isDark}
-              onValueChange={toggleTheme}
-              trackColor={{ false: '#ddd', true: '#4F46E5' }}
-              thumbColor="#fff"
-            />
-          }
-        />
-        <View style={styles(isDark).divider} />
-        <SettingItem icon="language" label="ভাষা" isDark={isDark} />
-      </View>
-
-      <SectionTitle title="অ্যাপ তথ্য" isDark={isDark} />
-      <View style={styles(isDark).card}>
-        <SettingItem icon="info" label="অ্যাপ ভার্সন" isDark={isDark} right={<Text style={styles(isDark).valueText}>1.0.0</Text>} />
-        <View style={styles(isDark).divider} />
-        <SettingItem
-          icon="star-rate"
-          label="অ্যাপ রেটিং দিন"
-          isDark={isDark}
-          onPress={() => Linking.openURL('market://details?id=com.prophet')}
-        />
-        <View style={styles(isDark).divider} />
-        <SettingItem icon="share" label="বন্ধুদের সাথে শেয়ার করুন" isDark={isDark} onPress={() => {}} />
-      </View>
-
-      <SectionTitle title="সার্ভার সেটিংস" isDark={isDark} />
-      <View style={styles(isDark).card}>
-        <SettingItem icon="cloud" label="সার্ভার থেকে সেটিংস দেখুন" isDark={isDark} onPress={loadServerSettings} />
-      </View>
-
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles(isDark).modalOverlay}>
-          <View style={styles(isDark).modalContent}>
-            <Text style={styles(isDark).modalTitle}>সার্ভার সেটিংস</Text>
-            <ScrollView style={{ maxHeight: 400 }}>
-              {serverSettings && Object.entries(serverSettings).map(([key, value]) => (
-                <View key={key} style={styles(isDark).modalRow}>
-                  <Text style={styles(isDark).modalKey}>{key}</Text>
-                  <Text style={styles(isDark).modalValue}>{value}</Text>
-                </View>
-              ))}
-              {serverSettings && Object.keys(serverSettings).length === 0 && (
-                <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>কোনো সেটিংস নেই</Text>
-              )}
-            </ScrollView>
-            <TouchableOpacity style={styles(isDark).modalClose} onPress={() => setShowModal(false)}>
-              <Text style={styles(isDark).modalCloseText}>বন্ধ করুন</Text>
-            </TouchableOpacity>
-          </View>
+        <SectionTitle title="সাধারণ" isDark={isDark} />
+        <View style={styles(isDark).card}>
+          <SettingItem
+            icon="notifications"
+            label="নোটিফিকেশন"
+            isDark={isDark}
+            right={
+              <Switch
+                value={notifications}
+                onValueChange={setNotifications}
+                trackColor={{ false: '#ddd', true: '#4F46E5' }}
+                thumbColor="#fff"
+              />
+            }
+          />
+          <View style={styles(isDark).divider} />
+          <SettingItem
+            icon="dark-mode"
+            label="ডার্ক মোড"
+            isDark={isDark}
+            right={
+              <Switch
+                value={isDark}
+                onValueChange={toggleTheme}
+                trackColor={{ false: '#ddd', true: '#4F46E5' }}
+                thumbColor="#fff"
+              />
+            }
+          />
+          <View style={styles(isDark).divider} />
+          <SettingItem icon="language" label="ভাষা" isDark={isDark} />
         </View>
-      </Modal>
 
-      <SectionTitle title="সিঙ্ক" isDark={isDark} />
-      <View style={styles(isDark).card}>
-        <SettingItem
-          icon="sync"
-          label={syncing ? 'সিঙ্ক হচ্ছে...' : 'সিঙ্ক ডাটা'}
-          isDark={isDark}
-          onPress={handleSync}
-          right={syncing ? <MaterialIcons name="sync" size={20} color="#4F46E5" /> : null}
-        />
-        {syncMsg && (
-          <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
-            <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
+        <SectionTitle title="অ্যাপ তথ্য" isDark={isDark} />
+        <View style={styles(isDark).card}>
+          <SettingItem icon="info" label="অ্যাপ ভার্সন" isDark={isDark} right={<Text style={styles(isDark).valueText}>1.0.0</Text>} />
+          <View style={styles(isDark).divider} />
+          <SettingItem
+            icon="star-rate"
+            label="অ্যাপ রেটিং দিন"
+            isDark={isDark}
+            onPress={() => Linking.openURL('market://details?id=com.prophet')}
+          />
+          <View style={styles(isDark).divider} />
+          <SettingItem icon="share" label="বন্ধুদের সাথে শেয়ার করুন" isDark={isDark} onPress={() => {}} />
+        </View>
+
+        <SectionTitle title="সার্ভার সেটিংস" isDark={isDark} />
+        <View style={styles(isDark).card}>
+          <SettingItem icon="cloud" label="সার্ভার থেকে সেটিংস দেখুন" isDark={isDark} onPress={loadServerSettings} />
+        </View>
+
+        <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
+          <View style={styles(isDark).modalOverlay}>
+            <View style={styles(isDark).modalContent}>
+              <Text style={styles(isDark).modalTitle}>সার্ভার সেটিংস</Text>
+              <ScrollView style={{ maxHeight: 400 }}>
+                {serverSettings && Object.entries(serverSettings).map(([key, value]) => (
+                  <View key={key} style={styles(isDark).modalRow}>
+                    <Text style={styles(isDark).modalKey}>{key}</Text>
+                    <Text style={styles(isDark).modalValue}>{value}</Text>
+                  </View>
+                ))}
+                {serverSettings && Object.keys(serverSettings).length === 0 && (
+                  <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>কোনো সেটিংস নেই</Text>
+                )}
+              </ScrollView>
+              <TouchableOpacity style={styles(isDark).modalClose} onPress={() => setShowModal(false)}>
+                <Text style={styles(isDark).modalCloseText}>বন্ধ করুন</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        )}
-      </View>
+        </Modal>
 
-      <SectionTitle title="সাপোর্ট" isDark={isDark} />
-      <View style={styles(isDark).card}>
-        <SettingItem
-          icon="privacy-tip"
-          label="প্রাইভেসি পলিসি"
-          isDark={isDark}
-          onPress={() => navigation.navigate('Privacy')}
-        />
-        <View style={styles(isDark).divider} />
-        <SettingItem
-          icon="description"
-          label="ব্যবহারের শর্তাবলী"
-          isDark={isDark}
-          onPress={() => navigation.navigate('Terms')}
-        />
-        <View style={styles(isDark).divider} />
-        <SettingItem
-          icon="mail"
-          label="যোগাযোগ করুন"
-          isDark={isDark}
-          onPress={() => Linking.openURL('mailto:support@example.com')}
-        />
-      </View>
+        <SectionTitle title="সিঙ্ক" isDark={isDark} />
+        <View style={styles(isDark).card}>
+          <SettingItem
+            icon="sync"
+            label={syncing ? 'সিঙ্ক হচ্ছে...' : 'সিঙ্ক ডাটা'}
+            isDark={isDark}
+            onPress={handleSync}
+            right={syncing ? <MaterialIcons name="sync" size={20} color="#4F46E5" /> : null}
+          />
+          {syncMsg && (
+            <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+              <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
+            </View>
+          )}
+        </View>
 
-      <Text style={styles(isDark).footer}>নবীদের গল্প © ২০২৪</Text>
+        <SectionTitle title="সাপোর্ট" isDark={isDark} />
+        <View style={styles(isDark).card}>
+          <SettingItem
+            icon="privacy-tip"
+            label="প্রাইভেসি পলিসি"
+            isDark={isDark}
+            onPress={() => navigation.navigate('Privacy')}
+          />
+          <View style={styles(isDark).divider} />
+          <SettingItem
+            icon="description"
+            label="ব্যবহারের শর্তাবলী"
+            isDark={isDark}
+            onPress={() => navigation.navigate('Terms')}
+          />
+          <View style={styles(isDark).divider} />
+          <SettingItem
+            icon="mail"
+            label="যোগাযোগ করুন"
+            isDark={isDark}
+            onPress={() => Linking.openURL('mailto:support@example.com')}
+          />
+        </View>
 
-    </ScrollView>
+        <Text style={styles(isDark).footer}>নবীদের গল্প © ২০২৪</Text>
+
+      </ScrollView>
+      <AdBanner />
+    </View>
   );
 }
 
 const styles = (isDark) => StyleSheet.create({
   container: { flex: 1, backgroundColor: isDark ? '#0f172a' : '#f5f5f5' },
-  content: { padding: 16, paddingBottom: 40 },
+  content: { padding: 16, flexGrow: 1 },
   sectionTitle: {
     fontSize: 12,
     fontWeight: '700',

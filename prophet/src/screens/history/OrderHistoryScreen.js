@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const tabs = [
   { key: 'all', label: 'সব', icon: 'list' },
@@ -49,7 +50,8 @@ export default function OrderHistoryScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.tabRow}>
+      <View style={{ flex: 1 }}>
+        <View style={s.tabRow}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 12, gap: 6 }}>
           {tabs.map((tab) => {
             const isActive = activeTab === tab.key;
@@ -71,7 +73,7 @@ export default function OrderHistoryScreen({ navigation }) {
         </ScrollView>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 12, paddingBottom: 24 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 12, flexGrow: 1 }}>
         {filteredOrders.length === 0 ? (
           <View style={s.emptyBox}>
             <MaterialIcons name="inventory-2" size={40} color="#DDD" />
@@ -107,7 +109,9 @@ export default function OrderHistoryScreen({ navigation }) {
             );
           })
         )}
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

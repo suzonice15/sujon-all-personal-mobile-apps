@@ -6,6 +6,7 @@ import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../../db/auth';
 import { usePoints } from '../../context/PointsContext';
 import { fetchDistricts, getDistrictName } from '../../data/districts';
+import AdBanner from '../../components/ads/AdBanner';
 
 const genderLabels = { male: 'পুরুষ', female: 'মহিলা', other: 'অন্যান্য' };
 
@@ -56,13 +57,15 @@ export default function ProfileScreen({ navigation }) {
             <Text style={s.registerBtnText}>নিবন্ধন করুন</Text>
           </TouchableOpacity>
         </View>
+        <AdBanner />
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={s.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+      <View style={{ flex: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
         <View style={s.profileHeader}>
           <View style={s.avatarBox}>
             <Text style={s.avatarText}>{user.name?.charAt(0).toUpperCase()}</Text>
@@ -121,7 +124,9 @@ export default function ProfileScreen({ navigation }) {
           <MaterialIcons name="logout" size={20} color="#EF4444" />
           <Text style={s.logoutText}>লগআউট</Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

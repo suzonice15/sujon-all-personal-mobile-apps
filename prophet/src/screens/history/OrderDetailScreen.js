@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const statusConfig = {
   processing: { label: 'প্রক্রিয়াধীন', color: '#6366F1', bg: '#EEF2FF', icon: 'sync' },
@@ -21,8 +22,9 @@ export default function OrderDetailScreen({ route }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
-        <View style={s.headerCard}>
+      <View style={{ flex: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, flexGrow: 1 }}>
+          <View style={s.headerCard}>
           <View style={s.headerTop}>
             <Text style={s.orderId}>{order.id}</Text>
             <View style={[s.badge, { backgroundColor: st.bg }]}>
@@ -96,7 +98,9 @@ export default function OrderDetailScreen({ route }) {
             </View>
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

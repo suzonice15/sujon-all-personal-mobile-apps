@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getAllAppSettings } from '../../db/appSettings';
+import AdBanner from '../../components/ads/AdBanner';
 
 const { width } = Dimensions.get('window');
 
@@ -35,56 +36,59 @@ export default function AboutDeveloperScreen() {
   ];
 
   return (
-    <ScrollView style={s.container} contentContainerStyle={s.content}>
-      <View style={s.hero}>
-        <View style={s.heroOverlay} />
-        <View style={s.avatar}>
-          <MaterialIcons name={iconName} size={40} color="#fff" />
+    <View style={s.container}>
+      <ScrollView contentContainerStyle={s.content}>
+        <View style={s.hero}>
+          <View style={s.heroOverlay} />
+          <View style={s.avatar}>
+            <MaterialIcons name={iconName} size={40} color="#fff" />
+          </View>
+          <Text style={s.name}>{name}</Text>
+          <Text style={s.role}>{role}</Text>
         </View>
-        <Text style={s.name}>{name}</Text>
-        <Text style={s.role}>{role}</Text>
-      </View>
 
-      {contactRows.length > 0 && (
-        <View style={s.card}>
-          {contactRows.map((item, i, arr) => (
-            <View key={i}>
-              <TouchableOpacity
-                style={s.row}
-                onPress={() => item.link && Linking.openURL(item.link)}
-                activeOpacity={item.link ? 0.6 : 1}
-              >
-                <View style={s.rowLeft}>
-                  <View style={s.iconWrap}>
-                    <MaterialIcons name={item.icon} size={18} color={themeColor} />
+        {contactRows.length > 0 && (
+          <View style={s.card}>
+            {contactRows.map((item, i, arr) => (
+              <View key={i}>
+                <TouchableOpacity
+                  style={s.row}
+                  onPress={() => item.link && Linking.openURL(item.link)}
+                  activeOpacity={item.link ? 0.6 : 1}
+                >
+                  <View style={s.rowLeft}>
+                    <View style={s.iconWrap}>
+                      <MaterialIcons name={item.icon} size={18} color={themeColor} />
+                    </View>
+                    <View>
+                      <Text style={s.rowLabel}>{item.label}</Text>
+                      <Text style={s.rowValue}>{item.value}</Text>
+                    </View>
                   </View>
-                  <View>
-                    <Text style={s.rowLabel}>{item.label}</Text>
-                    <Text style={s.rowValue}>{item.value}</Text>
-                  </View>
-                </View>
-                {item.link && <MaterialIcons name="chevron-right" size={20} color={colors.onSurface} style={{ opacity: 0.3 }} />}
-              </TouchableOpacity>
-              {i < arr.length - 1 && <View style={s.divider} />}
-            </View>
-          ))}
-        </View>
-      )}
+                  {item.link && <MaterialIcons name="chevron-right" size={20} color={colors.onSurface} style={{ opacity: 0.3 }} />}
+                </TouchableOpacity>
+                {i < arr.length - 1 && <View style={s.divider} />}
+              </View>
+            ))}
+          </View>
+        )}
 
-      {about ? (
-        <View style={s.descCard}>
-          <MaterialIcons name="info-outline" size={18} color={themeColor} style={{ marginBottom: 6 }} />
-          <Text style={s.descTitle}>পরিচিতি</Text>
-          <Text style={s.descText}>{about}</Text>
-        </View>
-      ) : null}
-    </ScrollView>
+        {about ? (
+          <View style={s.descCard}>
+            <MaterialIcons name="info-outline" size={18} color={themeColor} style={{ marginBottom: 6 }} />
+            <Text style={s.descTitle}>পরিচিতি</Text>
+            <Text style={s.descText}>{about}</Text>
+          </View>
+        ) : null}
+      </ScrollView>
+      <AdBanner />
+    </View>
   );
 }
 
 const styles = (themeColor, colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { paddingBottom: 40 },
+  content: { flexGrow: 1 },
   hero: {
     backgroundColor: themeColor,
     alignItems: 'center',

@@ -5,9 +5,12 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { useCoins } from '../../context/CoinsContext';
 import { addCoins, getTodayCoins, getDailyCoinStats } from '../../db/coins';
-import { daily_coin_count } from '../../config/url';
+import { daily_coin_count, ADMOB_ENABLED, BOX_CLAIM_COOLDOWN_SEC } from '../../config/url';
 import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
 import { toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
+import useAdRewarded from '../../components/ads/AdRewarded';
+import AdNative from '../../components/ads/AdNative';
 
 export default function DailyCoinScreen() {
   const { refreshCoins } = useCoins();
@@ -17,10 +20,11 @@ export default function DailyCoinScreen() {
   const [countdown, setCountdown] = useState(0);
   const [collecting, setCollecting] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [cooldownSec, setCooldownSec] = useState(180);
+  const [cooldownSec, setCooldownSec] = useState(BOX_CLAIM_COOLDOWN_SEC);
   const timerRef = useRef(null);
   const { colors } = useTheme();
   const s = styles(colors);
+  const pendingCollect = useRef(false);
 
   useFocusEffect(useCallback(() => {
     setInitialLoading(true);
@@ -61,28 +65,41 @@ export default function DailyCoinScreen() {
     }
   }, [countdown]);
 
-  const startCooldown = () => {
+  const doCollect = async () => {
+    await addCoins(daily_coin_count, 'দৈনিক কয়েন সংগ্রহ');
+    await refreshCoins();
+    await setLastClaimTime();
+    const today = await getTodayCoins();
+    setTodayCoins(today);
+    const stats = await getDailyCoinStats();
+    setTotalDailyCoin(stats.total);
+    setDailyCount(stats.count);
     setCountdown(cooldownSec);
+    ToastAndroid.show(`${toBn(daily_coin_count)} কয়েন সংগ্রহ হয়েছে!`, ToastAndroid.SHORT);
+    setCollecting(false);
   };
+
+  const onEarnedDaily = () => {
+    if (pendingCollect.current) {
+      pendingCollect.current = false;
+      doCollect();
+    }
+  };
+
+  const { showAd: showDailyAd } = useAdRewarded(onEarnedDaily);
 
   const handleCollect = async () => {
     if (collecting) return;
     setCollecting(true);
-    try {
-      await addCoins(daily_coin_count, 'দৈনিক কয়েন সংগ্রহ');
-      await refreshCoins();
-      await setLastClaimTime();
-      const today = await getTodayCoins();
-      setTodayCoins(today);
-      const stats = await getDailyCoinStats();
-      setTotalDailyCoin(stats.total);
-      setDailyCount(stats.count);
-      startCooldown();
-      ToastAndroid.show(`🎉 ${toBn(daily_coin_count)} কয়েন সংগ্রহ হয়েছে!`, ToastAndroid.SHORT);
-    } catch (error) {
-      ToastAndroid.show('সমস্যা হয়েছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
-    } finally {
+    pendingCollect.current = true;
+    if (!showDailyAd()) {
       setCollecting(false);
+      pendingCollect.current = false;
+      if (!ADMOB_ENABLED) {
+        doCollect();
+      } else {
+        ToastAndroid.show('বিজ্ঞাপন লোড হচ্ছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
+      }
     }
   };
 
@@ -104,54 +121,59 @@ export default function DailyCoinScreen() {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.headerRow}>
-        <View style={s.statsCard}>
-          <MaterialIcons name="history" size={20} color="#F59E0B" />
-          <View>
-            <Text style={s.statsLabel}>মোট সংগ্রহ</Text>
-            <Text style={s.statsValue}>{toBn(totalDailyCoin)} কয়েন</Text>
-          </View>
-          <View style={s.statsDivider} />
-          <View>
-            <Text style={s.statsLabel}>মোট বার</Text>
-            <Text style={s.statsValue}>{toBn(dailyCount)} বার</Text>
+      <View style={{ flex: 1 }}>
+        <View style={s.headerRow}>
+          <View style={s.statsCard}>
+            <MaterialIcons name="history" size={20} color="#F59E0B" />
+            <View>
+              <Text style={s.statsLabel}>মোট সংগ্রহ</Text>
+              <Text style={s.statsValue}>{toBn(totalDailyCoin)} কয়েন</Text>
+            </View>
+            <View style={s.statsDivider} />
+            <View>
+              <Text style={s.statsLabel}>মোট বার</Text>
+              <Text style={s.statsValue}>{toBn(dailyCount)} বার</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={s.card}>
-        <MaterialIcons name="celebration" size={64} color={isReady ? '#F59E0B' : colors.text} style={{ opacity: isReady ? 1 : 0.2 }} />
-        <Text style={[s.title, !isReady && s.titleMuted]}>
-          {isReady ? 'কয়েন সংগ্রহ করুন!' : 'পরবর্তী কয়েন'}
-        </Text>
-        {isReady ? (
-          <TouchableOpacity
-            style={s.collectBtn}
-            activeOpacity={0.8}
-            onPress={handleCollect}
-            disabled={collecting}>
-            {collecting ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <>
-                <MaterialIcons name="monetization-on" size={28} color="#fff" />
-                <Text style={s.collectText}>+{toBn(daily_coin_count)} কয়েন</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        ) : (
-          <View style={s.timerBox}>
-            <Text style={s.timer}>{formatTime(countdown)}</Text>
-            <Text style={s.timerLabel}>মিনিটে পরবর্তী বক্স</Text>
-          </View>
-        )}
-      </View>
+        <View style={s.card}>
+          <MaterialIcons name="celebration" size={64} color={isReady ? '#F59E0B' : colors.text} style={{ opacity: isReady ? 1 : 0.2 }} />
+          <Text style={[s.title, !isReady && s.titleMuted]}>
+            {isReady ? 'কয়েন সংগ্রহ করুন!' : 'পরবর্তী কয়েন'}
+          </Text>
+          {isReady ? (
+            <TouchableOpacity
+              style={s.collectBtn}
+              activeOpacity={0.8}
+              onPress={handleCollect}
+              disabled={collecting}>
+              {collecting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <MaterialIcons name="monetization-on" size={28} color="#fff" />
+                  <Text style={s.collectText}>+{toBn(daily_coin_count)} কয়েন</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          ) : (
+            <View style={s.timerBox}>
+              <Text style={s.timer}>{formatTime(countdown)}</Text>
+              <Text style={s.timerLabel}>মিনিটে পরবর্তী বক্স</Text>
+            </View>
+          )}
+        </View>
 
-      <View style={s.infoBox}>
-        <MaterialIcons name="info-outline" size={18} color={colors.primary} />
-        <Text style={s.infoText}>
-           প্রতি {toBn(cooldownSec / 60)} মিনিটে একটি কয়েন বক্স মিলবে। ক্লিক করে {toBn(daily_coin_count)} কয়েন নিন |
-        </Text>
+        <View style={s.infoBox}>
+          <MaterialIcons name="info-outline" size={18} color={colors.primary} />
+          <Text style={s.infoText}>
+             প্রতি {toBn(cooldownSec / 60)} মিনিটে একটি কয়েন বক্স মিলবে। ক্লিক করে {toBn(daily_coin_count)} কয়েন নিন |
+          </Text>
+        </View>
+                  <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+        
+        <AdBanner />
       </View>
     </SafeAreaView>
   );

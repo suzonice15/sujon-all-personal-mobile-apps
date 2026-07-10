@@ -13,6 +13,7 @@ import { getPendingCount } from '../../db/claims';
 import { getPendingBoxesCount } from '../../db/adBoxes';
 import { getTotalWithdraw } from '../../db/withdraw';
 import { toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const quickActions = [
   { icon: 'menu-book', label: 'গল্প', color: '#6366F1', tab: 'Home' },
@@ -122,8 +123,9 @@ export default function DashboardScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
-        <View style={s.header}>
+      <View style={{ flex: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={s.header}>
           <View style={s.headerRow}>
             <View style={s.avatar}>
               <Text style={s.avatarText}>{user?.name?.charAt(0).toUpperCase() || 'U'}</Text>
@@ -276,7 +278,9 @@ export default function DashboardScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         ) : null}
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

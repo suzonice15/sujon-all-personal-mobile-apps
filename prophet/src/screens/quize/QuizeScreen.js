@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView } from
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getCategoryWiseQuize } from '../../db/quizeContents';
-
+import AdBanner from '../../components/ads/AdBanner';
+ 
 export default function QuizeScreen({ navigation }) {
   const [data, setData] = useState([]);
   const { colors } = useTheme();
@@ -53,6 +54,7 @@ export default function QuizeScreen({ navigation }) {
           </TouchableOpacity>
         )}
       />
+      <AdBanner />
     </SafeAreaView>
   );
 }

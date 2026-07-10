@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getAllAppSettings } from '../../db/appSettings';
+import AdBanner from '../../components/ads/AdBanner';
 
 const { width } = Dimensions.get('window');
 
@@ -45,93 +46,96 @@ export default function DonationScreen() {
   };
 
   return (
-    <ScrollView style={s.container} contentContainerStyle={s.content}>
-      <View style={s.hero}>
-        <View style={s.heroOverlay} />
-        <View style={s.iconBox}>
-          <MaterialIcons name="volunteer-activism" size={46} color="#fff" />
+    <View style={s.container}>
+      <ScrollView contentContainerStyle={s.content}>
+        <View style={s.hero}>
+          <View style={s.heroOverlay} />
+          <View style={s.iconBox}>
+            <MaterialIcons name="volunteer-activism" size={46} color="#fff" />
+          </View>
+          <Text style={s.title}>{title}</Text>
+          <Text style={s.subtitle}>{subtitle}</Text>
         </View>
-        <Text style={s.title}>{title}</Text>
-        <Text style={s.subtitle}>{subtitle}</Text>
-      </View>
 
-      {note ? (
-        <View style={s.noteCard}>
-          <MaterialIcons name="info-outline" size={18} color={themeColor} />
-          <Text style={s.noteText}>{note}</Text>
+        {note ? (
+          <View style={s.noteCard}>
+            <MaterialIcons name="info-outline" size={18} color={themeColor} />
+            <Text style={s.noteText}>{note}</Text>
+          </View>
+        ) : null}
+
+        <View style={s.appealCard}>
+          <MaterialIcons name="volunteer-activism" size={24} color={themeColor} />
+          <Text style={s.appealText}>
+            আপনার দান আমাদের কাছে অত্যন্ত গুরুত্বপূর্ণ। এই অ্যাপ ও এপিআই সার্ভারের উন্নয়ন,
+            হোস্টিং ও রক্ষণাবেক্ষণের জন্য আমরা আপনার আর্থিক সহযোগিতা কামনা করছি।
+            নিচের যেকোনো মাধ্যম ব্যবহার করে আপনি দান করতে পারেন।
+          </Text>
         </View>
-      ) : null}
 
-      <View style={s.appealCard}>
-        <MaterialIcons name="volunteer-activism" size={24} color={themeColor} />
-        <Text style={s.appealText}>
-          আপনার দান আমাদের কাছে অত্যন্ত গুরুত্বপূর্ণ। এই অ্যাপ ও এপিআই সার্ভারের উন্নয়ন,
-          হোস্টিং ও রক্ষণাবেক্ষণের জন্য আমরা আপনার আর্থিক সহযোগিতা কামনা করছি।
-          নিচের যেকোনো মাধ্যম ব্যবহার করে আপনি দান করতে পারেন।
-        </Text>
-      </View>
+        
 
-      
-
-      {(bankName || accountName || accountNumber) && (
-        <View style={s.card}>
-          <Text style={s.cardTitle}>ব্যাংক তথ্য</Text>
-          {bankName ? (
-            <TouchableOpacity style={s.infoRow} onPress={() => showNumber(bankName, 'ব্যাংক')} activeOpacity={0.6}>
-              <Text style={s.infoLabel}>ব্যাংক</Text>
-              <Text style={s.infoValue}>{bankName}</Text>
-            </TouchableOpacity>
-          ) : null}
-          {accountName ? (
-            <TouchableOpacity style={s.infoRow} onPress={() => showNumber(accountName, 'একাউন্টের নাম')} activeOpacity={0.6}>
-              <Text style={s.infoLabel}>একাউন্টের নাম</Text>
-              <Text style={s.infoValue}>{accountName}</Text>
-            </TouchableOpacity>
-          ) : null}
-          {accountNumber ? (
-            <TouchableOpacity style={s.infoRow} onPress={() => showNumber(accountNumber, 'একাউন্ট নম্বর')} activeOpacity={0.6}>
-              <Text style={s.infoLabel}>একাউন্ট নম্বর</Text>
-              <Text style={s.infoValue}>{accountNumber}</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      )}
-
-      {paymentMethods.length > 0 && (
-        <View style={s.card}>
-          <Text style={s.cardTitle}>মোবাইল পেমেন্ট</Text>
-          {paymentMethods.map((item, i, arr) => (
-            <View key={i}>
-              <TouchableOpacity
-                style={s.paymentRow}
-                onPress={() => {
-                  showNumber(item.value, item.label);
-                  Linking.openURL(`tel:${item.value.replace(/[^0-9]/g, '')}`);
-                }}
-                activeOpacity={0.6}
-              >
-                <View style={s.paymentLeft}>
-                  <View style={s.iconWrap}>
-                    <MaterialIcons name={item.icon} size={18} color={themeColor} />
-                  </View>
-                  <Text style={s.paymentLabel}>{item.label}</Text>
-                </View>
-                <Text style={s.paymentNumber}>{item.value}</Text>
+        {(bankName || accountName || accountNumber) && (
+          <View style={s.card}>
+            <Text style={s.cardTitle}>ব্যাংক তথ্য</Text>
+            {bankName ? (
+              <TouchableOpacity style={s.infoRow} onPress={() => showNumber(bankName, 'ব্যাংক')} activeOpacity={0.6}>
+                <Text style={s.infoLabel}>ব্যাংক</Text>
+                <Text style={s.infoValue}>{bankName}</Text>
               </TouchableOpacity>
-              {i < arr.length - 1 && <View style={s.divider} />}
-            </View>
-          ))}
-        </View>
-      )}
+            ) : null}
+            {accountName ? (
+              <TouchableOpacity style={s.infoRow} onPress={() => showNumber(accountName, 'একাউন্টের নাম')} activeOpacity={0.6}>
+                <Text style={s.infoLabel}>একাউন্টের নাম</Text>
+                <Text style={s.infoValue}>{accountName}</Text>
+              </TouchableOpacity>
+            ) : null}
+            {accountNumber ? (
+              <TouchableOpacity style={s.infoRow} onPress={() => showNumber(accountNumber, 'একাউন্ট নম্বর')} activeOpacity={0.6}>
+                <Text style={s.infoLabel}>একাউন্ট নম্বর</Text>
+                <Text style={s.infoValue}>{accountNumber}</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        )}
 
-      
-    </ScrollView>
+        {paymentMethods.length > 0 && (
+          <View style={s.card}>
+            <Text style={s.cardTitle}>মোবাইল পেমেন্ট</Text>
+            {paymentMethods.map((item, i, arr) => (
+              <View key={i}>
+                <TouchableOpacity
+                  style={s.paymentRow}
+                  onPress={() => {
+                    showNumber(item.value, item.label);
+                    Linking.openURL(`tel:${item.value.replace(/[^0-9]/g, '')}`);
+                  }}
+                  activeOpacity={0.6}
+                >
+                  <View style={s.paymentLeft}>
+                    <View style={s.iconWrap}>
+                      <MaterialIcons name={item.icon} size={18} color={themeColor} />
+                    </View>
+                    <Text style={s.paymentLabel}>{item.label}</Text>
+                  </View>
+                  <Text style={s.paymentNumber}>{item.value}</Text>
+                </TouchableOpacity>
+                {i < arr.length - 1 && <View style={s.divider} />}
+              </View>
+            ))}
+          </View>
+        )}
+
+        
+      </ScrollView>
+      <AdBanner />
+    </View>
   );
 }
 
 const styles = (themeColor, colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { paddingBottom: 40 },
+  content: { flexGrow: 1 },
   hero: {
     backgroundColor: themeColor, alignItems: 'center',
     paddingTop: 50, paddingBottom: 35,

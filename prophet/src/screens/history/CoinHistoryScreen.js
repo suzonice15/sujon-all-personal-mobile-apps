@@ -6,6 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getRecentCoins } from '../../db/coins';
 import { getPendingClaims } from '../../db/claims';
 import { toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const toDate = (str) => { const d = new Date(str); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
 const today = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
@@ -142,7 +143,8 @@ export default function CoinHistoryScreen() {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.topRow}>
+      <View style={{ flex: 1 }}>
+        <View style={s.topRow}>
         <View style={s.totalBox}>
           <MaterialIcons name="monetization-on" size={22} color="#F59E0B" />
           <Text style={s.totalValue}>{toBn(totalCoins)}</Text>
@@ -192,6 +194,8 @@ export default function CoinHistoryScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

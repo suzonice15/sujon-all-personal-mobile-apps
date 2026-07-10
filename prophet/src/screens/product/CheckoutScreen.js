@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { bnToNumber } from '../../utils/helper';
 import { useCart } from '../../context/CartContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AdBanner from '../../components/ads/AdBanner';
 
 const deliveryCharge = 60;
 
@@ -94,13 +95,14 @@ export default function CheckoutScreen({ navigation }) {
 
   return (
     <SafeAreaView style={sty.container}>
+      <View style={{ flex: 1 }}>
       {items.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <MaterialIcons name="shopping-cart" size={64} color="#DDD" />
           <Text style={{ fontSize: 16, color: '#999', marginTop: 12 }}>কার্ট খালি, চেকআউট impossible</Text>
         </View>
       ) : (
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, paddingBottom: Platform.OS === 'android' ? 140 : 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
         <View style={sty.section}>
           <View style={sty.sectionHeader}>
             <MaterialIcons name="location-on" size={18} color="#4F46E5" />
@@ -157,6 +159,8 @@ export default function CheckoutScreen({ navigation }) {
         </View>
       </ScrollView>
       )}
+      <AdBanner />
+      </View>
 
       {items.length > 0 && (
         <View style={[sty.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>

@@ -10,6 +10,7 @@ import { getReferralInfo } from '../../api/userApi';
 import { getDeviceId } from '../../db/earnings';
 import { getDB } from '../../db/db';
 import { toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const sx = StyleSheet.create({
   card: { flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 10, alignItems: 'center', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 },
@@ -110,8 +111,9 @@ export default function ReferralScreen({ navigation }) {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
-        <View style={s.kpiRow}>
+      <View style={{ flex: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={s.kpiRow}>
           <StatCard icon="group" iconBg="#EEF2FF" value={toBn(stats.totalReferrals)} label="Total" />
           <StatCard icon="person-pin" iconBg="#D1FAE5" value={toBn(stats.activeReferrals)} label="Active" />
           <StatCard icon="monetization-on" iconBg="#FEF3C7" value={toBn(stats.totalEarned)} label="Earned" />
@@ -140,7 +142,9 @@ export default function ReferralScreen({ navigation }) {
         <MenuItem icon="workspace-premium" iconBg="#FEF3C7" iconColor="#F59E0B" title="শীর্ষ অ্যাফিলিয়েট" desc="রেফারেল আয়ে সেরা" onPress={() => go('TopAffiliates')} />
         <MenuItem icon="emoji-events" iconBg="#FEF3C7" iconColor="#F59E0B" title="শীর্ষ আয়কারী" desc="সর্বোচ্চ কয়েন আয়কারী" onPress={() => go('TopEarners')} />
         <MenuItem icon="group-add" iconBg="#EDE9FE" iconColor="#8B5CF6" title="শীর্ষ রেফারার" desc="সর্বোচ্চ রেফারেলকারী" onPress={() => go('TopReferrers')} />
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

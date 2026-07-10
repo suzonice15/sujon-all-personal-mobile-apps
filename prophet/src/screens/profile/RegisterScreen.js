@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { registerUser, getUserByDeviceId } from '../../db/auth';
 import { fetchDistricts } from '../../data/districts';
+import AdBanner from '../../components/ads/AdBanner';
 
 const GENDERS = [
   { label: 'পুরুষ', value: 'male' },
@@ -82,8 +83,11 @@ export default function RegisterScreen({ navigation }) {
 
   if (checking) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+        <AdBanner />
       </View>
     );
   }
@@ -91,7 +95,8 @@ export default function RegisterScreen({ navigation }) {
   if (registered) {
     return (
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
           <View style={s.iconBox}>
             <MaterialIcons name="celebration" size={40} color={colors.primary} />
           </View>
@@ -110,6 +115,8 @@ export default function RegisterScreen({ navigation }) {
             <Text style={s.btnText}>ড্যাশবোর্ডে যান</Text>
           </TouchableOpacity>
         </ScrollView>
+        <AdBanner />
+        </View>
       </KeyboardAvoidingView>
     );
   }
@@ -117,7 +124,8 @@ export default function RegisterScreen({ navigation }) {
   if (existingUser) {
     return (
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
           <View style={s.iconBox}>
             <MaterialIcons name="check-circle" size={40} color={colors.primary} />
           </View>
@@ -159,13 +167,16 @@ export default function RegisterScreen({ navigation }) {
             <Text style={s.btnText}>ড্যাশবোর্ডে যান</Text>
           </TouchableOpacity>
         </ScrollView>
+        <AdBanner />
+        </View>
       </KeyboardAvoidingView>
     );
   }
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
+      <View style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
         <View style={s.iconBox}>
           <MaterialIcons name="person-add" size={40} color={colors.primary} />
         </View>
@@ -219,7 +230,9 @@ export default function RegisterScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={s.link}>আগেই অ্যাকাউন্ট আছে? <Text style={s.linkBold}>লগইন করুন</Text></Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
 
       <Modal visible={showDistricts} transparent animationType="slide" onRequestClose={() => setShowDistricts(false)} onShow={() => setDistrictSearch('')}>
         <View style={s.modalOverlay}>

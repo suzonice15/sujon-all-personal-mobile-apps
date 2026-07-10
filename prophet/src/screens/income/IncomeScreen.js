@@ -5,6 +5,7 @@ import { useTheme } from 'react-native-paper';
 import { getEarnings } from '../../db/earnings';
 import { usePoints } from '../../context/PointsContext';
 import { getSingleContent } from '../../db/mobileContents';
+import AdBanner from '../../components/ads/AdBanner';
 
 export default function IncomeScreen({ navigation }) {
   const [history, setHistory] = useState([]);
@@ -34,24 +35,27 @@ export default function IncomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.totalBox}>
-        <Text style={s.totalLabel}>মোট অর্জিত পয়েন্ট</Text>
-        <Text style={s.totalValue}>⭐ {total}</Text>
-      </View>
-
-      {history.length === 0 ? (
-        <View style={s.empty}>
-          <Text style={s.emptyText}>এখনো কোনো গল্প পড়া হয়নি।{'\n'}গল্প পড়লে পয়েন্ট অর্জন হবে।</Text>
+      <View style={{ flex: 1 }}>
+        <View style={s.totalBox}>
+          <Text style={s.totalLabel}>মোট অর্জিত পয়েন্ট</Text>
+          <Text style={s.totalValue}>⭐ {total}</Text>
         </View>
-      ) : (
-        <FlatList
-          data={history}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+
+        {history.length === 0 ? (
+          <View style={s.empty}>
+            <Text style={s.emptyText}>এখনো কোনো গল্প পড়া হয়নি।{'\n'}গল্প পড়লে পয়েন্ট অর্জন হবে।</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={history}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

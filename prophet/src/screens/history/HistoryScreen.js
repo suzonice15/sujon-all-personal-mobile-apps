@@ -7,6 +7,7 @@ import { useCoins } from '../../context/CoinsContext';
 import { usePoints } from '../../context/PointsContext';
 import { getTotalWithdraw } from '../../db/withdraw';
 import { toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const historyOptions = [
   {
@@ -102,8 +103,9 @@ export default function HistoryScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
-        <View style={s.headerSection}>
+      <View style={{ flex: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={s.headerSection}>
           <MaterialIcons name="history" size={40} color={colors.headerBackground} />
           <Text style={s.headerTitle}>হিস্টোরি</Text>
           <Text style={s.headerSubtitle}>আপনার সকল লেনদেন ও অর্জনের বিবরণ</Text>
@@ -168,7 +170,9 @@ export default function HistoryScreen({ navigation }) {
             <MaterialIcons name="chevron-right" size={24} color={colors.muted} />
           </TouchableOpacity>
         ))}
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

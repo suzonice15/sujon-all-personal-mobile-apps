@@ -12,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getMobileContents } from '../../db/mobileContents';
 import { useTheme as usePaperTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AdBanner from '../../components/ads/AdBanner';
  
 export default function HomeScreen({ navigation }) {
   const [data, setData] = useState([]);
@@ -45,6 +46,7 @@ export default function HomeScreen({ navigation }) {
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
+
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={() => loadData(true)} />
         }
@@ -73,6 +75,7 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         )}
       />
+      <AdBanner />
     </SafeAreaView>
   );
 }

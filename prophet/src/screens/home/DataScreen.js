@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Refre
 import { getMobileContents, getSingleContent } from '../../db/mobileContents';
 import { useTheme as usePaperTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AdBanner from '../../components/ads/AdBanner';
 
 export default function DataScreen({ route, navigation }) {
   const { item, parent_id,headerTitle } = route.params;
@@ -65,6 +66,7 @@ export default function DataScreen({ route, navigation }) {
           </TouchableOpacity>
         )}
       />
+      <AdBanner />
     </SafeAreaView>
   );
 }

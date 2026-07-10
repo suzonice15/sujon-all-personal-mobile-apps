@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AdBanner from '../../components/ads/AdBanner';
 
 export default function OrderSuccessScreen({ route, navigation }) {
   const { total, count, payment, address } = route.params || {};
@@ -43,6 +44,7 @@ export default function OrderSuccessScreen({ route, navigation }) {
           <Text style={s.btnText}>হোম এ ফিরুন</Text>
         </TouchableOpacity>
       </View>
+      <AdBanner />
     </SafeAreaView>
   );
 }

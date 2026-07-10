@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import RenderHtml from 'react-native-render-html';
 import { useTheme } from 'react-native-paper';
 import { getAllAppSettings } from '../../db/appSettings';
+import AdBanner from '../../components/ads/AdBanner';
 
 const { width } = Dimensions.get('window');
 
@@ -33,34 +34,37 @@ export default function PrivacyScreen() {
   }
 
   return (
-    <ScrollView style={s.container} contentContainerStyle={s.content} maximumZoomScale={1} minimumZoomScale={1}>
-      <RenderHtml
-        contentWidth={width - 32}
-        source={{ html: htmlContent }}
-        baseStyle={{
-          fontSize: 15,
-          lineHeight: 24,
-          color: isDark ? '#e2e8f0' : '#1a1a1a',
-        }}
-        tagsStyles={{
-          h1: { fontSize: 20, color: colors.primary, marginBottom: 6 },
-          h2: { fontSize: 17, color: colors.primary, marginTop: 20, marginBottom: 6 },
-          h3: { fontSize: 15, color: isDark ? '#94a3b8' : '#333', marginTop: 16, marginBottom: 4 },
-          p: { marginBottom: 10 },
-          ul: { paddingLeft: 20, marginBottom: 10 },
-          ol: { paddingLeft: 20, marginBottom: 10 },
-          li: { marginBottom: 4 },
-          a: { color: colors.primary },
-          strong: { fontWeight: '600' },
-        }}
-      />
-    </ScrollView>
+    <View style={s.container}>
+      <ScrollView contentContainerStyle={s.content} maximumZoomScale={1} minimumZoomScale={1}>
+        <RenderHtml
+          contentWidth={width - 32}
+          source={{ html: htmlContent }}
+          baseStyle={{
+            fontSize: 15,
+            lineHeight: 24,
+            color: isDark ? '#e2e8f0' : '#1a1a1a',
+          }}
+          tagsStyles={{
+            h1: { fontSize: 20, color: colors.primary, marginBottom: 6 },
+            h2: { fontSize: 17, color: colors.primary, marginTop: 20, marginBottom: 6 },
+            h3: { fontSize: 15, color: isDark ? '#94a3b8' : '#333', marginTop: 16, marginBottom: 4 },
+            p: { marginBottom: 10 },
+            ul: { paddingLeft: 20, marginBottom: 10 },
+            ol: { paddingLeft: 20, marginBottom: 10 },
+            li: { marginBottom: 4 },
+            a: { color: colors.primary },
+            strong: { fontWeight: '600' },
+          }}
+        />
+      </ScrollView>
+      <AdBanner />
+    </View>
   );
 }
 
 const styles = (colors) => StyleSheet.create({
   container: { flex: 1 },
-  content: { padding: 16 },
+  content: { padding: 16, flexGrow: 1 },
   emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
   emptyText: { fontSize: 15, color: colors.onSurface, opacity: 0.5, marginTop: 12, textAlign: 'center' },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const bnMonths = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
 
@@ -20,27 +21,30 @@ export default function NotificationDetailScreen({ route }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <View style={s.iconRow}>
-          <View style={s.iconCircle}>
-            <MaterialIcons name={item.type === 'bonus' ? 'emoji-events' : 'notifications'} size={32} color="#fff" />
+      <View style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
+          <View style={s.iconRow}>
+            <View style={s.iconCircle}>
+              <MaterialIcons name={item.type === 'bonus' ? 'emoji-events' : 'notifications'} size={32} color="#fff" />
+            </View>
           </View>
-        </View>
 
-        <Text style={s.badge}>{item.type === 'bonus' ? 'বোনাস' : 'সাধারণ'}</Text>
-        <Text style={s.title}>{item.title}</Text>
+          <Text style={s.badge}>{item.type === 'bonus' ? 'বোনাস' : 'সাধারণ'}</Text>
+          <Text style={s.title}>{item.title}</Text>
 
-        {item.body ? (
-          <View style={s.bodyBox}>
-            <Text style={s.body}>{item.body}</Text>
+          {item.body ? (
+            <View style={s.bodyBox}>
+              <Text style={s.body}>{item.body}</Text>
+            </View>
+          ) : null}
+
+          <View style={s.dateRow}>
+            <MaterialIcons name="schedule" size={14} color={colors.muted} />
+            <Text style={s.date}>{formatFull(item.created_at)}</Text>
           </View>
-        ) : null}
-
-        <View style={s.dateRow}>
-          <MaterialIcons name="schedule" size={14} color={colors.muted} />
-          <Text style={s.date}>{formatFull(item.created_at)}</Text>
-        </View>
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

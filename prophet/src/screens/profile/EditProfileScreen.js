@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { updateUser } from '../../db/auth';
 import { fetchDistricts } from '../../data/districts';
+import AdBanner from '../../components/ads/AdBanner';
 
 const GENDERS = [
   { label: 'পুরুষ', value: 'male' },
@@ -57,7 +58,8 @@ export default function EditProfileScreen({ navigation, route }) {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
+      <View style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
 
         <TextInput style={[s.input, errors.name && s.inputError]} value={name} onChangeText={t => { setName(t); if (errors.name) setErrors(p => ({...p, name: !t.trim()})); }} placeholder="আপনার নাম" placeholderTextColor={colors.onSurface + '66'} />
 
@@ -102,7 +104,9 @@ export default function EditProfileScreen({ navigation, route }) {
         <TouchableOpacity style={s.btn} onPress={handleSave} disabled={loading}>
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>সংরক্ষণ করুন</Text>}
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
 
       <Modal visible={showDistricts} transparent animationType="slide" onRequestClose={() => setShowDistricts(false)} onShow={() => setDistrictSearch('')}>
         <View style={s.modalOverlay}>

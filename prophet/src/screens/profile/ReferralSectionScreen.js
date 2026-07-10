@@ -6,6 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NotificationBell from '../../components/NotificationBell';
 import { useTheme } from '../../context/ThemeContext';
 import { toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const data = {
   ReferralHistory: {
@@ -164,8 +165,9 @@ export default function ReferralSectionScreen({ navigation, route, section, titl
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
-        <View style={s.banner}>
+      <View style={{ flex: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={s.banner}>
           <MaterialIcons name={info.icon} size={20} color={info.color} />
           <Text style={s.bannerTitle}>{sectionTitle}</Text>
           <View style={[s.bannerBadge, { backgroundColor: info.color + '18' }]}>
@@ -174,7 +176,9 @@ export default function ReferralSectionScreen({ navigation, route, section, titl
         </View>
 
         <View style={s.list}>{renderer(info)}</View>
-      </ScrollView>
+        </ScrollView>
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

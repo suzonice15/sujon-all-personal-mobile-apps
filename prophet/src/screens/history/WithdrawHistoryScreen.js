@@ -10,6 +10,7 @@ import { getMobileCoinRate } from '../../api/homeApi';
 import { getDeviceId } from '../../db/earnings';
 import { apps_slug } from '../../config/url';
 import { isOnline, toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
 
 const tabs = [
   { id: 'all', label: 'সব', icon: 'receipt-long' },
@@ -182,7 +183,8 @@ export default function WithdrawHistoryScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <FlatList
+      <View style={{ flex: 1 }}>
+        <FlatList
         data={filteredData}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
@@ -275,6 +277,8 @@ export default function WithdrawHistoryScreen({ navigation }) {
           </View>
         }
       />
+        <AdBanner />
+      </View>
     </SafeAreaView>
   );
 }

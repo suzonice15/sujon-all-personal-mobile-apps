@@ -12,12 +12,20 @@ import { getQuizeData } from '../../db/quizeContents';
 import SoundPlayer from 'react-native-sound-player';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import AdBanner from '../../components/ads/AdBanner';
+import useAdRewarded from '../../components/ads/AdRewarded';
+import { addEarning } from '../../db/earnings';
+import { addCoins } from '../../db/coins';
+import { useCoins } from '../../context/CoinsContext';
+import { story_detail_per_box, story_detail_points, ADMOB_ENABLED } from '../../config/url';
+
 
 export default function QuizStartScreen({ route, navigation }) {
   const { title, type, fetch_data } = route.params || {};
   const { colors } = useTheme();
+  const { refreshCoins } = useCoins();
 
-  const [originalData, setOriginalData] = useState([]); // মূল ব্যাকআপ ডাটা রাখার জন্য
+  const [originalData, setOriginalData] = useState([]);
   const [data, setData] = useState([]);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -27,7 +35,8 @@ export default function QuizStartScreen({ route, navigation }) {
   const [answers, setAnswers] = useState([]);
   const [timeLeft, setTimeLeft] = useState(10);
   const [retryMode, setRetryMode] = useState(false);
-  const [isClaimed, setIsClaimed] = useState(false); // পয়েন্ট ক্লেইম হয়েছে কিনা ট্র্যাকিং করার জন্য
+  const [isClaimed, setIsClaimed] = useState(false);
+  const [claimingCoin, setClaimingCoin] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -56,7 +65,8 @@ export default function QuizStartScreen({ route, navigation }) {
     setSelected(null);
     setIsLocked(false);
     setTimeLeft(10);
-    setIsClaimed(false); // নতুন কুইজে ক্লেইম রিসেট
+    setIsClaimed(false);
+    setClaimingCoin(false);
   };
 
   const question = data?.[index];
@@ -187,25 +197,39 @@ export default function QuizStartScreen({ route, navigation }) {
     setFinished(false);
     setRetryMode(true);
     setTimeLeft(10);
-    setIsClaimed(false); // রিট্রাই করলে আবার ক্লেইম করার সুযোগ পাবে (ইচ্ছা হলে true রাখতে পারেন)
+    setIsClaimed(false);
+    setClaimingCoin(false);
   };
 
-  // ================= CLAIM POINT FUNCTION =================
-  const handleClaimPoints = () => {
+  const earnedCoins = story_detail_per_box ;
+
+  const onEarnedQuizCoin = () => {
+    doClaimCoin();
+  };
+
+  const { showAd: showQuizAd } = useAdRewarded(onEarnedQuizCoin);
+
+  const doClaimCoin = async () => {
+    await addCoins(earnedCoins, 'কুইজ পুরস্কার');
+    await refreshCoins();
+    setIsClaimed(true);
+    setClaimingCoin(false);
+    Alert.alert('🎉 সম্পন্ন!', `আপনি ${score * 10} পয়েন্ট ও ${earnedCoins} কয়েন পেয়েছেন!`);
+  };
+
+  const handleClaimCoin = async () => {
     if (score === 0) {
-      Alert.alert('😢 দুঃখিত!', 'পয়েন্ট ক্লেইম করার জন্য অন্তত একটি সঠিক উত্তর দিতে হবে।');
+      Alert.alert('😢 দুঃখিত!', 'ক্লেইম করার জন্য অন্তত একটি সঠিক উত্তর দিতে হবে।');
       return;
     }
-    
-    const earnedPoints = score * 10;
-    setIsClaimed(true);
-    playSound('correct'); // বা অন্য কোনো কয়েন পাওয়ার সাউন্ড দিতে পারেন
+    // পয়েন্ট auto দিন (no ad)
+    await addEarning(fetch_data, title || 'কুইজ', score * 10);
 
-    // এখানে আপনি আপনার Backend API বা AsyncStorage-এ পয়েন্ট সেভ করার কোড লিখতে পারেন।
-    Alert.alert(
-      '💰 অভিনন্দন!',
-      `আপনি সফলভাবে ${earnedPoints} পয়েন্ট ক্লেইম করেছেন!`
-    );
+    setClaimingCoin(true);
+    if (!showQuizAd()) {
+      setClaimingCoin(false);
+      if (!ADMOB_ENABLED) doClaimCoin();
+    }
   };
 
   // ================= LOADING =================
@@ -220,7 +244,8 @@ export default function QuizStartScreen({ route, navigation }) {
   // ================= RESULT SCREEN =================
   if (finished) {
     return (
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16 }} showsVerticalScrollIndicator={false}>
         <View style={[styles.resultBox, { backgroundColor: colors.surface }]}>
           <MaterialIcons name="emoji-events" size={50} color="#EAB308" style={styles.resultIcon} />
           <Text style={[styles.doneTitle, { color: colors.onSurface }]}>কুইজ শেষ হয়েছে</Text>
@@ -231,15 +256,15 @@ export default function QuizStartScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* 💰 CLAIM POINT BUTTON (নতুন যুক্ত করা হয়েছে) */}
+        {/* একটি বাটন — পয়েন্ট auto, কয়েন rewarded ad দেখে */}
         <TouchableOpacity 
-          style={[styles.claimBtn, isClaimed && styles.claimBtnDisabled]} 
-          onPress={handleClaimPoints}
-          disabled={isClaimed}
+          style={[styles.claimBtn, styles.coinClaimBtn, (isClaimed || claimingCoin) && styles.claimBtnDisabled]} 
+          onPress={handleClaimCoin}
+          disabled={isClaimed || claimingCoin}
         >
-          <MaterialIcons name="monetization-on" size={24} color="#FFF" style={styles.btnIconLeft} />
+          <MaterialIcons name="monetization-on" size={22} color="#FFF" style={styles.btnIconLeft} />
           <Text style={styles.claimText}>
-            {isClaimed ? `পয়েন্ট ক্লেইম করা হয়েছে (${score * 10})` : `পয়েন্ট ক্লেইম করুন (${score * 10} Points)`}
+            {claimingCoin ? 'লোড হচ্ছে...' : isClaimed ? `নেওয়া হয়েছে (${score * 10} পয়েন্ট + ${earnedCoins} কয়েন)` : `পুরস্কার নিন (${score * 10} পয়েন্ট + ${earnedCoins} কয়েন)`}
           </Text>
         </TouchableOpacity>
 
@@ -290,6 +315,8 @@ export default function QuizStartScreen({ route, navigation }) {
           <Text style={styles.btnText}>নতুন কুইজ শুরু করুন</Text>
         </TouchableOpacity>
       </ScrollView>
+      <AdBanner />
+      </View>
     );
   }
 
@@ -376,6 +403,7 @@ export default function QuizStartScreen({ route, navigation }) {
         <Text style={styles.nextText}>পরবর্তী প্রশ্ন</Text>
         <MaterialIcons name="arrow-forward" size={20} color="#FFF" style={styles.btnIconRight} />
       </TouchableOpacity>
+      <AdBanner />
     </View>
   );
 }
@@ -418,6 +446,7 @@ const styles = StyleSheet.create({
   
   // 💰 CLAIM POINT BUTTON STYLES
   claimBtn: { backgroundColor: '#EAB308', padding: 14, borderRadius: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', shadowColor: '#EAB308', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 3 },
+  coinClaimBtn: { backgroundColor: '#10B981', shadowColor: '#10B981' },
   claimBtnDisabled: { backgroundColor: '#CBD5E1', shadowOpacity: 0, elevation: 0 },
   claimText: { color: '#FFF', fontWeight: '700', fontSize: 16 },
 

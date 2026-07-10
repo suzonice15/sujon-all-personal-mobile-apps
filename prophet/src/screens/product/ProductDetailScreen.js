@@ -5,6 +5,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { bnToNumber } from '../../utils/helper';
 import { useCart } from '../../context/CartContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AdBanner from '../../components/ads/AdBanner';
 
 const { width } = Dimensions.get('window');
 
@@ -85,7 +86,7 @@ export default function ProductDetailScreen({ route, navigation }) {
   return (
     <SafeAreaView style={s.container}>
       <View style={{ flex: 1 }}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
         <View style={s.imageGallery}>
           <Image source={{ uri: productImages[selectedImg] }} style={s.mainImage} resizeMode="cover" />
           <View style={s.imageThumbs}>
@@ -250,6 +251,7 @@ export default function ProductDetailScreen({ route, navigation }) {
           </View>
         </View>
       </ScrollView>
+      <AdBanner />
       </View>
 
       <View style={[s.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>

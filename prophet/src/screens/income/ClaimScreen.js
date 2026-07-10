@@ -8,9 +8,12 @@ import { addCoins, getTodayClaimCount, getTodayClaimCoins } from '../../db/coins
 import { getPendingClaims, getPendingCount, claimPending } from '../../db/claims';
 import { deleteNotificationByReference } from '../../db/notifications';
 import { useNotifications } from '../../context/NotificationsContext';
-import { max_claim_per_day, story_detail_per_box } from '../../config/url';
+import { max_claim_per_day, story_detail_per_box, ADMOB_ENABLED, BOX_CLAIM_COOLDOWN_SEC } from '../../config/url';
 import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
 import { toBn } from '../../utils/helper';
+import AdBanner from '../../components/ads/AdBanner';
+import useAdRewarded from '../../components/ads/AdRewarded';
+import AdNative from '../../components/ads/AdNative';
 
 export default function ClaimScreen({ navigation }) {
   const { refreshCoins } = useCoins();
@@ -22,11 +25,12 @@ export default function ClaimScreen({ navigation }) {
   const [todayClaimCount, setTodayClaimCount] = useState(0);
   const [todayClaimCoins, setTodayClaimCoins] = useState(0);
   const [totalPendingAmount, setTotalPendingAmount] = useState(0);
-  const [cooldownSec, setCooldownSec] = useState(180);
+  const [cooldownSec, setCooldownSec] = useState(BOX_CLAIM_COOLDOWN_SEC);
   const timerRef = useRef(null);
   const { refresh: refreshNotifs } = useNotifications();
   const { colors } = useTheme();
   const s = styles(colors);
+  const pendingClaimId = useRef(null);
 
   useFocusEffect(useCallback(() => {
     load();
@@ -70,18 +74,9 @@ export default function ClaimScreen({ navigation }) {
     setLoading(false);
   };
 
-  const handleClaim = async (id) => {
-    if (claimingId || countdown > 0) return;
-    if (todayClaimCount >= max_claim_per_day) {
-      ToastAndroid.show(`আজকের সংগ্রহের সীমা শেষ! আগামীকাল আবার আসুন।`, ToastAndroid.SHORT);
-      return;
-    }
-    setClaimingId(id);
+  const doClaimById = async (id) => {
     const claim = await claimPending(id);
-    if (!claim) {
-      setClaimingId(null);
-      return;
-    }
+    if (!claim) { setClaimingId(null); return; }
     await addCoins(claim.amount, claim.content_title);
     await deleteNotificationByReference(claim.content_id);
     await refreshNotifs();
@@ -95,6 +90,33 @@ export default function ClaimScreen({ navigation }) {
     refreshCoins();
     setClaimingId(null);
     ToastAndroid.show(` ${toBn(claim.amount)} কয়েন সংগ্রহ করেছেন!`, ToastAndroid.SHORT);
+  };
+
+  const onEarnedClaim = () => {
+    const id = pendingClaimId.current;
+    pendingClaimId.current = null;
+    if (id) doClaimById(id);
+  };
+
+  const { showAd: showRewarded } = useAdRewarded(onEarnedClaim);
+
+  const handleClaim = async (id) => {
+    if (claimingId || countdown > 0) return;
+    if (todayClaimCount >= max_claim_per_day) {
+      ToastAndroid.show(`আজকের সংগ্রহের সীমা শেষ! আগামীকাল আবার আসুন।`, ToastAndroid.SHORT);
+      return;
+    }
+    setClaimingId(id);
+    pendingClaimId.current = id;
+    if (!showRewarded()) {
+      setClaimingId(null);
+      pendingClaimId.current = null;
+      if (!ADMOB_ENABLED) {
+        doClaimById(id);
+      } else {
+        ToastAndroid.show('বিজ্ঞাপন লোড হচ্ছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
+      }
+    }
   };
 
   const formatTime = (sec) => {
@@ -140,68 +162,73 @@ export default function ClaimScreen({ navigation }) {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.headerRow}>
-        <View style={s.badge}>
-          <MaterialIcons name="monetization-on" size={18} color="#F59E0B" />
-          <Text style={s.badgeText}>পেন্ডিং  {toBn(totalPendingAmount)} কয়েন</Text>
+      <View style={{ flex: 1 }}>
+        <View style={s.headerRow}>
+          <View style={s.badge}>
+            <MaterialIcons name="monetization-on" size={18} color="#F59E0B" />
+            <Text style={s.badgeText}>পেন্ডিং  {toBn(totalPendingAmount)} কয়েন</Text>
+          </View>
+          <View style={s.badge}>
+            <MaterialIcons name="pending-actions" size={16} color="#6366F1" />
+            <Text style={s.badgeText}>মোট {toBn(pendingCount)} রেকর্ড </Text>
+          </View>
         </View>
-        <View style={s.badge}>
-          <MaterialIcons name="pending-actions" size={16} color="#6366F1" />
-          <Text style={s.badgeText}>মোট {toBn(pendingCount)} রেকর্ড </Text>
+
+        <View style={s.todayChipRow}>
+          <View style={[s.todayChip, { backgroundColor: '#22C55E' + '18' }]}>
+            <MaterialIcons name="monetization-on" size={16} color="#22C55E" />
+            <Text style={[s.todayChipLabel, { color: colors.text }]}>আজ পেয়েছেন </Text>
+            <Text style={[s.todayChipValue, { color: '#22C55E' }]}>{toBn(todayClaimCoins)} কয়েন</Text>
+          </View>
+          <View style={[s.todayChip, { backgroundColor: '#6366F1' + '18' }]}>
+            <MaterialIcons name="pending-actions" size={16} color="#6366F1" />
+            <Text style={[s.todayChipLabel, { color: colors.text }]}>অবশিষ্ট</Text>
+            <Text style={[s.todayChipValue, { color: '#6366F1' }]}>{toBn(max_claim_per_day-todayClaimCount)} টি • {toBn((max_claim_per_day - todayClaimCount) * story_detail_per_box)} কয়েন
+            </Text>
+           
+          </View>
         </View>
+
+        
+
+        {todayClaimCount >= max_claim_per_day ? (
+          <View style={[s.limitBar, { backgroundColor: '#EF4444' }]}>
+            <MaterialIcons name="block" size={16} color="#fff" />
+            <Text style={{ flex: 1, fontSize: 13, color: '#fff', fontWeight: '600' }}>আজকের সংগ্রহের সীমা শেষ! আগামীকাল আসুন</Text>
+          </View>
+        ) : countdown > 0 ? (
+          <View style={s.timerBar}>
+            <MaterialIcons name="timer" size={16} color="#fff" />
+            <Text style={s.timerText}>{formatTime(countdown)}</Text>
+            <Text style={s.timerLabel}>পরবর্তী সংগ্রহের জন্য অপেক্ষা করুন</Text>
+          </View>
+        ) : null}
+
+        {claims.length === 0 ? (
+          <View style={s.emptyBox}>
+            <MaterialIcons name="celebration" size={64} color="#DDD" />
+            <Text style={s.emptyTitle}>কোনো কয়েন দাবি বাকি নেই</Text>
+            <Text style={s.emptySub}>গল্প পড়ে নতুন কয়েন দাবি করুন</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Home', { screen: 'HomeScreen' })}
+              style={s.storyBtn}>
+              <MaterialIcons name="menu-book" size={16} color="#fff" />
+              <Text style={s.storyBtnText}>গল্প পড়ুন</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={claims}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            contentContainerStyle={s.list}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+                          <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+        
+        <AdBanner />
       </View>
-
-      <View style={s.todayChipRow}>
-        <View style={[s.todayChip, { backgroundColor: '#22C55E' + '18' }]}>
-          <MaterialIcons name="monetization-on" size={16} color="#22C55E" />
-          <Text style={[s.todayChipLabel, { color: colors.text }]}>আজ পেয়েছেন </Text>
-          <Text style={[s.todayChipValue, { color: '#22C55E' }]}>{toBn(todayClaimCoins)} কয়েন</Text>
-        </View>
-        <View style={[s.todayChip, { backgroundColor: '#6366F1' + '18' }]}>
-          <MaterialIcons name="pending-actions" size={16} color="#6366F1" />
-          <Text style={[s.todayChipLabel, { color: colors.text }]}>অবশিষ্ট</Text>
-          <Text style={[s.todayChipValue, { color: '#6366F1' }]}>{toBn(max_claim_per_day-todayClaimCount)} টি • {toBn((max_claim_per_day - todayClaimCount) * story_detail_per_box)} কয়েন
-          </Text>
-         
-        </View>
-      </View>
-
-      
-
-      {todayClaimCount >= max_claim_per_day ? (
-        <View style={[s.limitBar, { backgroundColor: '#EF4444' }]}>
-          <MaterialIcons name="block" size={16} color="#fff" />
-          <Text style={{ flex: 1, fontSize: 13, color: '#fff', fontWeight: '600' }}>আজকের সংগ্রহের সীমা শেষ! আগামীকাল আসুন</Text>
-        </View>
-      ) : countdown > 0 ? (
-        <View style={s.timerBar}>
-          <MaterialIcons name="timer" size={16} color="#fff" />
-          <Text style={s.timerText}>{formatTime(countdown)}</Text>
-          <Text style={s.timerLabel}>পরবর্তী সংগ্রহের জন্য অপেক্ষা করুন</Text>
-        </View>
-      ) : null}
-
-      {claims.length === 0 ? (
-        <View style={s.emptyBox}>
-          <MaterialIcons name="celebration" size={64} color="#DDD" />
-          <Text style={s.emptyTitle}>কোনো কয়েন দাবি বাকি নেই</Text>
-          <Text style={s.emptySub}>গল্প পড়ে নতুন কয়েন দাবি করুন</Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Home', { screen: 'HomeScreen' })}
-            style={s.storyBtn}>
-            <MaterialIcons name="menu-book" size={16} color="#fff" />
-            <Text style={s.storyBtnText}>গল্প পড়ুন</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={claims}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={s.list}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
     </SafeAreaView>
   );
 }
@@ -238,7 +265,7 @@ const styles = (colors) => StyleSheet.create({
     borderRadius: 10, backgroundColor: colors.surface,
   },
   limitText: { fontSize: 12, fontWeight: '600' },
-  list: { paddingHorizontal: 16, paddingBottom: 20 },
+  list: { flexGrow: 1, paddingHorizontal: 16, paddingBottom: 20 },
   claimRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: colors.surface, borderRadius: 14, padding: 12, marginBottom: 8,
