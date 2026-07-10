@@ -19,8 +19,8 @@ export const sync_interval_minutes=60;
 
 // ===== AdMob / Mediation Configuration (Android only) =====
 export const ADMOB_ENABLED = true;
-export const ADMOB_TEST_MODE = __DEV__;
-// export const ADMOB_TEST_MODE = false ;
+// export const ADMOB_TEST_MODE = __DEV__;
+export const ADMOB_TEST_MODE = false ;
 
 // Replace these with your real AdMob unit IDs in production
 const REAL_BANNER_ID = 'ca-app-pub-4817870874747259/8444849224';
