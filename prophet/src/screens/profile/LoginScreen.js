@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ToastAndroid, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ToastAndroid, ActivityIndicator, KeyboardAvoidingView, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { loginUser } from '../../db/auth';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -12,6 +14,9 @@ export default function LoginScreen({ navigation }) {
   const [showPass, setShowPass] = useState(false);
   const { colors } = useTheme();
   const s = styles(colors);
+  const { showAd } = useAdInterstitial();
+
+  useEffect(() => { showAd(); }, []);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) { ToastAndroid.show('সব তথ্য পূরণ করুন', ToastAndroid.SHORT); return; }
@@ -24,6 +29,8 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView style={s.container} behavior="padding">
+      <View style={s.inner}>
+      <ScrollView contentContainerStyle={s.scrollContent} keyboardShouldPersistTaps="handled">
       <View style={s.iconBox}>
         <MaterialIcons name="person" size={60} color={colors.primary} />
       </View>
@@ -40,6 +47,10 @@ export default function LoginScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+      <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+        <Text style={s.forgotLink}>পাসওয়ার্ড ভুলে গেছেন?</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={s.btn} onPress={handleLogin} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>লগইন</Text>}
       </TouchableOpacity>
@@ -47,14 +58,19 @@ export default function LoginScreen({ navigation }) {
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={s.link}>অ্যাকাউন্ট নেই? <Text style={s.linkBold}>নিবন্ধন করুন</Text></Text>
       </TouchableOpacity>
+      <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+      </ScrollView>
       <AdBanner />
+      </View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = (colors) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, padding: 24, justifyContent: 'center' },
-  iconBox: { alignItems: 'center', marginBottom: 10 },
+  container: { flex: 1, backgroundColor: colors.background },
+  inner: { flex: 1 },
+  scrollContent: { padding: 20, flexGrow: 1, justifyContent: 'center' },
+  iconBox: { alignItems: 'center', marginBottom: 5 },
   title: { fontSize: 22, fontWeight: 'bold', color: colors.onSurface, textAlign: 'center', marginBottom: 28 },
   input: {
     borderWidth: 1, borderColor: colors.surface, borderRadius: 12,
@@ -66,4 +82,5 @@ const styles = (colors) => StyleSheet.create({
   btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   link: { textAlign: 'center', color: colors.onSurface, opacity: 0.6, fontSize: 14 },
   linkBold: { color: colors.primary, fontWeight: 'bold', opacity: 1 },
+  forgotLink: { textAlign: 'right', color: colors.primary, fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: -8 },
 });

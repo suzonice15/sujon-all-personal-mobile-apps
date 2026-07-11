@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, Switch, Linking, Modal,
+  TouchableOpacity, Switch, Linking, Modal, Share, ActivityIndicator,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
-import { getAllAppSettings } from '../../db/appSettings';
-import { syncCoinsToServer, syncPointsToServer } from '../../db/sync';
 import AdBanner from '../../components/ads/AdBanner';
+import useSyncWithCooldown from '../../hooks/useSyncWithCooldown';
+import { published_app_slug, apps_title, email } from '../../config/url';
 
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
@@ -29,9 +29,8 @@ export default function SettingsScreen({ navigation }) {
   const [notifications, setNotifications] = useState(true);
   const [serverSettings, setServerSettings] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [syncing, setSyncing] = useState(false);
-  const [syncMsg, setSyncMsg] = useState(null);
   const { isDark, toggleTheme } = useTheme();
+  const { syncing, syncMsg, handleSync } = useSyncWithCooldown();
 
   const loadServerSettings = async () => {
     try {
@@ -44,15 +43,7 @@ export default function SettingsScreen({ navigation }) {
     }
   };
 
-  const handleSync = async () => {
-    setSyncing(true);
-    setSyncMsg(null);
-    const coinResult = await syncCoinsToServer();
-    const pointResult = await syncPointsToServer();
-    const total = (coinResult.synced || 0) + (pointResult.synced || 0);
-    setSyncMsg(`সিঙ্ক সম্পন্ন! ${total} টি রেকর্ড সিঙ্ক হয়েছে`);
-    setSyncing(false);
-  };
+  
 
   console.log('Server Settings:', serverSettings);
 
@@ -90,7 +81,6 @@ export default function SettingsScreen({ navigation }) {
             }
           />
           <View style={styles(isDark).divider} />
-          <SettingItem icon="language" label="ভাষা" isDark={isDark} />
         </View>
 
         <SectionTitle title="অ্যাপ তথ্য" isDark={isDark} />
@@ -101,18 +91,20 @@ export default function SettingsScreen({ navigation }) {
             icon="star-rate"
             label="অ্যাপ রেটিং দিন"
             isDark={isDark}
-            onPress={() => Linking.openURL('market://details?id=com.prophet')}
+            onPress={() => Linking.openURL(`market://details?id=${published_app_slug}`)}
           />
           <View style={styles(isDark).divider} />
-          <SettingItem icon="share" label="বন্ধুদের সাথে শেয়ার করুন" isDark={isDark} onPress={() => {}} />
+          <SettingItem icon="share" label="বন্ধুদের সাথে শেয়ার করুন" isDark={isDark} onPress={() => Share.share({
+            message: `${apps_title}\n\nঅ্যাপটি ডাউনলোড করুন:\nhttps://play.google.com/store/apps/details?id=${published_app_slug}`,
+          })} />
         </View>
 
-        <SectionTitle title="সার্ভার সেটিংস" isDark={isDark} />
+        {/* <SectionTitle title="সার্ভার সেটিংস" isDark={isDark} />
         <View style={styles(isDark).card}>
           <SettingItem icon="cloud" label="সার্ভার থেকে সেটিংস দেখুন" isDark={isDark} onPress={loadServerSettings} />
-        </View>
+        </View> */}
 
-        <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
+        {/* <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
           <View style={styles(isDark).modalOverlay}>
             <View style={styles(isDark).modalContent}>
               <Text style={styles(isDark).modalTitle}>সার্ভার সেটিংস</Text>
@@ -132,23 +124,29 @@ export default function SettingsScreen({ navigation }) {
               </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </Modal> */}
 
-        <SectionTitle title="সিঙ্ক" isDark={isDark} />
-        <View style={styles(isDark).card}>
-          <SettingItem
-            icon="sync"
-            label={syncing ? 'সিঙ্ক হচ্ছে...' : 'সিঙ্ক ডাটা'}
-            isDark={isDark}
-            onPress={handleSync}
-            right={syncing ? <MaterialIcons name="sync" size={20} color="#4F46E5" /> : null}
-          />
-          {syncMsg && (
-            <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
-              <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
-            </View>
+       <SectionTitle title="কয়েন সার্ভারে পাঠান" isDark={isDark} />
+        <TouchableOpacity
+          style={[styles(isDark).syncBtn, isDark && { borderColor: '#4F46E540', backgroundColor: '#4F46E515' }]}
+          onPress={handleSync}
+          activeOpacity={0.7}
+        >
+          <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#4F46E520', justifyContent: 'center', alignItems: 'center' }}>
+            <MaterialIcons name="sync" size={20} color="#4F46E5" />
+          </View>
+          <Text style={styles(isDark).syncBtnText}>{syncing ? 'সিঙ্ক হচ্ছে...' : 'কয়েন সার্ভারে পাঠান'}</Text>
+          {syncing ? (
+            <ActivityIndicator size="small" color="#4F46E5" />
+          ) : (
+            <MaterialIcons name="chevron-right" size={18} color="#9CA3AF" />
           )}
-        </View>
+        </TouchableOpacity>
+        {syncMsg && (
+          <View style={{ paddingLeft: 4, marginTop: 4 }}>
+            <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
+          </View>
+        )}
 
         <SectionTitle title="সাপোর্ট" isDark={isDark} />
         <View style={styles(isDark).card}>
@@ -158,23 +156,17 @@ export default function SettingsScreen({ navigation }) {
             isDark={isDark}
             onPress={() => navigation.navigate('Privacy')}
           />
-          <View style={styles(isDark).divider} />
-          <SettingItem
-            icon="description"
-            label="ব্যবহারের শর্তাবলী"
-            isDark={isDark}
-            onPress={() => navigation.navigate('Terms')}
-          />
+          
           <View style={styles(isDark).divider} />
           <SettingItem
             icon="mail"
             label="যোগাযোগ করুন"
             isDark={isDark}
-            onPress={() => Linking.openURL('mailto:support@example.com')}
+            onPress={() => Linking.openURL(`mailto:${email}?subject=অ্যাপ%20সাপোর্ট`)}
           />
         </View>
 
-        <Text style={styles(isDark).footer}>নবীদের গল্প © ২০২৪</Text>
+
 
       </ScrollView>
       <AdBanner />
@@ -198,7 +190,7 @@ const styles = (isDark) => StyleSheet.create({
     backgroundColor: isDark ? '#1e293b' : '#fff',
     borderRadius: 14,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 0,
   },
   item: {
     flexDirection: 'row',
@@ -244,4 +236,11 @@ const styles = (isDark) => StyleSheet.create({
     padding: 12, borderRadius: 10, alignItems: 'center',
   },
   modalCloseText: { color: '#fff', fontWeight: '600', fontSize: 15 },
+  syncBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    borderRadius: 12, padding: 14,
+    backgroundColor: '#4F46E512',
+    borderWidth: 1, borderColor: '#4F46E530',
+  },
+  syncBtnText: { flex: 1, fontSize: 14, fontWeight: '700', color: '#4F46E5' },
 });

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
@@ -8,6 +8,7 @@ import { usePoints } from '../../context/PointsContext';
 import { getTotalWithdraw } from '../../db/withdraw';
 import { toBn } from '../../utils/helper';
 import AdBanner from '../../components/ads/AdBanner';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 const historyOptions = [
   {
@@ -15,26 +16,30 @@ const historyOptions = [
     subtitle: 'আপনার অর্জিত কয়েনের বিস্তারিত দেখুন',
     icon: 'monetization-on', color: '#F59E0B', screen: 'CoinHistory',
   },
-  {
-    id: 'point', title: 'পয়েন্ট হিস্টোরি',
-    subtitle: 'গল্প পড়ে অর্জিত পয়েন্টের তালিকা',
-    icon: 'star', color: '#22C55E', screen: 'PointHistory',
-  },
+ 
   {
     id: 'withdraw', title: 'উইথড্র হিস্টোরি',
     subtitle: 'আপনার উত্তোলনের সব রেকর্ড',
     icon: 'account-balance-wallet', color: '#4F46E5', screen: 'WithdrawHistory',
+  },
+
+   {
+    id: 'point', title: 'পয়েন্ট হিস্টোরি',
+    subtitle: 'গল্প পড়ে অর্জিত পয়েন্টের তালিকা',
+    icon: 'star', color: '#22C55E', screen: 'PointHistory',
+  },
+   {
+    id: 'referral', title: 'রেফারেল সিস্টেম',
+    subtitle: 'রেফারেল কোড, টিম, আয় ও আরও অনেক কিছু',
+    icon: 'people-alt', color: '#4F46E5', screen: 'Referral', tab: 'Profile',
   },
   {
     id: 'order', title: 'অর্ডার হিস্টোরি',
     subtitle: 'আপনার অর্ডারের বর্তমান অবস্থা দেখুন',
     icon: 'inventory-2', color: '#EF4444', screen: 'OrderHistory',
   },
-  {
-    id: 'referral', title: 'রেফারেল সিস্টেম',
-    subtitle: 'রেফারেল কোড, টিম, আয় ও আরও অনেক কিছু',
-    icon: 'people-alt', color: '#4F46E5', screen: 'Referral', tab: 'Profile',
-  },
+
+ 
 ];
 
 const BalanceItem = ({ icon, iconColor, label, value, onPress, isVisible, mutedColor }) => {
@@ -78,6 +83,15 @@ export default function HistoryScreen({ navigation }) {
   const [visible, setVisible] = useState({ coin: false, point: false, withdraw: false, income: false });
   const [totalWithdraw, setTotalWithdraw] = useState(0);
   const timers = useRef({});
+  const pendingKey = useRef(null);
+  const { showAd: showInterstitial, isClosed } = useAdInterstitial();
+
+  useEffect(() => {
+    if (isClosed && pendingKey.current) {
+      doToggle(pendingKey.current);
+      pendingKey.current = null;
+    }
+  }, [isClosed]);
 
   useFocusEffect(useCallback(() => {
     const load = async () => {
@@ -88,7 +102,7 @@ export default function HistoryScreen({ navigation }) {
     load();
   }, []));
 
-  const toggleVisibility = (key) => {
+  const doToggle = (key) => {
     if (timers.current[key]) clearTimeout(timers.current[key]);
     setVisible((prev) => {
       const newVal = !prev[key];
@@ -99,6 +113,18 @@ export default function HistoryScreen({ navigation }) {
       }
       return { ...prev, [key]: newVal };
     });
+  };
+
+  const toggleVisibility = (key) => {
+    if (visible[key]) {
+      doToggle(key);
+      return;
+    }
+    if (!showInterstitial()) {
+      doToggle(key);
+    } else {
+      pendingKey.current = key;
+    }
   };
 
   return (

@@ -4,9 +4,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../db/auth';
+import { apps_title, developer_id, published_app_slug } from '../config/url';
 
 const menu = [
-  { title: 'অর্জিত কয়েন গ্রহণ করুন', icon: 'card-giftcard', screen: 'Claim', tab: 'Home' },  
+  { title: 'অর্জিত কয়েন গ্রহণ করুন', icon: 'card-giftcard', screen: 'Claim', tab: 'Home' },
   { title: 'বিজ্ঞাপন দেখে কয়েন সংগ্রহ করুন', icon: 'play-circle-outline', screen: 'AdEarn', tab: 'Home' },
   { title: 'দৈনিক কয়েন সংগ্রহ করুন', icon: 'today', screen: 'DailyCoin', tab: 'Home' },
   { title: 'বুকমার্ক', icon: 'bookmark', screen: 'Bookmarks' },
@@ -38,11 +39,19 @@ export default function DrawerMenuScreen({ navigation }) {
         : { screen: item.screen };
       navigation.navigate('Home', params);
     } else if (item.action === 'share') {
-      await Share.share({ message: 'নবীদের গল্প অ্যাপটি ডাউনলোড করুন: https://play.google.com/store/apps/details?id=com.prophet' });
+      await Share.share({
+  message: `${apps_title}
+অ্যাপটি ডাউনলোড করুন:
+https://play.google.com/store/apps/details?id=${published_app_slug}${
+    user?.referral_code
+      ? `\n\nরেফারেল কোড: ${user.referral_code}`
+      : ""
+  }`,
+});
     } else if (item.action === 'rate') {
-      Linking.openURL('market://details?id=com.prophet');
+      Linking.openURL(`market://details?id=${published_app_slug}`);
     } else if (item.action === 'moreApps') {
-      Linking.openURL('https://play.google.com/store/apps/developer?id=YourDeveloperName');
+      Linking.openURL(`https://play.google.com/store/apps/developer?id=${developer_id}`);
     }
   };
 
@@ -80,7 +89,7 @@ export default function DrawerMenuScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-     
+
     </ScrollView>
   );
 }

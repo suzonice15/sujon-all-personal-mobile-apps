@@ -7,6 +7,7 @@ import DashboardScreen from '../screens/profile/DashboardScreen';
 import ReferralStack from './ReferralStack';
 import LoginScreen from '../screens/profile/LoginScreen';
 import RegisterScreen from '../screens/profile/RegisterScreen';
+import ForgotPasswordScreen from '../screens/profile/ForgotPasswordScreen';
 import EditProfileScreen from '../screens/profile/EditProfileScreen';
 import { getHeaderOptions } from './headerOptions';
 
@@ -25,6 +26,7 @@ export default function ProfileStack() {
       <Stack.Screen name="ProfileView" component={ProfileScreen} options={{ ...menuOpts, title: 'প্রোফাইল' }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'লগইন' }} />
       <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'নিবন্ধন' }} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: 'পাসওয়ার্ড রিসেট' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'প্রোফাইল এডিট' }} />
     </Stack.Navigator>
   );

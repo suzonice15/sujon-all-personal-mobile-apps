@@ -169,6 +169,10 @@ export const initDB = async () => {
   `);
   try { await db.executeSql('ALTER TABLE coin_history ADD COLUMN name TEXT DEFAULT ""'); } catch (e) {}
   try { await db.executeSql('ALTER TABLE coin_history ADD COLUMN email TEXT DEFAULT ""'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE coin_history ADD COLUMN server_id INTEGER DEFAULT 0'); } catch (e) {}
+  try { await db.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_coin_history_server_id ON coin_history(server_id)'); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE earning_history ADD COLUMN server_id INTEGER DEFAULT 0'); } catch (e) {}
+  try { await db.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_earning_history_server_id ON earning_history(server_id)'); } catch (e) {}
 
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS ad_boxes (
@@ -221,4 +225,11 @@ export const initDB = async () => {
   try { await db.executeSql("ALTER TABLE withdraw_history ADD COLUMN refunded INTEGER DEFAULT 0"); } catch (e) {}
 
   console.log('DB initialized');
+  await db.executeSql(`
+    CREATE TABLE IF NOT EXISTS referral_cache (
+      key TEXT PRIMARY KEY,
+      data TEXT,
+      updated_at TEXT DEFAULT (datetime('now', 'localtime'))
+    );
+  `);
 };

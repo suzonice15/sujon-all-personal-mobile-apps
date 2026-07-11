@@ -49,6 +49,7 @@ export default function BottomTabNavigator() {
             History: 'history',
             Notifications: 'notifications',
             Product: 'store',
+            ProductList: 'storefront',
             Profile: loggedIn ? 'dashboard' : 'person',
           };
           return <MaterialIcons name={icons[route.name] || 'home'} size={24} color={color} />;

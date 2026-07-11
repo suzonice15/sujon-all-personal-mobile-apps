@@ -5,6 +5,7 @@ import { useTheme } from 'react-native-paper';
 import { registerUser, getUserByDeviceId } from '../../db/auth';
 import { fetchDistricts } from '../../data/districts';
 import AdBanner from '../../components/ads/AdBanner';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 const GENDERS = [
   { label: 'পুরুষ', value: 'male' },
@@ -32,6 +33,9 @@ export default function RegisterScreen({ navigation }) {
   const [registered, setRegistered] = useState(null);
   const { colors } = useTheme();
   const s = styles(colors);
+  const { showAd } = useAdInterstitial();
+
+  useEffect(() => { showAd(); }, []);
 
   useEffect(() => {
     fetchDistricts().then(setDistricts);

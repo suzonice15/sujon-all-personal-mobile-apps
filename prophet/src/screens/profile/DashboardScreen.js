@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Animated, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
@@ -7,6 +7,7 @@ import { getLoggedInUser, logoutUser } from '../../db/auth';
 import { Alert } from 'react-native';
 import { usePoints } from '../../context/PointsContext';
 import { useCoins } from '../../context/CoinsContext';
+import useSyncWithCooldown from '../../hooks/useSyncWithCooldown';
 import { getTodayEarnings, getStoriesReadCount } from '../../db/earnings';
 import { getTodayCoins } from '../../db/coins';
 import { getPendingCount } from '../../db/claims';
@@ -14,6 +15,7 @@ import { getPendingBoxesCount } from '../../db/adBoxes';
 import { getTotalWithdraw } from '../../db/withdraw';
 import { toBn } from '../../utils/helper';
 import AdBanner from '../../components/ads/AdBanner';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 const quickActions = [
   { icon: 'menu-book', label: 'গল্প', color: '#6366F1', tab: 'Home' },
@@ -38,8 +40,17 @@ export default function DashboardScreen({ navigation }) {
   const [totalWithdraw, setTotalWithdraw] = useState(0);
   const [visible, setVisible] = useState({ coin: false, point: false, income: false, withdraw: false });
   const timers = useRef({});
+  const pendingKey = useRef(null);
+  const { showAd: showInterstitial, isClosed } = useAdInterstitial();
 
-  const toggleVisibility = (key) => {
+  useEffect(() => {
+    if (isClosed && pendingKey.current) {
+      doToggle(pendingKey.current);
+      pendingKey.current = null;
+    }
+  }, [isClosed]);
+
+  const doToggle = (key) => {
     if (timers.current[key]) clearTimeout(timers.current[key]);
     setVisible((prev) => {
       const newVal = !prev[key];
@@ -50,6 +61,18 @@ export default function DashboardScreen({ navigation }) {
       }
       return { ...prev, [key]: newVal };
     });
+  };
+
+  const toggleVisibility = (key) => {
+    if (visible[key]) {
+      doToggle(key);
+      return;
+    }
+    if (!showInterstitial()) {
+      doToggle(key);
+    } else {
+      pendingKey.current = key;
+    }
   };
 
   const BalanceItem = ({ icon, iconColor, label, value, onPress, isVisible, mutedColor }) => {
@@ -86,6 +109,7 @@ export default function DashboardScreen({ navigation }) {
   };
   const { total: totalPts, refreshPoints } = usePoints();
   const { total: totalCoins, refreshCoins } = useCoins();
+  const { syncing, syncMsg, handleSync } = useSyncWithCooldown();
 
   useFocusEffect(useCallback(() => {
     setChecking(true);
@@ -124,8 +148,7 @@ export default function DashboardScreen({ navigation }) {
   return (
     <SafeAreaView style={s.container}>
       <View style={{ flex: 1 }}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={s.header}>
+        <View style={s.header}>
           <View style={s.headerRow}>
             <View style={s.avatar}>
               <Text style={s.avatarText}>{user?.name?.charAt(0).toUpperCase() || 'U'}</Text>
@@ -147,7 +170,8 @@ export default function DashboardScreen({ navigation }) {
           </View>
         </View>
 
-        <View style={s.balanceCard}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 12 }}>
+          <View style={s.balanceCard}>
           <View style={s.balanceHeader}>
             <MaterialIcons name="account-balance-wallet" size={16} color="#6366F1" />
             <Text style={s.balanceHeaderText}>মোট ব্যালেন্স</Text>
@@ -231,11 +255,28 @@ export default function DashboardScreen({ navigation }) {
                     <Text style={s.badgeText}>{toBn(item.badge)}</Text>
                   </View>
                 )}
-                <MaterialIcons name="chevron-right" size={18} color="#9CA3AF" />
+                <MaterialIcons name="chevron-right" size={18} color={colors.muted} />
               </TouchableOpacity>
             ))}
           </View>
         </View>
+
+        <TouchableOpacity style={s.referBtn} onPress={handleSync} activeOpacity={0.7}>
+          <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.primary + '20', justifyContent: 'center', alignItems: 'center' }}>
+            <MaterialIcons name="sync" size={20} color={colors.primary} />
+          </View>
+          <Text style={s.referBtnText}>{syncing ? 'সিঙ্ক হচ্ছে...' : 'কয়েন সার্ভারে পাঠান'}</Text>
+          {syncing ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <MaterialIcons name="chevron-right" size={18} color={colors.muted} />
+          )}
+        </TouchableOpacity>
+        {syncMsg && (
+          <View style={{ paddingHorizontal: 4, marginTop: 4, marginLeft: 4 }}>
+            <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
+          </View>
+        )}
 
         <TouchableOpacity style={s.referBtn} onPress={() => navigation.navigate('Referral')} activeOpacity={0.7}>
           <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#4F46E515', justifyContent: 'center', alignItems: 'center' }}>
@@ -286,7 +327,7 @@ export default function DashboardScreen({ navigation }) {
 }
 
 const styles = (colors) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
+  container: { flex: 1, backgroundColor: colors.background },
   header: {
     backgroundColor: colors.primary,
     paddingHorizontal: 14, paddingVertical: 12,
@@ -297,56 +338,55 @@ const styles = (colors) => StyleSheet.create({
   },
   avatar: {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.25)',
     justifyContent: 'center', alignItems: 'center',
   },
   avatarText: { fontSize: 16, fontWeight: 'bold', color: '#fff' },
   headerInfo: { flex: 1 },
   name: { fontSize: 15, fontWeight: 'bold', color: '#fff', marginBottom: 2 },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 1 },
-  infoText: { fontSize: 10, color: 'rgba(255,255,255,0.7)' },
+  infoText: { fontSize: 10, color: 'rgba(255,255,255,0.75)' },
   editBtn: {
     width: 30, height: 30, borderRadius: 15,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center', alignItems: 'center',
   },
   balanceCard: {
-    backgroundColor: '#fff', marginHorizontal: 12, marginTop: 12,
+    backgroundColor: colors.surface, marginTop: 12,
     borderRadius: 16, padding: 16,
-    elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, shadowRadius: 8,
+    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08, shadowRadius: 6,
   },
   balanceHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
-  balanceHeaderText: { fontSize: 12, color: '#6B7280', fontWeight: '600' },
+  balanceHeaderText: { fontSize: 12, color: colors.muted, fontWeight: '600' },
   balanceRow: { flexDirection: 'row', alignItems: 'center' },
   balanceItem: { alignItems: 'center', flex: 1 },
   toggleArea: { marginTop: 6, minHeight: 22, justifyContent: 'center', alignItems: 'center' },
-  amountText: { fontSize: 16, fontWeight: 'bold' },
-  labelText: { fontSize: 12, fontWeight: '500' },
-  balanceValue: { fontSize: 22, fontWeight: 'bold', color: '#1F2937' },
-  balanceLabel: { fontSize: 11, color: '#9CA3AF', fontWeight: '500' },
-  balanceVr: { width: 1, height: 36 },
-  balanceDivider: { height: 1, marginVertical: 12, opacity: 0.3 },
+  amountText: { fontSize: 16, fontWeight: 'bold', color: colors.text },
+  labelText: { fontSize: 12, fontWeight: '500', color: colors.muted },
+  balanceValue: { fontSize: 22, fontWeight: 'bold', color: colors.text },
+  balanceLabel: { fontSize: 11, color: colors.muted, fontWeight: '500' },
+  balanceVr: { width: 1, height: 36, backgroundColor: colors.muted + '30' },
   grid: {
     flexDirection: 'row', flexWrap: 'wrap',
-    paddingHorizontal: 8, marginTop: 10, gap: 6,
+    marginTop: 10, gap: 8,
   },
   gridCard: {
-    width: '31%', borderRadius: 12, padding: 10,
+    flex: 1, minWidth: '30%', borderRadius: 12, padding: 12,
   },
   gridTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   gridValue: { fontSize: 18, fontWeight: 'bold' },
   gridLabel: { fontSize: 9, color: '#6B7280', fontWeight: '500' },
-  menuSection: { marginTop: 16, paddingHorizontal: 8 },
-  menuTitle: { fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 12 },
+  menuSection: { marginTop: 16 },
+  menuTitle: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: 12 },
   coinMenu: { gap: 6 },
   coinCard: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: '#fff', borderRadius: 12, padding: 12,
+    backgroundColor: colors.surface, borderRadius: 12, padding: 12,
     elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03, shadowRadius: 3,
   },
-  coinCardTitle: { flex: 1, fontSize: 13, color: '#374151', fontWeight: '500' },
+  coinCardTitle: { flex: 1, fontSize: 13, color: colors.text, fontWeight: '500' },
   badge: {
     minWidth: 20, height: 20, borderRadius: 10,
     backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center',
@@ -355,32 +395,32 @@ const styles = (colors) => StyleSheet.create({
   badgeText: { fontSize: 10, fontWeight: '700', color: '#fff' },
   menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   menuCard: {
-    width: '23%', backgroundColor: '#fff', borderRadius: 12,
+    width: '23%', backgroundColor: colors.surface, borderRadius: 12,
     padding: 10, alignItems: 'center', gap: 4,
     elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04, shadowRadius: 4,
   },
   menuIcon: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  menuLabel: { fontSize: 11, fontWeight: '600', color: '#374151' },
+  menuLabel: { fontSize: 11, fontWeight: '600', color: colors.text },
   sectionTitle: {
-    fontSize: 15, fontWeight: '700', color: '#1F2937',
+    fontSize: 15, fontWeight: '700', color: colors.text,
     marginHorizontal: 16, marginTop: 24, marginBottom: 12,
   },
   earningRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: '#fff', marginHorizontal: 16,
+    backgroundColor: colors.surface, marginHorizontal: 16,
     borderRadius: 12, padding: 12, marginBottom: 6,
     elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03, shadowRadius: 3,
   },
   earningIcon: { width: 32, height: 32, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  earningTitle: { flex: 1, fontSize: 13, color: '#374151', fontWeight: '500' },
+  earningTitle: { flex: 1, fontSize: 13, color: colors.text, fontWeight: '500' },
   earningBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
   earningPts: { fontSize: 12, fontWeight: '700', color: colors.primary },
   emptyBox: { alignItems: 'center', paddingVertical: 32, gap: 8 },
-  emptyText: { fontSize: 13, color: '#9CA3AF' },
-  guestBox: { marginHorizontal: 16, marginTop: 20, marginBottom: 20, gap: 10 },
-  guestText: { textAlign: 'center', color: '#6B7280', fontSize: 13, marginBottom: 4 },
+  emptyText: { fontSize: 13, color: colors.muted },
+  guestBox: { marginTop: 20, marginBottom: 20, gap: 10 },
+  guestText: { textAlign: 'center', color: colors.muted, fontSize: 13, marginBottom: 4 },
   loginBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     backgroundColor: colors.primary, borderRadius: 14, paddingVertical: 13,
@@ -393,13 +433,14 @@ const styles = (colors) => StyleSheet.create({
   registerBtnText: { color: colors.primary, fontSize: 14, fontWeight: 'bold' },
   referBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: '#EEF2FF', marginHorizontal: 8, marginTop: 16,
-    borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#C7D2FE',
+    marginTop: 16, borderRadius: 12, padding: 14,
+    backgroundColor: colors.primary + '12',
+    borderWidth: 1, borderColor: colors.primary + '30',
   },
-  referBtnText: { flex: 1, fontSize: 14, fontWeight: '700', color: '#4338CA' },
+  referBtnText: { flex: 1, fontSize: 14, fontWeight: '700', color: colors.primary },
   logoutBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    marginHorizontal: 16, marginTop: 20, marginBottom: 10,
+    marginTop: 20, marginBottom: 10,
     borderWidth: 1, borderColor: '#FCA5A5', borderRadius: 12,
     padding: 14, backgroundColor: '#FEF2F2',
   },

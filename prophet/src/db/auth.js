@@ -1,5 +1,5 @@
 import { getDB } from './db';
-import { registerUser as apiRegister, loginUser as apiLogin, updateProfile as apiUpdateProfile } from '../api/userApi';
+import { registerUser as apiRegister, loginUser as apiLogin, updateProfile as apiUpdateProfile, resetPassword as apiResetPassword } from '../api/userApi';
 import { apps_slug } from '../config/url';
 import { getDeviceId } from './earnings';
 
@@ -146,6 +146,48 @@ export const getUserByDeviceId = async () => {
   const [res] = await db.executeSql('SELECT * FROM users WHERE device_id = ?', [deviceId]);
   if (res.rows.length === 0) return null;
   return res.rows.item(0);
+};
+
+export const resetPasswordAndLogin = async (email, otp, password) => {
+  const db = await getDB();
+  const deviceId = await getDeviceId();
+  const apiRes = await apiResetPassword(email, otp, password, deviceId);
+
+  if (!apiRes.success) {
+    return { success: false, message: apiRes.message || 'পাসওয়ার্ড রিসেট ব্যর্থ হয়েছে' };
+  }
+
+  const serverUser = apiRes.user;
+  const token = apiRes.token;
+
+  const [existing] = await db.executeSql('SELECT id FROM users WHERE email = ?', [email]);
+  let user;
+  if (existing.rows.length > 0) {
+    const localId = existing.rows.item(0).id;
+    await db.executeSql(
+      'UPDATE users SET name = ?, phone = ?, gender = ?, address = ?, district_id = ?, server_id = ?, device_id = ?, password = ? WHERE id = ?',
+      [serverUser.name, serverUser.phone || '', serverUser.gender || 'male', serverUser.address || '', serverUser.district_id || 0, serverUser.id, deviceId, password, localId]
+    );
+    const [res] = await db.executeSql('SELECT * FROM users WHERE id = ?', [localId]);
+    user = res.rows.item(0);
+  } else {
+    await db.executeSql(
+      'INSERT INTO users (name, email, password, phone, gender, district_id, address, server_id, device_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [serverUser.name, email, password, serverUser.phone || '', serverUser.gender || 'male', serverUser.district_id || 0, serverUser.address || '', serverUser.id, deviceId]
+    );
+    const [res] = await db.executeSql('SELECT * FROM users WHERE email = ?', [email]);
+    user = res.rows.item(0);
+  }
+
+  await saveSession(user.id);
+  if (token) {
+    try { await db.executeSql("UPDATE settings SET auth_token = ? WHERE id = 1", [token]); } catch (e) {}
+  }
+  if (serverUser.id) {
+    try { await db.executeSql("UPDATE settings SET server_user_id = ? WHERE id = 1", [String(serverUser.id)]); } catch (e) {}
+  }
+
+  return { success: true, user };
 };
 
 export const logoutUser = async () => {
