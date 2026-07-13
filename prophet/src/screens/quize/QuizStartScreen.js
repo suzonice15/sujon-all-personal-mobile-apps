@@ -435,10 +435,10 @@ const styles = StyleSheet.create({
   timerUrgent: { color: '#EF4444' },
   progressBarBackground: { height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, marginBottom: 25, overflow: 'hidden' },
   progressBarFill: { height: '100%', backgroundColor: '#6366F1', borderRadius: 3 },
-  card: { backgroundColor: '#FFF', padding: 24, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 3, marginBottom: 20 },
+  card: { backgroundColor: '#FFF', padding: 24, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 0, marginBottom: 20 },
   question: { fontSize: 18, fontWeight: '700', color: '#1E293B', lineHeight: 26 },
   optionsContainer: { flex: 1 },
-  option: { padding: 16, borderRadius: 12, borderWidth: 2, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, elevation: 1 },
+  option: { padding: 16, borderRadius: 12, borderWidth: 2, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, elevation: 0 },
   optionIcon: { marginRight: 10 },
   optionText: { fontSize: 16, fontWeight: '500', flex: 1 },
   nextBtn: { padding: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginTop: 15, marginBottom: 10, flexDirection: 'row' },
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   btnIconLeft: { marginRight: 8 },
   
   // রেজাল্ট ডিজাইন
-  resultBox: { alignItems: 'center', backgroundColor: '#FFF', padding: 25, borderRadius: 20, marginBottom: 15, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 4, marginTop: 10 },
+  resultBox: { alignItems: 'center', backgroundColor: '#FFF', padding: 25, borderRadius: 20, marginBottom: 15, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 0, marginTop: 10 },
   resultIcon: { marginBottom: 10 },
   doneTitle: { fontSize: 22, fontWeight: '800', color: '#1E293B', marginBottom: 5 },
   scoreText: { fontSize: 14, color: '#64748B', marginBottom: 15 },
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   scoreTotal: { fontSize: 16, color: '#64748B', fontWeight: '600', marginLeft: 2, marginTop: 8 },
   
   // 💰 CLAIM POINT BUTTON STYLES
-  claimBtn: { backgroundColor: '#EAB308', padding: 14, borderRadius: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', shadowColor: '#EAB308', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 3 },
+  claimBtn: { backgroundColor: '#EAB308', padding: 14, borderRadius: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', shadowColor: '#EAB308', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 0 },
   coinClaimBtn: { backgroundColor: '#10B981', shadowColor: '#10B981' },
   claimBtnDisabled: { backgroundColor: '#CBD5E1', shadowOpacity: 0, elevation: 0 },
   claimText: { color: '#FFF', fontWeight: '700', fontSize: 16 },

@@ -11,14 +11,14 @@ import { CoinsProvider, useCoins } from './src/context/CoinsContext';
 import { CartProvider } from './src/context/CartContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { NotificationsProvider, useNotifications } from './src/context/NotificationsContext';
-import { claimDailyBonus } from './src/db/earnings';
+import { claimDailyBonus, getDeviceId } from './src/db/earnings';
 import { initDB } from './src/db/db';
 import { runMigrations } from './src/db/migrations';
 import { seedDB } from './src/db/seed';
 import { claimDailyCoinPending } from './src/db/claims';
-import { getLastClaimTime, getLastSyncAt, setLastSyncAt } from './src/db/settings';
+import { getLastClaimTime, getLastSyncAt, setLastSyncAt, getLastVisitDate, setLastVisitDate } from './src/db/settings';
 import { saveAppSettings, getAppSettingInt } from './src/db/appSettings';
-import { getAppInfo } from './src/api/homeApi';
+import { getAppInfo, trackVisitor } from './src/api/homeApi';
 import { consolidateCoinHistory } from './src/db/coins';
 import { consolidatePointHistory } from './src/db/earnings';
 import { syncCoinsToServer, syncPointsToServer } from './src/db/sync';
@@ -76,6 +76,18 @@ function AppInner() {
         await syncCoinsToServer();
         await syncPointsToServer();
        
+      try {
+        const today = new Date().toDateString();
+        const lastVisit = await getLastVisitDate();
+        if (lastVisit !== today) {
+          const deviceId = await getDeviceId();
+          await trackVisitor(deviceId);
+          await setLastVisitDate(today);
+        }
+      } catch (e) {
+        console.log('Visitor track failed:', e.message);
+      }
+
       await refreshPoints();
       await refreshNotifs();
       seedDB();

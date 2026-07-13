@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   itemCard: {
     flexDirection: 'row', backgroundColor: '#fff',
     borderRadius: 14, padding: 12, marginBottom: 10,
-    elevation: 1, shadowColor: '#000',
+    elevation: 0, shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4,
   },
   itemImg: { width: 80, height: 80, borderRadius: 10, marginRight: 12 },

@@ -28,4 +28,12 @@ export const submitWithdrawRequest = (data) => {
 export const getMyWithdraws = (data) => {
   return api.post('/v1/withdraw/my-requests', data);
 };
+
+export const trackVisitor = (deviceId) => {
+  return api.post('/v1/visitor/track', { device_id: deviceId, slug: apps_slug });
+};
+
+export const getAllTransactions = (data) => {
+  return api.post('/v1/withdraw/all-requests', { ...data, limit: 200 });
+};
  

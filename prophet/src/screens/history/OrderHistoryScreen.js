@@ -141,7 +141,7 @@ const styles = (colors) => StyleSheet.create({
   card: {
     flexDirection: 'row', backgroundColor: '#fff',
     borderRadius: 12, marginBottom: 8,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 3,
     overflow: 'hidden',
   },

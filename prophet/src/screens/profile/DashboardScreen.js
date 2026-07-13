@@ -354,7 +354,7 @@ const styles = (colors) => StyleSheet.create({
   balanceCard: {
     backgroundColor: colors.surface, marginTop: 12,
     borderRadius: 16, padding: 16,
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08, shadowRadius: 6,
   },
   balanceHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
@@ -410,7 +410,7 @@ const styles = (colors) => StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: colors.surface, marginHorizontal: 16,
     borderRadius: 12, padding: 12, marginBottom: 6,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03, shadowRadius: 3,
   },
   earningIcon: { width: 32, height: 32, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },

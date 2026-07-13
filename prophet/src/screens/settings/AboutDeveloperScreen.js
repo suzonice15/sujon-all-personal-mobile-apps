@@ -4,19 +4,27 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getAllAppSettings } from '../../db/appSettings';
 import AdBanner from '../../components/ads/AdBanner';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 const { width } = Dimensions.get('window');
 
 export default function AboutDeveloperScreen() {
   const { colors } = useTheme();
   const [settings, setSettings] = useState(null);
+  const { showAd } = useAdInterstitial();
 
   useEffect(() => {
     getAllAppSettings().then(setSettings);
+    showAd();
   }, []);
 
   if (!settings) {
-    return <ActivityIndicator style={{ marginTop: 60 }} color={colors.primary} />;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ fontSize: 13, color: colors.onSurface, opacity: 0.5, marginTop: 10 }}>লোড হচ্ছে...</Text>
+      </View>
+    );
   }
 
   const name = settings.developer_name || 'ডেভেলপার';
@@ -118,7 +126,7 @@ const styles = (themeColor, colors) => StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: 6,
+    elevation: 0,
   },
   name: {
     fontSize: 22,
@@ -139,7 +147,7 @@ const styles = (themeColor, colors) => StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 16,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
@@ -170,7 +178,7 @@ const styles = (themeColor, colors) => StyleSheet.create({
     marginHorizontal: 16,
     padding: 16,
     marginTop: 16,
-    elevation: 2,
+    elevation: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,

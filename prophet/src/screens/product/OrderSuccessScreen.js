@@ -62,7 +62,7 @@ const s = StyleSheet.create({
   card: {
     backgroundColor: '#fff', borderRadius: 16, padding: 18,
     width: '100%', marginBottom: 16,
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08, shadowRadius: 8,
   },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 },

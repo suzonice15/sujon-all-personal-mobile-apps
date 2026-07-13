@@ -276,7 +276,7 @@ const styles = (colors) => StyleSheet.create({
     backgroundColor: '#fff', marginTop: 8,
     paddingHorizontal: 16, paddingVertical: 14,
     marginHorizontal: 16, borderRadius: 14,
-    elevation: 1, shadowColor: '#000',
+    elevation: 0, shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4,
   },
   dealsLeft: {},
@@ -301,7 +301,7 @@ const styles = (colors) => StyleSheet.create({
   productCard: {
     backgroundColor: '#fff', borderRadius: 14,
     marginBottom: 14, width: CARD_W,
-    elevation: 1, shadowColor: '#000',
+    elevation: 0, shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4,
     overflow: 'hidden',
   },

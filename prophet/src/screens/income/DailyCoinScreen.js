@@ -191,7 +191,7 @@ const styles = (colors) => StyleSheet.create({
   statsCard: {
     flexDirection: 'row', alignItems: 'center', gap: 16,
     backgroundColor: colors.surface, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 6, elevation: 3,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 6, elevation: 0,
   },
   statsLabel: { fontSize: 11, color: colors.text, opacity: 0.6, fontWeight: '500' },
   statsValue: { fontSize: 18, fontWeight: '800', color: '#F59E0B', marginTop: 2 },

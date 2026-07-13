@@ -39,7 +39,12 @@ const historyOptions = [
     icon: 'inventory-2', color: '#EF4444', screen: 'OrderHistory',
   },
 
- 
+  {
+    id: 'all-transactions', title: 'সব লেনদেন (সার্ভার)',
+    subtitle: 'সার্ভার থেকে সর্বশেষ ২০০ উইথড্র ও রিচার্জ',
+    icon: 'cloud-sync', color: '#6366F1', screen: 'AllTransactionHistory',
+  },
+
 ];
 
 const BalanceItem = ({ icon, iconColor, label, value, onPress, isVisible, mutedColor }) => {
@@ -238,7 +243,7 @@ const dynStyles = (colors) => StyleSheet.create({
   iconBox: {
     width: 52, height: 52, borderRadius: 14,
     justifyContent: 'center', alignItems: 'center',
-    elevation:0,
+    elevation: 0,
   },
   optionTextContainer: { flex: 1, marginLeft: 14 },
   optionTitle: { fontSize: 16, fontWeight: '700', color: colors.text },

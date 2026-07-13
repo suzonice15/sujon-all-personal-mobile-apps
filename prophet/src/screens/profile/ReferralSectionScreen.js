@@ -187,7 +187,7 @@ const sx = StyleSheet.create({
   rankCard: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: '#fff', borderRadius: 14, padding: 12,
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4,
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4,
   },
   rankBadge: {
     width: 34, height: 34, borderRadius: 17,
@@ -205,7 +205,7 @@ const sx = StyleSheet.create({
   historyCard: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: '#fff', borderRadius: 14, padding: 12,
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4,
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4,
   },
   historyDot: { width: 10, height: 10, borderRadius: 5 },
   historyName: { fontSize: 13, fontWeight: '700', color: '#1F2937' },

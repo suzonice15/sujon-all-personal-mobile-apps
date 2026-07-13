@@ -196,7 +196,7 @@ const styles = (colors) => StyleSheet.create({
   card: {
     backgroundColor: colors.surface, marginHorizontal: 16, marginBottom: 10,
     borderRadius: 12, padding: 14,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 4,
   },
   cardRow: { flexDirection: 'row', alignItems: 'center' },

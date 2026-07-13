@@ -6,19 +6,27 @@ import { getAllAppSettings } from '../../db/appSettings';
 import { api_url } from '../../config/url';
 import { app_version, lastUpdate } from '../../config/url';
 import AdBanner from '../../components/ads/AdBanner';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 const { width } = Dimensions.get('window');
 
 export default function AboutAppsScreen() {
   const { colors } = useTheme();
   const [settings, setSettings] = useState(null);
+  const { showAd } = useAdInterstitial();
 
   useEffect(() => {
     getAllAppSettings().then(setSettings);
+    showAd();
   }, []);
 
   if (!settings) {
-    return <ActivityIndicator style={{ marginTop: 60 }} color={colors.primary} />;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ fontSize: 13, color: colors.onSurface, opacity: 0.5, marginTop: 10 }}>লোড হচ্ছে...</Text>
+      </View>
+    );
   }
 
   const title = settings.title || 'অ্যাপ';

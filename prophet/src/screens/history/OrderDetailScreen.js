@@ -109,7 +109,7 @@ const styles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
   headerCard: {
     backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 12,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 3,
   },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
@@ -119,7 +119,7 @@ const styles = (colors) => StyleSheet.create({
   orderDate: { fontSize: 12, color: '#9CA3AF' },
   tracker: {
     backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 12,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 3,
   },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: '#1F2937', marginBottom: 14 },
@@ -133,7 +133,7 @@ const styles = (colors) => StyleSheet.create({
   stepLabel: { fontSize: 9, color: '#9CA3AF', textAlign: 'center', fontWeight: '500' },
   detailCard: {
     backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 12,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 3,
   },
   detailRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, gap: 6 },

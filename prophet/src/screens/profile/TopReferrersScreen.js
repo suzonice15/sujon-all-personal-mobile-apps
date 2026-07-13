@@ -96,7 +96,7 @@ const styles = (colors) => StyleSheet.create({
   bannerBadge: { backgroundColor: '#EDE9FE', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
   bannerBadgeText: { fontSize: 10, fontWeight: '700', color: '#8B5CF6' },
   list: { paddingHorizontal: 12, gap: 8 },
-  card: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surface, borderRadius: 14, padding: 12, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4 },
+  card: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surface, borderRadius: 14, padding: 12, elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4 },
   rankWrap: { width: 30, alignItems: 'center' },
   rankText: { fontSize: 12, fontWeight: 'bold', color: '#9CA3AF' },
   avatar: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#EDE9FE', justifyContent: 'center', alignItems: 'center' },

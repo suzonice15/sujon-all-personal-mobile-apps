@@ -43,3 +43,14 @@ export const setSyncInterval = async (minutes) => {
   const db = await getDB();
   await db.executeSql('UPDATE settings SET sync_interval = ? WHERE id = 1', [minutes]);
 };
+
+export const getLastVisitDate = async () => {
+  const db = await getDB();
+  const [res] = await db.executeSql('SELECT last_visit_date FROM settings WHERE id = 1');
+  return res.rows.item(0)?.last_visit_date || '';
+};
+
+export const setLastVisitDate = async (dateStr) => {
+  const db = await getDB();
+  await db.executeSql('UPDATE settings SET last_visit_date = ? WHERE id = 1', [dateStr]);
+};

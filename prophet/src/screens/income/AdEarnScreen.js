@@ -248,7 +248,7 @@ const styles = (colors, BOX_SIZE) => StyleSheet.create({
   headerCard: {
     margin: 14, padding: 10,
     borderRadius: 16, gap: 6,
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08, shadowRadius: 6,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

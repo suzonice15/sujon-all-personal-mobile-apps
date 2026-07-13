@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, Switch, Linking, Modal, Share, ActivityIndicator,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
+import { useFocusEffect } from '@react-navigation/native';
 import AdBanner from '../../components/ads/AdBanner';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 import useSyncWithCooldown from '../../hooks/useSyncWithCooldown';
 import { published_app_slug, apps_title, email } from '../../config/url';
 
@@ -31,6 +33,11 @@ export default function SettingsScreen({ navigation }) {
   const [showModal, setShowModal] = useState(false);
   const { isDark, toggleTheme } = useTheme();
   const { syncing, syncMsg, handleSync } = useSyncWithCooldown();
+  const { showAd } = useAdInterstitial();
+
+  useFocusEffect(useCallback(() => {
+    showAd();
+  }, []));
 
   const loadServerSettings = async () => {
     try {

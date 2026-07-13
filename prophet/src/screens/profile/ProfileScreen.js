@@ -181,7 +181,7 @@ const styles = (colors) => StyleSheet.create({
   infoCard: {
     backgroundColor: colors.surface, marginHorizontal: 20,
     borderRadius: 16, padding: 4, marginBottom: 14,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04, shadowRadius: 6,
   },
   infoRow: {

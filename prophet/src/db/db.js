@@ -33,6 +33,7 @@ export const initDB = async () => {
   try { await db.executeSql('ALTER TABLE settings ADD COLUMN last_sync_at INTEGER DEFAULT 0'); } catch (e) {}
   try { await db.executeSql("ALTER TABLE settings ADD COLUMN app_settings_json TEXT DEFAULT '{}'"); } catch (e) {}
   try { await db.executeSql("ALTER TABLE settings ADD COLUMN auth_token TEXT DEFAULT ''"); } catch (e) {}
+  try { await db.executeSql("ALTER TABLE settings ADD COLUMN last_visit_date TEXT DEFAULT ''"); } catch (e) {}
   await db.executeSql('INSERT OR IGNORE INTO settings (id, dark_mode, cooldown_seconds) VALUES (1, 0, 180)');
 // mobile_contents  table 
   await db.executeSql(`
@@ -152,8 +153,7 @@ export const initDB = async () => {
     );
   `);
 
-  try { await db.executeSql('ALTER TABLE notifications ADD COLUMN reference_id INTEGER DEFAULT 0'); } catch (e) { console.log('reference_id col exists'); }
-
+ 
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS coin_history (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -170,9 +170,11 @@ export const initDB = async () => {
   try { await db.executeSql('ALTER TABLE coin_history ADD COLUMN name TEXT DEFAULT ""'); } catch (e) {}
   try { await db.executeSql('ALTER TABLE coin_history ADD COLUMN email TEXT DEFAULT ""'); } catch (e) {}
   try { await db.executeSql('ALTER TABLE coin_history ADD COLUMN server_id INTEGER DEFAULT 0'); } catch (e) {}
-  try { await db.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_coin_history_server_id ON coin_history(server_id)'); } catch (e) {}
+  try { await db.executeSql('DROP INDEX IF EXISTS idx_coin_history_server_id'); } catch (e) {}
+  try { await db.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_coin_history_server_id ON coin_history(server_id) WHERE server_id != 0'); } catch (e) {}
   try { await db.executeSql('ALTER TABLE earning_history ADD COLUMN server_id INTEGER DEFAULT 0'); } catch (e) {}
-  try { await db.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_earning_history_server_id ON earning_history(server_id)'); } catch (e) {}
+  try { await db.executeSql('DROP INDEX IF EXISTS idx_earning_history_server_id'); } catch (e) {}
+  try { await db.executeSql('CREATE UNIQUE INDEX IF NOT EXISTS idx_earning_history_server_id ON earning_history(server_id) WHERE server_id != 0'); } catch (e) {}
 
   await db.executeSql(`
     CREATE TABLE IF NOT EXISTS ad_boxes (

@@ -11,6 +11,7 @@ import MobileRechargeScreen from '../screens/history/MobileRechargeScreen';
 import StoryDetail from '../screens/home/StoryDetail';
 import OrderHistoryScreen from '../screens/history/OrderHistoryScreen';
 import OrderDetailScreen from '../screens/history/OrderDetailScreen';
+import AllTransactionHistoryScreen from '../screens/history/AllTransactionHistoryScreen';
 import { getHeaderOptions } from './headerOptions';
 
 const Stack = createNativeStackNavigator();
@@ -30,6 +31,7 @@ export default function HistoryStack() {
       <Stack.Screen name="MobileRecharge" component={MobileRechargeScreen} options={{ title: 'মোবাইল রিচার্জ' }} />
       <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ title: 'অর্ডার হিস্টোরি' }} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: 'অর্ডার ডিটেইল' }} />
+      <Stack.Screen name="AllTransactionHistory" component={AllTransactionHistoryScreen} options={{ title: 'সব লেনদেন' }} />
       <Stack.Screen name="StoryDetail" component={StoryDetail} />
     </Stack.Navigator>
   );

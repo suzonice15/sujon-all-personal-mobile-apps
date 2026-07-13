@@ -227,7 +227,7 @@ const styles = (colors) => StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: colors.surface, marginHorizontal: 16, marginBottom: 10,
     borderRadius: 12, padding: 14,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 0, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 4,
   },
   cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
