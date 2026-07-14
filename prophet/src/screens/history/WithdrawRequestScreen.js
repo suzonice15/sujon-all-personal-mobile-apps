@@ -173,37 +173,40 @@ export default function WithdrawRequestScreen({ navigation }) {
         </View>
 
         <View style={s.fieldBox}>
-          <Text style={s.label}>বিকাশ পার্সোনাল নম্বর</Text>
-          <View style={s.inputRow}>
-            <View style={s.prefixBox}>
-              <MaterialIcons name="phone-iphone" size={16} color="#E2136E" />
+          <View style={s.rowFields}>
+            <View style={s.halfField}>
+              <Text style={s.label}>বিকাশ পার্সোনাল নম্বর</Text>
+              <View style={s.inputRow}>
+                <View style={s.prefixBox}>
+                  <MaterialIcons name="phone-iphone" size={16} color="#E2136E" />
+                </View>
+                <TextInput
+                  style={s.input}
+                  placeholder="০১XXXXXXXXX"
+                  placeholderTextColor={colors.muted + '80'}
+                  value={accountNumber}
+                  onChangeText={setAccountNumber}
+                  keyboardType="phone-pad"
+                  maxLength={11}
+                />
+              </View>
             </View>
-            <TextInput
-              style={s.input}
-              placeholder="০১XXXXXXXXX"
-              placeholderTextColor={colors.muted + '80'}
-              value={accountNumber}
-              onChangeText={setAccountNumber}
-              keyboardType="phone-pad"
-              maxLength={11}
-            />
-          </View>
-        </View>
-
-        <View style={s.fieldBox}>
-          <Text style={s.label}>পরিমাণ <Text style={{ color: colors.muted, fontWeight: 400 }}>(ন্যূনতম {minTk} টাকা)</Text></Text>
-          <View style={s.inputRow}>
-            <View style={s.prefixBox}>
-              <MaterialIcons name="attach-money" size={16} color="#E2136E" />
+            <View style={s.halfField}>
+              <Text style={s.label}>পরিমাণ <Text style={{ color: '#E2136E', fontWeight: 400 }}>(ন্যূনতম {minTk} টাকা)</Text></Text>
+              <View style={s.inputRow}>
+                <View style={s.prefixBox}>
+                  <MaterialIcons name="attach-money" size={16} color="#E2136E" />
+                </View>
+                <TextInput
+                  style={s.input}
+                  placeholder="০"
+                  placeholderTextColor={colors.muted + '80'}
+                  value={amountTk}
+                  onChangeText={setAmountTk}
+                  keyboardType="number-pad"
+                />
+              </View>
             </View>
-            <TextInput
-              style={s.input}
-              placeholder="০"
-              placeholderTextColor={colors.muted + '80'}
-              value={amountTk}
-              onChangeText={setAmountTk}
-              keyboardType="number-pad"
-            />
           </View>
         </View>
 
@@ -234,7 +237,7 @@ export default function WithdrawRequestScreen({ navigation }) {
             </View>
             <View style={s.summaryDivider} />
             <View style={s.summaryRow}>
-              <Text style={[s.summaryLabel, { fontWeight: '700', color: colors.text }]}>মোট খরচ</Text>
+              <Text style={[s.summaryLabel, { fontWeight: '700', color: '#E2136E' }]}>মোট খরচ</Text>
               <Text style={[s.summaryValue, { fontWeight: '700', color: '#E2136E' }]}>{totalCoins.toLocaleString()} কয়েন</Text>
             </View>
             {totalCoins > userCoins && (
@@ -298,8 +301,8 @@ const styles = (colors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  brandTitle: { fontSize: 15, fontWeight: 'bold', color: colors.text },
-  brandSub: { fontSize: 10, color: colors.muted, marginTop: 1 },
+  brandTitle: { fontSize: 15, fontWeight: 'bold', color: '#E2136E' },
+  brandSub: { fontSize: 10, color: '#E2136E', marginTop: 1 },
   balanceBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -308,16 +311,18 @@ const styles = (colors) => StyleSheet.create({
     padding: 7,
     marginTop: 10,
   },
-  balanceText: { fontSize: 11, color: '#92400E', marginLeft: 5, flex: 1 },
+  balanceText: { fontSize: 11, color: '#E2136E', marginLeft: 5, flex: 1 },
   balanceBold: { fontWeight: 'bold' },
 
   fieldBox: { marginBottom: 2 },
-  label: { fontSize: 12, fontWeight: '700', color: colors.text, marginBottom: 5, marginTop: 2 },
+  rowFields: { flexDirection: 'row', gap: 8 },
+  halfField: { flex: 1 },
+  label: { fontSize: 12, fontWeight: '700', color: '#E2136E', marginBottom: 5, marginTop: 2 },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.muted + '40',
+    borderColor: '#E2136E',
     borderRadius: 10,
     backgroundColor: colors.surface,
     marginBottom: 10,
@@ -335,7 +340,7 @@ const styles = (colors) => StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     fontSize: 14,
-    color: colors.text,
+    color: '#E2136E',
   },
 
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
@@ -359,14 +364,14 @@ const styles = (colors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.muted + '20',
   },
-  summaryTitle: { fontSize: 12, fontWeight: 'bold', color: colors.text, marginBottom: 7 },
+  summaryTitle: { fontSize: 12, fontWeight: 'bold', color: '#E2136E', marginBottom: 7 },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 3,
   },
-  summaryLabel: { fontSize: 11, color: colors.muted },
-  summaryValue: { fontSize: 11, fontWeight: '600', color: colors.text },
+  summaryLabel: { fontSize: 11, color: '#E2136E' },
+  summaryValue: { fontSize: 11, fontWeight: '600', color: '#E2136E' },
   summaryDivider: { height: 1, backgroundColor: colors.muted + '25', marginVertical: 5 },
   errorBox: {
     flexDirection: 'row',
@@ -386,7 +391,7 @@ const styles = (colors) => StyleSheet.create({
     padding: 8,
     marginBottom: 14,
   },
-  infoText: { fontSize: 11, color: '#9D174D', marginLeft: 8, flex: 1, lineHeight: 16 },
+  infoText: { fontSize: 11, color: '#E2136E', marginLeft: 8, flex: 1, lineHeight: 16 },
 
   submitBtn: {
     flexDirection: 'row',

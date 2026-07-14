@@ -1,5 +1,5 @@
-export const api_url='https://education.tablighshop.com/api';
-// export const api_url='http://192.168.0.122:7070/api';
+// export const api_url='https://education.tablighshop.com/api';
+export const api_url='http://192.168.0.122:7070/api';
 
 
 export const apps_slug='profet';
