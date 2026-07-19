@@ -50,7 +50,7 @@ export default function MobileRechargeScreen({ navigation }) {
   useEffect(() => {
     if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
       entryShown.current = true;
-      showInterstitial(true);
+      showInterstitial();
     }
   }, [isLoaded]);
 

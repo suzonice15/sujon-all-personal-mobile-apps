@@ -8,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { toBn } from '../../utils/helper';
 import { getReferralCache } from '../../db/referral';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 
 const rankBg = { gold: '#FEF3C7', silver: '#F3F4F6', bronze: '#FEF3C7' };
 const rankColors = { gold: '#F59E0B', silver: '#9CA3AF', bronze: '#CD7F32' };
@@ -85,6 +86,8 @@ export default function TopEarnersScreen({ navigation }) {
             )}
           </View>
         </ScrollView>
+                  <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+        
         <AdBanner />
       </View>
     </SafeAreaView>

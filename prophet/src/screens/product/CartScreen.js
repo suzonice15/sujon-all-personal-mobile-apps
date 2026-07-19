@@ -1,15 +1,26 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, Image, Platform } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, Image } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { bnToNumber } from '../../utils/helper';
 import { useCart } from '../../context/CartContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ADMOB_ENABLED } from '../../config/url';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 export default function CartScreen({ navigation }) {
   const { items, updateQty, removeItem } = useCart();
-  const insets = useSafeAreaInsets();
+  const entryShown = useRef(false);
   const sty = styles;
+
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
+
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
 
   const subtotal = items.reduce((sum, item) => sum + bnToNumber(item.price) * item.qty, 0);
   const totalCoin = items.reduce((sum, item) => sum + bnToNumber(item.coinPrice) * item.qty, 0);
@@ -46,7 +57,6 @@ export default function CartScreen({ navigation }) {
 
   return (
     <SafeAreaView style={sty.container}>
-      <View style={{ flex: 1 }}>
       {cartItems.length === 0 ? (
         <View style={sty.empty}>
           <MaterialIcons name="shopping-cart" size={64} color="#DDD" />
@@ -61,25 +71,26 @@ export default function CartScreen({ navigation }) {
           data={cartItems}
           keyExtractor={(item) => item?.id?.toString()}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 16, paddingBottom: Platform.OS === 'android' ? 140 : 120 }}
+          contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
+          ListFooterComponent={
+            <View>
+              <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+              <AdBanner />
+              <View style={sty.bottomBar}>
+                <View style={sty.totalSection}>
+                  <Text style={sty.totalLabel}>মোট</Text>
+                  <Text style={sty.totalPrice}>৳{subtotal}</Text>
+                  <Text style={sty.totalCoin}>+{totalCoin} কয়েন</Text>
+                </View>
+                <TouchableOpacity style={sty.checkoutBtn} onPress={() => navigation.navigate('Checkout')} activeOpacity={0.8}>
+                  <Text style={sty.checkoutText}>চেকআউট</Text>
+                  <MaterialIcons name="arrow-forward" size={18} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          }
         />
-      )}
-      <AdBanner />
-      </View>
-
-      {cartItems.length > 0 && (
-        <View style={[sty.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-          <View style={sty.totalSection}>
-            <Text style={sty.totalLabel}>মোট</Text>
-            <Text style={sty.totalPrice}>৳{subtotal}</Text>
-            <Text style={sty.totalCoin}>+{totalCoin} কয়েন</Text>
-          </View>
-          <TouchableOpacity style={sty.checkoutBtn} onPress={() => navigation.navigate('Checkout')} activeOpacity={0.8}>
-            <Text style={sty.checkoutText}>চেকআউট</Text>
-            <MaterialIcons name="arrow-forward" size={18} color="#fff" />
-          </TouchableOpacity>
-        </View>
       )}
     </SafeAreaView>
   );
@@ -116,7 +127,6 @@ const styles = StyleSheet.create({
   shopBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 
   bottomBar: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12,
     borderTopWidth: 1, borderTopColor: '#F0F0F0',

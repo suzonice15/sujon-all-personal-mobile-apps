@@ -1,23 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Dimensions } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getAllAppSettings } from '../../db/appSettings';
-import { api_url } from '../../config/url';
+import { api_url, ADMOB_ENABLED } from '../../config/url';
 import { app_version, lastUpdate } from '../../config/url';
 import AdBanner from '../../components/ads/AdBanner';
 import useAdInterstitial from '../../components/ads/AdInterstitial';
+import AdNative from '../../components/ads/AdNative';
 
 const { width } = Dimensions.get('window');
 
 export default function AboutAppsScreen() {
   const { colors } = useTheme();
   const [settings, setSettings] = useState(null);
-  const { showAd } = useAdInterstitial();
+  const entryShown = useRef(false);
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
+
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
 
   useEffect(() => {
     getAllAppSettings().then(setSettings);
-    showAd();
   }, []);
 
   if (!settings) {
@@ -87,6 +95,7 @@ export default function AboutAppsScreen() {
           </View>
         ) : null}
       </ScrollView>
+                          <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
 
       <AdBanner />
     </View>

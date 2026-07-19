@@ -20,8 +20,7 @@ export default function HomeScreen({ navigation }) {
   const { colors } = usePaperTheme();
   const s = styles(colors);
 
-  const loadData = async (force = false) => {
-    if (!force && data.length > 0) return;
+  const loadData = async () => {
     setLoading(true);
     try {
       const response = await getMobileContents();
@@ -35,8 +34,8 @@ export default function HomeScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      if (data.length === 0) loadData();
-    }, [data])
+      loadData();
+    }, [])
   );
 
   return (
@@ -48,7 +47,7 @@ export default function HomeScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
 
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={() => loadData(true)} />
+          <RefreshControl refreshing={loading} onRefresh={() => loadData()} />
         }
         renderItem={({ item, index }) => (
           <TouchableOpacity

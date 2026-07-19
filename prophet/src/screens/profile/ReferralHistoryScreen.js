@@ -8,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { getReferralCache } from '../../db/referral';
 import { toBn } from '../../utils/helper';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 
 export default function ReferralHistoryScreen({ navigation }) {
   const { colors } = usePaperTheme();
@@ -120,6 +121,8 @@ export default function ReferralHistoryScreen({ navigation }) {
             )}
           </View>
         </ScrollView>
+                  <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+        
         <AdBanner />
       </View>
     </SafeAreaView>

@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView } from
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getQuizeSubCategory } from '../../db/quizeContents';
+import AdNative from '../../components/ads/AdNative';
+import AdBanner from '../../components/ads/AdBanner';
 
 export default function QuizeData({ route, navigation }) {
   const { item } = route.params;
@@ -30,7 +32,7 @@ export default function QuizeData({ route, navigation }) {
     <SafeAreaView style={s.container}>
       <FlatList
         data={data}
-        keyExtractor={(item) => String(item.id)}
+        keyExtractor={(item) => item.sub_category}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
         renderItem={({ item, index }) => (
@@ -52,6 +54,8 @@ export default function QuizeData({ route, navigation }) {
           </TouchableOpacity>
         )}
       />
+      <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+      <AdBanner />
     </SafeAreaView>
   );
 }

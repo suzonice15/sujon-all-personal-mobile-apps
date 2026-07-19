@@ -1,5 +1,5 @@
-// export const api_url='https://education.tablighshop.com/api';
-export const api_url='http://192.168.0.122:7070/api';
+export const api_url='https://education.tablighshop.com/api';
+// export const api_url='http://192.168.0.122:7070/api';
 
 
 export const apps_slug='profet';
@@ -10,10 +10,10 @@ export const lastUpdate = '৩ জুলাই ২০২৬';
 export const apps_title='নবী রাসূলের জীবনী';
 export const developer_id='8499372884242273199';
 export const email='suzonice15@gmail.com';
-export const DAILY_BOXES=50;
-export const video_coin_per_box=12;
+export const DAILY_BOXES=30;
+export const video_coin_per_box=10;
 export const story_detail_per_box=10;
-export const daily_coin_count=15;
+export const daily_coin_count=10;
 export const daily_bonus_coin=25;
 export const max_claim_per_day=60;
 export const story_detail_points=100;
@@ -46,8 +46,8 @@ export const AD_UNIT_ID_REWARDED = ADMOB_USE_REAL ? REAL_REWARDED_ID : TEST_REWA
 export const AD_UNIT_ID_NATIVE = ADMOB_USE_REAL ? REAL_NATIVE_ID : TEST_NATIVE;
 
 // Claim cooldown (seconds)
-export const BOX_CLAIM_COOLDOWN_SEC = 180;
+export const BOX_CLAIM_COOLDOWN_SEC = 60;
 
 // Ad show cooldowns (ms)
-export const AD_INTERSTITIAL_COOLDOWN = 10000;
+export const AD_INTERSTITIAL_COOLDOWN = 100000;
 export const AD_REWARDED_COOLDOWN = 60000;

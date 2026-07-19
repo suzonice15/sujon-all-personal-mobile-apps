@@ -11,6 +11,7 @@ import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settin
 import { video_coin_per_box, ADMOB_ENABLED, BOX_CLAIM_COOLDOWN_SEC } from '../../config/url';
 import AdBanner from '../../components/ads/AdBanner';
 import useAdRewarded from '../../components/ads/AdRewarded';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 export default function AdEarnScreen() {
   const { refreshCoins } = useCoins();
@@ -22,7 +23,7 @@ export default function AdEarnScreen() {
   const timerRef = useRef(null);
   const pendingBox = useRef(null);
   const { width } = useWindowDimensions();
-  const BOX_SIZE = (width - 38) / 4;
+  const BOX_SIZE = (width - 36) / 3;
   const { colors } = useTheme();
   const s = styles(colors, BOX_SIZE);
 
@@ -101,7 +102,7 @@ export default function AdEarnScreen() {
       await refreshCoins();
       await setLastClaimTime();
       setBoxes(prev => prev.map(b =>
-        b.id === box.id ? { ...b, status: 'claimed', claim_date: new Date().toISOString().slice(0, 10) } : b
+        b.id === box.id ? { ...b, status: 'claimed', claim_date: `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}-${String(new Date().getDate()).padStart(2,'0')}` } : b
       ));
       setCooldown(cooldownSec);
       ToastAndroid.show(`বিজ্ঞাপন বক্স ${toBn(box.box_number)} এর ${toBn(video_coin_per_box)} কয়েন অর্জন হয়েছে!`, ToastAndroid.SHORT);
@@ -120,6 +121,15 @@ export default function AdEarnScreen() {
   };
 
   const { showAd } = useAdRewarded(onEarned);
+  const { showAd: showInterstitial, isLoaded: interstitialLoaded } = useAdInterstitial();
+  const entryAdShown = useRef(false);
+
+  useFocusEffect(useCallback(() => {
+    if (interstitialLoaded && !entryAdShown.current) {
+      entryAdShown.current = true;
+      showInterstitial();
+    }
+  }, [interstitialLoaded]));
 
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
@@ -229,7 +239,7 @@ export default function AdEarnScreen() {
         <FlatList
           data={boxes}
           keyExtractor={(item) => item.id.toString()}
-          numColumns={4}
+          numColumns={3}
           renderItem={renderBox}
           contentContainerStyle={s.grid}
           showsVerticalScrollIndicator={false}
@@ -272,7 +282,7 @@ const styles = (colors, BOX_SIZE) => StyleSheet.create({
   doneText: { fontSize: 13, fontWeight: '600' },
   hintText: { fontSize: 12, opacity: 0.6 },
   grid: { flexGrow: 1, paddingHorizontal: 10, paddingBottom: 20 },
-  row: { gap: 6, marginBottom: 6 },
+  row: { gap: 8, marginBottom: 8 },
   box: {
     width: BOX_SIZE, height: BOX_SIZE - 8,
     borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 5,
@@ -289,13 +299,13 @@ const styles = (colors, BOX_SIZE) => StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
     marginBottom: 2,
   },
-  boxNumber: { fontSize: 9, fontWeight: '600', opacity: 0.6 },
+  boxNumber: { fontSize: 13, fontWeight: '600', opacity: 0.6 },
   coinBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 2,
     backgroundColor: '#F59E0B', paddingHorizontal: 8, paddingVertical: 2,
     borderRadius: 10,
     marginBottom: 15,
   },
-  coinBadgeText: { fontSize: 10, fontWeight: '700', color: '#fff', },
-  boxDoneLabel: { fontSize: 11, fontWeight: '600' },
+  coinBadgeText: { fontSize: 14, fontWeight: '700', color: '#fff', },
+  boxDoneLabel: { fontSize: 15, fontWeight: '600' },
 });

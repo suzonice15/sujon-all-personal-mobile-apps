@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Linking, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, FlatList } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { api } from '../../api/client';
-import { apps_slug } from '../../config/url';
+import { apps_slug, ADMOB_ENABLED } from '../../config/url';
+import { getDeviceId } from '../../db/earnings';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 
 export default function FeedbackScreen() {
   const [name, setName] = useState('');
@@ -16,6 +19,15 @@ export default function FeedbackScreen() {
   const [showHistory, setShowHistory] = useState(false);
   const { colors } = useTheme();
   const s = styles(colors);
+  const entryShown = useRef(false);
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
+
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
 
   useEffect(() => {
     if (email.trim()) fetchMyFeedback();
@@ -41,7 +53,8 @@ export default function FeedbackScreen() {
 
     setLoading(true);
     try {
-      const res = await api.post('/feedback', { name, email, message, slug: apps_slug });
+      const deviceId = await getDeviceId();
+      const res = await api.post('/feedback', { name, email, message, slug: apps_slug, device_id: deviceId });
       if (res.pending_feedback) {
         Alert.alert('পেন্ডিং', 'আপনার পূর্বের ফিডব্যাক এখনও পেন্ডিং আছে। দয়া করে রিপ্লির জন্য অপেক্ষা করুন।');
       } else {
@@ -63,9 +76,7 @@ export default function FeedbackScreen() {
       <View style={s.container}>
         <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
           <View style={s.hero}>
-            <View style={s.iconBox}>
-              <MaterialIcons name="feedback" size={40} color={colors.primary} />
-            </View>
+            
             <Text style={s.heroTitle}>আপনার মতামত দিন</Text>
             <Text style={s.heroSub}>আপনার মতামত আমাদের উন্নতিতে সাহায্য করে</Text>
           </View>
@@ -143,19 +154,10 @@ export default function FeedbackScreen() {
             </View>
           )}
 
-          <View style={s.contactCard}>
-            <Text style={s.contactTitle}>সরাসরি যোগাযোগ</Text>
-            {[
-              { icon: 'email', label: 'support@example.com', link: 'mailto:support@example.com' },
-              { icon: 'language', label: 'www.example.com', link: 'https://example.com' },
-            ].map((item, i) => (
-              <TouchableOpacity key={i} style={s.contactRow} onPress={() => Linking.openURL(item.link)}>
-                <MaterialIcons name={item.icon} size={18} color={colors.primary} />
-                <Text style={s.contactText}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          
         </ScrollView>
+                          <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+        
         <AdBanner />
       </View>
     </KeyboardAvoidingView>

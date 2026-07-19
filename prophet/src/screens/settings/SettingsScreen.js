@@ -1,15 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, Switch, Linking, Modal, Share, ActivityIndicator,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
-import { useFocusEffect } from '@react-navigation/native';
 import AdBanner from '../../components/ads/AdBanner';
 import useAdInterstitial from '../../components/ads/AdInterstitial';
 import useSyncWithCooldown from '../../hooks/useSyncWithCooldown';
-import { published_app_slug, apps_title, email } from '../../config/url';
+import { published_app_slug, apps_title, email, ADMOB_ENABLED } from '../../config/url';
+import AdNative from '../../components/ads/AdNative';
 
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
@@ -33,11 +33,15 @@ export default function SettingsScreen({ navigation }) {
   const [showModal, setShowModal] = useState(false);
   const { isDark, toggleTheme } = useTheme();
   const { syncing, syncMsg, handleSync } = useSyncWithCooldown();
-  const { showAd } = useAdInterstitial();
+  const entryShown = useRef(false);
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
 
-  useFocusEffect(useCallback(() => {
-    showAd();
-  }, []));
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
 
   const loadServerSettings = async () => {
     try {
@@ -176,6 +180,8 @@ export default function SettingsScreen({ navigation }) {
 
 
       </ScrollView>
+                                <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+      
       <AdBanner />
     </View>
   );

@@ -1,7 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Share, Linking, Alert, ToastAndroid } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../db/auth';
 import { apps_title, developer_id, published_app_slug } from '../config/url';
@@ -16,7 +15,7 @@ const menu = [
   { title: 'ডেভেলপার সম্পর্কে', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
   { title: 'অ্যাপ শেয়ার করুন', icon: 'share', action: 'share' },
   { title: 'অ্যাপ রেটিং দিন', icon: 'star-border', action: 'rate' },
-  { title: 'মতামত দিন', icon: 'feedback', screen: 'Feedback', tab: 'Home' },
+  { title: 'যোগাযোগ করুন', icon: 'feedback', screen: 'Feedback', tab: 'Home' },
   { title: 'প্রাইভেসি পলিসি', icon: 'lock-outline', screen: 'Privacy', tab: 'Home' },
   { title: 'আরো অ্যাপ', icon: 'apps', action: 'moreApps' },
   { title: 'সেটিংস', icon: 'settings', screen: 'SettingInfo', tab: 'Home' },
@@ -27,9 +26,16 @@ export default function DrawerMenuScreen({ navigation }) {
   const { colors } = useTheme();
   const s = styles(colors);
 
-  useFocusEffect(useCallback(() => {
+  useEffect(() => {
     getLoggedInUser().then(setUser);
-  }, []));
+  }, []);
+
+  useEffect(() => {
+    const unsub = navigation.getParent()?.addListener('state', () => {
+      getLoggedInUser().then(setUser);
+    });
+    return unsub;
+  }, [navigation]);
 
   const handlePress = async (item) => {
     if (item.screen) {

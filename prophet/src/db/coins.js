@@ -1,6 +1,11 @@
 import { getDB } from './db';
 import { getDeviceId } from './earnings';
 
+const getLocalDate = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 const localNow = () => {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, '0');
@@ -35,7 +40,7 @@ export const getRecentCoins = async (limit = 10) => {
 
 export const getTodayClaimCount = async () => {
   const db = await getDB();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDate();
   const [res] = await db.executeSql(
     `SELECT COUNT(*) as count FROM coin_history WHERE date(earned_at) = ? AND reason != 'বিজ্ঞাপন বক্স' AND reason != 'দৈনিক কয়েন সংগ্রহ'`,
     [today]
@@ -51,7 +56,7 @@ export const getDailyCoinStats = async () => {
 
 export const getTodayClaimCoins = async () => {
   const db = await getDB();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDate();
   const [res] = await db.executeSql(
     `SELECT SUM(amount) as total FROM coin_history WHERE date(earned_at) = ? AND reason != 'বিজ্ঞাপন বক্স' AND reason != 'দৈনিক কয়েন সংগ্রহ'`,
     [today]
@@ -61,7 +66,7 @@ export const getTodayClaimCoins = async () => {
 
 export const getTodayCoins = async () => {
   const db = await getDB();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDate();
   const [res] = await db.executeSql(
     `SELECT SUM(amount) as total FROM coin_history WHERE date(earned_at) = ?`,
     [today]
@@ -71,6 +76,27 @@ export const getTodayCoins = async () => {
 
 export const withdrawCoins = async (amount, reason = 'উত্তোলন') => {
   await addCoins(-Math.abs(amount), reason, 'withdraw');
+};
+
+export const getTodayCoinHistoryCount = async () => {
+  const db = await getDB();
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const [res] = await db.executeSql(
+    `SELECT COUNT(*) as count FROM coin_history WHERE date(earned_at) = ?`,
+    [today]
+  );
+  return res.rows.item(0).count || 0;
+};
+
+export const getTodayCommission = async () => {
+  const db = await getDB();
+  const today = getLocalDate();
+  const [res] = await db.executeSql(
+    `SELECT COALESCE(SUM(amount), 0) as total FROM coin_history WHERE date(earned_at) = ? AND type = 'commission'`,
+    [today]
+  );
+  return res.rows.item(0).total || 0;
 };
 
 export const consolidateCoinHistory = async () => {

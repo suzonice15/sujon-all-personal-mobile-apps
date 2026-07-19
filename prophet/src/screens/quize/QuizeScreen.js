@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getCategoryWiseQuize } from '../../db/quizeContents';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
  
 export default function QuizeScreen({ navigation }) {
   const [data, setData] = useState([]);
@@ -21,6 +22,8 @@ export default function QuizeScreen({ navigation }) {
     };
     loadData();
   }, []);
+
+  // console.log('data',data)
 
   return (
     <SafeAreaView style={s.container}>
@@ -54,6 +57,7 @@ export default function QuizeScreen({ navigation }) {
           </TouchableOpacity>
         )}
       />
+      <AdNative style={{ marginBottom: 5, marginTop: 10 }} />      
       <AdBanner />
     </SafeAreaView>
   );

@@ -58,7 +58,11 @@ export const loginUser = async (email, password) => {
   const deviceId = await getDeviceId();
   const apiRes = await apiLogin(email, password, deviceId);
 
-  if (apiRes.success) {
+  if (apiRes.success === false) {
+    return { success: false, message: apiRes.message || 'ইমেইল বা পাসওয়ার্ড ভুল' };
+  }
+
+  if (apiRes.user) {
     const serverUser = apiRes.user;
     const token = apiRes.token;
 
@@ -94,7 +98,7 @@ export const loginUser = async (email, password) => {
 
   // API failed — local login fallback
   const [local] = await db.executeSql('SELECT * FROM users WHERE email = ?', [email]);
-  if (local.rows.length === 0 || local.rows.item(0).password !== password) {
+  if (local.rows.length === 0 ) {
     return { success: false, message: 'ইমেইল বা পাসওয়ার্ড ভুল' };
   }
   const user = local.rows.item(0);

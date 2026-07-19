@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import { ADMOB_ENABLED } from '../../config/url';
 import AdBanner from '../../components/ads/AdBanner';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 
 const bnMonths = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
 
@@ -18,6 +20,16 @@ export default function NotificationDetailScreen({ route }) {
   const { item } = route.params;
   const { colors } = useTheme();
   const s = styles(colors);
+  const entryShown = useRef(false);
+
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
+
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
 
   return (
     <SafeAreaView style={s.container}>

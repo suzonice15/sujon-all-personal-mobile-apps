@@ -8,8 +8,8 @@ import { Alert } from 'react-native';
 import { usePoints } from '../../context/PointsContext';
 import { useCoins } from '../../context/CoinsContext';
 import useSyncWithCooldown from '../../hooks/useSyncWithCooldown';
-import { getTodayEarnings, getStoriesReadCount } from '../../db/earnings';
-import { getTodayCoins } from '../../db/coins';
+import { getTodayEarnings } from '../../db/earnings';
+import { getTodayCoins, getTodayCoinHistoryCount, getTodayCommission } from '../../db/coins';
 import { getPendingCount } from '../../db/claims';
 import { getPendingBoxesCount } from '../../db/adBoxes';
 import { getTotalWithdraw } from '../../db/withdraw';
@@ -33,7 +33,8 @@ export default function DashboardScreen({ navigation }) {
   const [checking, setChecking] = useState(true);
   const [user, setUser] = useState(null);
   const [todayPts, setTodayPts] = useState(0);
-  const [storiesRead, setStoriesRead] = useState(0);
+  const [todayTasks, setTodayTasks] = useState(0);
+  const [todayCommission, setTodayCommission] = useState(0);
   const [todayCoins, setTodayCoins] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingBoxes, setPendingBoxes] = useState(0);
@@ -124,7 +125,8 @@ export default function DashboardScreen({ navigation }) {
     await refreshPoints();
     setTodayPts(await getTodayEarnings());
     setTodayCoins(await getTodayCoins());
-    setStoriesRead(await getStoriesReadCount());
+    setTodayTasks(await getTodayCoinHistoryCount());
+    setTodayCommission(await getTodayCommission());
     setPendingCount(await getPendingCount());
     setPendingBoxes(await getPendingBoxesCount());
     setTotalWithdraw(await getTotalWithdraw());
@@ -211,27 +213,34 @@ export default function DashboardScreen({ navigation }) {
           </View>
         </View>
 
-        <View style={s.grid}>
+        <View style={[s.grid, { flexWrap: 'nowrap' }]}>
           <View style={[s.gridCard, { backgroundColor: '#D1FAE5' }]}>
             <View style={s.gridTop}>
               <Text style={[s.gridValue, { color: '#22C55E' }]}>{toBn(todayCoins)}</Text>
-              <MaterialIcons name="today" size={18} color="#22C55E" />
+              <MaterialIcons name="today" size={16} color="#22C55E" />
             </View>
             <Text style={s.gridLabel}>আজকের কয়েন</Text>
           </View>
           <View style={[s.gridCard, { backgroundColor: '#EDE9FE' }]}>
             <View style={s.gridTop}>
               <Text style={[s.gridValue, { color: '#8B5CF6' }]}>{toBn(todayPts)}</Text>
-              <MaterialIcons name="trending-up" size={18} color="#8B5CF6" />
+              <MaterialIcons name="trending-up" size={16} color="#8B5CF6" />
             </View>
             <Text style={s.gridLabel}>আজকের পয়েন্ট</Text>
           </View>
           <View style={[s.gridCard, { backgroundColor: '#FEF3C7' }]}>
             <View style={s.gridTop}>
-              <Text style={[s.gridValue, { color: '#F59E0B' }]}>{toBn(storiesRead)}</Text>
-              <MaterialIcons name="menu-book" size={18} color="#F59E0B" />
+              <Text style={[s.gridValue, { color: '#F59E0B' }]}>{toBn(todayTasks)}</Text>
+              <MaterialIcons name="history" size={16} color="#F59E0B" />
             </View>
-            <Text style={s.gridLabel}>গল্প পড়েছেন</Text>
+            <Text style={s.gridLabel}>আজকের কাজ</Text>
+          </View>
+          <View style={[s.gridCard, { backgroundColor: '#E0F2FE' }]}>
+            <View style={s.gridTop}>
+              <Text style={[s.gridValue, { color: '#0EA5E9' }]}>{toBn(todayCommission)}</Text>
+              <MaterialIcons name="group-add" size={16} color="#0EA5E9" />
+            </View>
+            <Text style={s.gridLabel}>কমিশন</Text>
           </View>
         </View>
 
@@ -372,11 +381,11 @@ const styles = (colors) => StyleSheet.create({
     marginTop: 10, gap: 8,
   },
   gridCard: {
-    flex: 1, minWidth: '30%', borderRadius: 12, padding: 12,
+    flex: 1, borderRadius: 10, padding: 8,
   },
-  gridTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  gridValue: { fontSize: 18, fontWeight: 'bold' },
-  gridLabel: { fontSize: 9, color: '#6B7280', fontWeight: '500' },
+  gridTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 },
+  gridValue: { fontSize: 15, fontWeight: 'bold' },
+  gridLabel: { fontSize: 8, color: '#6B7280', fontWeight: '500' },
   menuSection: { marginTop: 16 },
   menuTitle: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: 12 },
   coinMenu: { gap: 6 },

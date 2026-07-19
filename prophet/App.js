@@ -1,4 +1,4 @@
-import { StatusBar, ToastAndroid } from 'react-native';
+import { StatusBar, ToastAndroid, AppState } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 import { lightTheme } from './src/theme/lightTheme';
@@ -12,6 +12,7 @@ import { CartProvider } from './src/context/CartContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { NotificationsProvider, useNotifications } from './src/context/NotificationsContext';
 import { claimDailyBonus, getDeviceId } from './src/db/earnings';
+import ErrorBoundary from './src/components/ErrorBoundary';
 import { initDB } from './src/db/db';
 import { runMigrations } from './src/db/migrations';
 import { seedDB } from './src/db/seed';
@@ -33,6 +34,15 @@ function AppInner() {
   const { refreshPoints } = usePoints();
   const { refreshCoins } = useCoins();
   const { refresh: refreshNotifs } = useNotifications();
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && ADMOB_ENABLED) {
+        MobileAds().initialize().catch(() => {});
+      }
+    });
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -107,17 +117,19 @@ function AppInner() {
 
 function App() {
   return (
-    <PointsProvider>
-      <CoinsProvider>
-        <CartProvider>
-          <NotificationsProvider>
-            <ThemeProvider>
-              <AppInner />
-            </ThemeProvider>
-          </NotificationsProvider>
-        </CartProvider>
-      </CoinsProvider>
-    </PointsProvider>
+    <ErrorBoundary>
+      <PointsProvider>
+        <CoinsProvider>
+          <CartProvider>
+            <NotificationsProvider>
+              <ThemeProvider>
+                <AppInner />
+              </ThemeProvider>
+            </NotificationsProvider>
+          </CartProvider>
+        </CoinsProvider>
+      </PointsProvider>
+    </ErrorBoundary>
   );
 }
 

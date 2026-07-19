@@ -3,7 +3,7 @@ import { getDB } from './db';
 export const getCooldown = async () => {
   const db = await getDB();
   const [res] = await db.executeSql('SELECT cooldown_seconds FROM settings WHERE id = 1');
-  return res.rows.item(0)?.cooldown_seconds || 180;
+  return res.rows.item(0)?.cooldown_seconds || 60;
 };
 
 export const setCooldown = async (seconds) => {
@@ -53,4 +53,15 @@ export const getLastVisitDate = async () => {
 export const setLastVisitDate = async (dateStr) => {
   const db = await getDB();
   await db.executeSql('UPDATE settings SET last_visit_date = ? WHERE id = 1', [dateStr]);
+};
+
+export const getInterstitialCooldown = async () => {
+  const db = await getDB();
+  const [res] = await db.executeSql('SELECT interstitial_cooldown FROM settings WHERE id = 1');
+  return res.rows.item(0)?.interstitial_cooldown || 90000;
+};
+
+export const setInterstitialCooldown = async (ms) => {
+  const db = await getDB();
+  await db.executeSql('UPDATE settings SET interstitial_cooldown = ? WHERE id = 1', [ms]);
 };

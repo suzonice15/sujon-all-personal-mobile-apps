@@ -21,10 +21,15 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) { ToastAndroid.show('সব তথ্য পূরণ করুন', ToastAndroid.SHORT); return; }
     setLoading(true);
-    const res = await loginUser(email.trim(), password);
-    setLoading(false);
-    if (res.success) { navigation.replace('Dashboard'); }
-    else { ToastAndroid.show(res.message, ToastAndroid.SHORT); }
+    try {
+      const res = await loginUser(email.trim(), password);
+      if (res.success) { navigation.replace('Dashboard'); }
+      else { ToastAndroid.show(res.message, ToastAndroid.SHORT); }
+    } catch (e) {
+      ToastAndroid.show('সংযোগে সমস্যা হয়েছে', ToastAndroid.SHORT);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import { ADMOB_ENABLED } from '../../config/url';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 
 const Section = ({ num, title, text, colors }) => (
   <View style={sectionStyles(colors).section}>
@@ -28,6 +31,15 @@ const sectionStyles = (colors) => StyleSheet.create({
 export default function TermsScreen() {
   const { colors } = useTheme();
   const s = styles(colors);
+  const entryShown = useRef(false);
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
+
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
 
   return (
     <View style={s.container}>
@@ -50,6 +62,8 @@ export default function TermsScreen() {
           <Section colors={colors} num="৫" title="দায়বদ্ধতা" text="এই অ্যাপের তথ্য সর্বোচ্চ নির্ভুলতার সাথে উপস্থাপন করা হয়েছে। তবে কোনো ভুলের জন্য আমরা দায়ী নই।" />
         </View>
       </ScrollView>
+                                <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+      
       <AdBanner />
     </View>
   );

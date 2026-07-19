@@ -37,7 +37,7 @@ export const insertReferralCommissions = async (coinCommissions, pointCommission
     for (const r of coinCommissions) {
       await db.executeSql(
         `INSERT OR IGNORE INTO coin_history (device_id, amount, reason, type, earned_at, synced, server_id) VALUES (?, ?, ?, 'commission', ?, 1, ?)`,
-        []
+        [deviceId || '', r.amount, r.reason || 'রেফারেল কমিশন', r.earned_at || new Date().toISOString(), r.id || 0]
       );
     }
   }

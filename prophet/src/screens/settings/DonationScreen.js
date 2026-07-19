@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Linking, Share, Dimensions, ToastAndroid } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getAllAppSettings } from '../../db/appSettings';
+import { ADMOB_ENABLED } from '../../config/url';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 import AdBanner from '../../components/ads/AdBanner';
 
 const { width } = Dimensions.get('window');
@@ -10,6 +12,15 @@ const { width } = Dimensions.get('window');
 export default function DonationScreen() {
   const { colors } = useTheme();
   const [settings, setSettings] = useState(null);
+  const entryShown = useRef(false);
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
+
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
 
   useEffect(() => {
     getAllAppSettings().then(setSettings);

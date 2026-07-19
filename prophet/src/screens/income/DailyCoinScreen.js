@@ -7,13 +7,18 @@ import SoundPlayer from 'react-native-sound-player';
 import { useCoins } from '../../context/CoinsContext';
 import { addCoins, getTodayCoins, getDailyCoinStats } from '../../db/coins';
 import { daily_coin_count, ADMOB_ENABLED, BOX_CLAIM_COOLDOWN_SEC } from '../../config/url';
-import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
+import { getCooldown, setCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
 import { toBn } from '../../utils/helper';
 import AdBanner from '../../components/ads/AdBanner';
 import useAdRewarded from '../../components/ads/AdRewarded';
 import AdNative from '../../components/ads/AdNative';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
+import { getAllAppSettings } from '../../db/appSettings';
 
 export default function DailyCoinScreen() {
+
+  const { showAd: showInterstitial } = useAdInterstitial();
+
   const { refreshCoins } = useCoins();
   const [todayCoins, setTodayCoins] = useState(0);
   const [totalDailyCoin, setTotalDailyCoin] = useState(0);
@@ -30,7 +35,9 @@ export default function DailyCoinScreen() {
   useFocusEffect(useCallback(() => {
     setInitialLoading(true);
     setCountdown(0);
+    showInterstitial();
     (async () => {
+      await setCooldown(BOX_CLAIM_COOLDOWN_SEC);
       const sec = await getCooldown();
       setCooldownSec(sec);
       const lastClaim = await getLastClaimTime();

@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ScrollView,
   ToastAndroid,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { getQuizeData } from '../../db/quizeContents';
 import SoundPlayer from 'react-native-sound-player';
@@ -19,6 +20,8 @@ import { addEarning } from '../../db/earnings';
 import { addCoins } from '../../db/coins';
 import { useCoins } from '../../context/CoinsContext';
 import { story_detail_per_box, story_detail_points, ADMOB_ENABLED } from '../../config/url';
+import { getCooldown, setCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
+import AdNative from '../../components/ads/AdNative';
 
 
 export default function QuizStartScreen({ route, navigation }) {
@@ -38,6 +41,8 @@ export default function QuizStartScreen({ route, navigation }) {
   const [retryMode, setRetryMode] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
   const [claimingCoin, setClaimingCoin] = useState(false);
+  const [claimCooldown, setClaimCooldown] = useState(0);
+  const [claimCooldownSec, setClaimCooldownSec] = useState(60);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -213,8 +218,11 @@ export default function QuizStartScreen({ route, navigation }) {
   const doClaimCoin = async () => {
     await addCoins(earnedCoins, 'কুইজ পুরস্কার');
     await refreshCoins();
+    await setCooldown(claimCooldownSec);
+    await setLastClaimTime();
     setIsClaimed(true);
     setClaimingCoin(false);
+    setClaimCooldown(claimCooldownSec);
     playSound('finish');
     ToastAndroid.show(`${earnedCoins} কয়েন ও ${score * 10} পয়েন্ট পেয়েছেন!`, ToastAndroid.SHORT);
   };
@@ -243,6 +251,31 @@ export default function QuizStartScreen({ route, navigation }) {
     }
   };
 
+  useFocusEffect(useCallback(() => {
+    (async () => {
+      const sec = await getCooldown();
+      setClaimCooldownSec(sec);
+      const lastClaim = await getLastClaimTime();
+      if (lastClaim > 0) {
+        const elapsed = Math.floor((Date.now() - lastClaim) / 1000);
+        const remaining = Math.max(0, sec - elapsed);
+        if (remaining > 0) setClaimCooldown(remaining);
+      }
+    })();
+  }, []));
+
+  useEffect(() => {
+    if (claimCooldown > 0) {
+      const t = setInterval(() => {
+        setClaimCooldown(prev => {
+          if (prev <= 1) { clearInterval(t); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(t);
+    }
+  }, [claimCooldown]);
+
   // ================= LOADING =================
   if (!question && !finished) {
     return (
@@ -258,9 +291,11 @@ export default function QuizStartScreen({ route, navigation }) {
       <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16 }} showsVerticalScrollIndicator={false}>
         <View style={[styles.resultBox, { backgroundColor: colors.surface }]}>
-          <MaterialIcons name="emoji-events" size={50} color="#EAB308" style={styles.resultIcon} />
-          <Text style={[styles.doneTitle, { color: colors.onSurface }]}>কুইজ শেষ হয়েছে</Text>
-          <Text style={[styles.scoreText, { color: colors.onSurface, opacity: 0.6 }]}>আপনার মোট স্কোর</Text>
+          <View style={styles.resultLeft}>
+            <MaterialIcons name="emoji-events" size={40} color="#EAB308" />
+            <Text style={[styles.doneTitle, { color: colors.onSurface }]}>কুইজ শেষ হয়েছে</Text>
+            <Text style={[styles.scoreText, { color: colors.onSurface, opacity: 0.6 }]}>আপনার মোট স্কোর</Text>
+          </View>
           <View style={[styles.scoreCircle, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
             <Text style={[styles.scoreNumber, { color: colors.primary }]}>{score}</Text>
             <Text style={[styles.scoreTotal, { color: colors.onSurface }]}>/ {total}</Text>
@@ -269,15 +304,18 @@ export default function QuizStartScreen({ route, navigation }) {
 
         {/* একটি বাটন — পয়েন্ট auto, কয়েন rewarded ad দেখে */}
         <TouchableOpacity 
-          style={[styles.claimBtn, styles.coinClaimBtn, (isClaimed || claimingCoin) && styles.claimBtnDisabled]} 
+          style={[styles.claimBtn, styles.coinClaimBtn, (isClaimed || claimingCoin || claimCooldown > 0) && styles.claimBtnDisabled]} 
           onPress={handleClaimCoin}
-          disabled={isClaimed || claimingCoin}
+          disabled={isClaimed || claimingCoin || claimCooldown > 0}
         >
           <MaterialIcons name="monetization-on" size={22} color="#FFF" style={styles.btnIconLeft} />
           <Text style={styles.claimText}>
-            {claimingCoin ? 'লোড হচ্ছে...' : isClaimed ? `নেওয়া হয়েছে (${score * 10} পয়েন্ট + ${earnedCoins} কয়েন)` : `পুরস্কার নিন (${score * 10} পয়েন্ট + ${earnedCoins} কয়েন)`}
+            {claimingCoin ? 'লোড হচ্ছে...' : claimCooldown > 0 ? `অপেক্ষা করুন ${claimCooldown} সেকেন্ড` : isClaimed ? `নেওয়া হয়েছে (${score * 10} পয়েন্ট + ${earnedCoins} কয়েন)` : `পুরস্কার নিন (${score * 10} পয়েন্ট + ${earnedCoins} কয়েন)`}
           </Text>
         </TouchableOpacity>
+
+                <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+
 
         {/* রিট্রাই বাটন — শুধু ভুল উত্তর থাকলে */}
         {answers.filter(a => !a.isCorrect).length > 0 && (
@@ -407,38 +445,40 @@ export default function QuizStartScreen({ route, navigation }) {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
 
-      <TouchableOpacity
-        style={[styles.nextBtn, isLocked ? styles.nextBtnActive : styles.nextBtnDisabled]}
-        onPress={nextQuestion}
-      >
-        <Text style={styles.nextText}>পরবর্তী প্রশ্ন</Text>
-        <MaterialIcons name="arrow-forward" size={20} color="#FFF" style={styles.btnIconRight} />
-      </TouchableOpacity>
-      <AdBanner />
+        <TouchableOpacity
+          style={[styles.nextBtn, isLocked ? styles.nextBtnActive : styles.nextBtnDisabled]}
+          onPress={nextQuestion}
+        >
+          <Text style={styles.nextText}>পরবর্তী প্রশ্ন</Text>
+          <MaterialIcons name="arrow-forward" size={20} color="#FFF" style={styles.btnIconRight} />
+        </TouchableOpacity>
+        <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+       
+      </ScrollView>
+       <AdBanner />
     </View>
   );
 }
 
 // ================= STYLES =================
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#F8FAFC' },
+  container: { flex: 1, paddingTop: 5,paddingLeft:20,paddingRight:20, backgroundColor: '#F8FAFC' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' },
   loadingText: { fontSize: 16, color: '#64748B', fontWeight: '500' },
-  metaContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 10 },
+  metaContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 0 },
   countBadge: { backgroundColor: '#E2E8F0', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, flexDirection: 'row', alignItems: 'center' },
   badgeIcon: { marginRight: 4 },
   countText: { fontSize: 14, fontWeight: '600', color: '#334155' },
   timerRow: { flexDirection: 'row', alignItems: 'center' },
   timer: { fontSize: 15, fontWeight: 'bold', color: '#0EA5E9', marginLeft: 4 },
   timerUrgent: { color: '#EF4444' },
-  progressBarBackground: { height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, marginBottom: 25, overflow: 'hidden' },
+  progressBarBackground: { height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, marginBottom: 15, overflow: 'hidden' },
   progressBarFill: { height: '100%', backgroundColor: '#6366F1', borderRadius: 3 },
-  card: { backgroundColor: '#FFF', padding: 24, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 0, marginBottom: 20 },
-  question: { fontSize: 18, fontWeight: '700', color: '#1E293B', lineHeight: 26 },
+  card: { backgroundColor: '#FFF', padding: 12, borderRadius: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 0, marginBottom: 10 },
+  question: { fontSize: 16, fontWeight: '700', color: '#1E293B', lineHeight: 26 },
   optionsContainer: { flex: 1 },
-  option: { padding: 16, borderRadius: 12, borderWidth: 2, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, elevation: 0 },
+  option: { padding: 10, borderRadius: 8, borderWidth: 1.5, marginBottom: 8, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, elevation: 0 },
   optionIcon: { marginRight: 10 },
   optionText: { fontSize: 16, fontWeight: '500', flex: 1 },
   nextBtn: { padding: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginTop: 15, marginBottom: 10, flexDirection: 'row' },
@@ -449,13 +489,14 @@ const styles = StyleSheet.create({
   btnIconLeft: { marginRight: 8 },
   
   // রেজাল্ট ডিজাইন
-  resultBox: { alignItems: 'center', backgroundColor: '#FFF', padding: 25, borderRadius: 20, marginBottom: 15, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 0, marginTop: 10 },
+  resultBox: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFF', padding: 20, borderRadius: 20, marginBottom: 15, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 0, marginTop: 10 },
+  resultLeft: { flexDirection: 'column', alignItems: 'flex-start', flex: 1 },
   resultIcon: { marginBottom: 10 },
-  doneTitle: { fontSize: 22, fontWeight: '800', color: '#1E293B', marginBottom: 5 },
-  scoreText: { fontSize: 14, color: '#64748B', marginBottom: 15 },
-  scoreCircle: { width: 110, height: 110, borderRadius: 55, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center', flexDirection: 'row', borderWidth: 3, borderColor: '#6366F1' },
-  scoreNumber: { fontSize: 32, fontWeight: '800', color: '#6366F1' },
-  scoreTotal: { fontSize: 16, color: '#64748B', fontWeight: '600', marginLeft: 2, marginTop: 8 },
+  doneTitle: { fontSize: 20, fontWeight: '800', color: '#1E293B', marginTop: 4 },
+  scoreText: { fontSize: 13, color: '#64748B' },
+  scoreCircle: { width: 90, height: 90, borderRadius: 45, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center', flexDirection: 'row', borderWidth: 3, borderColor: '#6366F1' },
+  scoreNumber: { fontSize: 28, fontWeight: '800', color: '#6366F1' },
+  scoreTotal: { fontSize: 14, color: '#64748B', fontWeight: '600', marginLeft: 2, marginTop: 6 },
   
   // 💰 CLAIM POINT BUTTON STYLES
   claimBtn: { backgroundColor: '#EAB308', padding: 14, borderRadius: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', shadowColor: '#EAB308', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 0 },

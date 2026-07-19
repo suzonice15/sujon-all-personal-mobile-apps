@@ -1,6 +1,11 @@
 import { getDB } from './db';
 import { daily_bonus_coin } from '../config/url';
 
+const getLocalDate = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 const localNow = () => {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, '0');
@@ -67,7 +72,7 @@ export const claimAllPending = async () => {
 };
 
 export const claimDailyCoinPending = async () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDate();
   const contentId = 'daily_coin_' + today;
   const existing = await getPendingByContent(contentId);
   if (existing) return { added: false };

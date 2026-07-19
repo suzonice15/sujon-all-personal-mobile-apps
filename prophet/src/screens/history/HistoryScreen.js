@@ -9,6 +9,7 @@ import { getTotalWithdraw } from '../../db/withdraw';
 import { toBn } from '../../utils/helper';
 import AdBanner from '../../components/ads/AdBanner';
 import useAdInterstitial from '../../components/ads/AdInterstitial';
+import AdNative from '../../components/ads/AdNative';
 
 const historyOptions = [
   {
@@ -136,11 +137,11 @@ export default function HistoryScreen({ navigation }) {
     <SafeAreaView style={s.container}>
       <View style={{ flex: 1 }}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={s.headerSection}>
+          {/* <View style={s.headerSection}>
           <MaterialIcons name="history" size={40} color={colors.headerBackground} />
           <Text style={s.headerTitle}>হিস্টোরি</Text>
           <Text style={s.headerSubtitle}>আপনার সকল লেনদেন ও অর্জনের বিবরণ</Text>
-        </View>
+        </View> */}
 
         <View style={s.balanceCard}>
           <View style={s.balanceHeader}>
@@ -202,6 +203,8 @@ export default function HistoryScreen({ navigation }) {
           </TouchableOpacity>
         ))}
         </ScrollView>
+                <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+
         <AdBanner />
       </View>
     </SafeAreaView>
@@ -217,7 +220,7 @@ const styles = StyleSheet.create({
 
 const dynStyles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  headerSection: { alignItems: 'center', paddingTop: 20, paddingBottom: 10 },
+  headerSection: { alignItems: 'center', paddingTop: 5, paddingBottom: 0 },
   headerTitle: { fontSize: 24, fontWeight: 'bold', color: colors.text, marginTop: 8 },
   headerSubtitle: { fontSize: 13, color: colors.muted, marginTop: 4 },
   balanceCard: {

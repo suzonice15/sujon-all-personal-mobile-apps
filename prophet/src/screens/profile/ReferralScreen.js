@@ -10,6 +10,7 @@ import { getReferralCache } from '../../db/referral';
 import { apps_title, published_app_slug } from '../../config/url';
 import { toBn } from '../../utils/helper';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 
 export default function ReferralScreen({ navigation }) {
   const { colors } = usePaperTheme();
@@ -139,7 +140,7 @@ https://play.google.com/store/apps/details?id=${published_app_slug}${
               <MaterialIcons name="person" size={16} color="#4F46E5" />
               <Text style={s.referrerLabel}>আপনাকে রেফার করেছেন</Text>
               <Text style={s.referrerName}>{referredBy.name}</Text>
-              {referredBy.phone ? <Text style={s.referrerPhone}>{referredBy.phone}</Text> : null}
+              
             </View>
           )}
 
@@ -158,6 +159,8 @@ https://play.google.com/store/apps/details?id=${published_app_slug}${
             </TouchableOpacity>
           ))}
         </ScrollView>
+                          <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+        
         <AdBanner />
       </View>
     </SafeAreaView>

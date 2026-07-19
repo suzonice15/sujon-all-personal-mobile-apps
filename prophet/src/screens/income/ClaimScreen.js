@@ -14,6 +14,7 @@ import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settin
 import { toBn } from '../../utils/helper';
 import AdBanner from '../../components/ads/AdBanner';
 import useAdRewarded from '../../components/ads/AdRewarded';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 import AdNative from '../../components/ads/AdNative';
 
 export default function ClaimScreen({ navigation }) {
@@ -101,6 +102,15 @@ export default function ClaimScreen({ navigation }) {
   };
 
   const { showAd: showRewarded } = useAdRewarded(onEarnedClaim);
+  const { showAd: showInterstitial, isLoaded: interstitialLoaded } = useAdInterstitial();
+  const entryAdShown = useRef(false);
+
+  useFocusEffect(useCallback(() => {
+    if (interstitialLoaded && !entryAdShown.current) {
+      entryAdShown.current = true;
+      showInterstitial();
+    }
+  }, [interstitialLoaded]));
 
   const handleClaim = async (id) => {
     if (claimingId || countdown > 0) return;

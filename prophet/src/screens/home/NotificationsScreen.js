@@ -1,10 +1,10 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, useLayoutEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import { getDB } from '../../db/db';
-import { markAsRead } from '../../db/notifications';
+import { markAsRead, deleteAllNotifications } from '../../db/notifications';
 import { useNotifications } from '../../context/NotificationsContext';
 import AdBanner from '../../components/ads/AdBanner';
 import AdNative from '../../components/ads/AdNative';
@@ -33,6 +33,36 @@ export default function NotificationsScreen() {
   const s = styles(colors);
   const [notifications, setNotifications] = useState([]);
   const { refresh } = useNotifications();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => notifications.length > 0 ? (
+        <TouchableOpacity onPress={handleDeleteAll} style={{ marginRight: 10 }}>
+          <MaterialIcons name="delete-sweep" size={24} color="#fff" />
+        </TouchableOpacity>
+      ) : null,
+    });
+  }, [navigation, colors, notifications]);
+
+  const handleDeleteAll = () => {
+    if (notifications.length === 0) return;
+    Alert.alert(
+      'সব নোটিফিকেশন মুছবেন?',
+      'এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।',
+      [
+        { text: 'বাতিল', style: 'cancel' },
+        {
+          text: 'মুছুন',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteAllNotifications();
+            await refresh();
+            setNotifications([]);
+          },
+        },
+      ],
+    );
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -73,7 +103,7 @@ export default function NotificationsScreen() {
       </View>
       <View style={s.textBox}>
         <Text style={[s.title, !item.is_read && s.unreadTitle]}>{item.title}</Text>
-        {item.body ? <Text style={s.body} numberOfLines={1}>{item.body}</Text> : null}
+        {item.body ? <Text style={s.body} numberOfLines={4}>{item.body}</Text> : null}
         <Text style={s.date}>{formatTime(item.created_at)}</Text>
       </View>
       {!item.is_read && <View style={s.dot} />}
@@ -123,7 +153,7 @@ const styles = (colors) => StyleSheet.create({
   textBox: { flex: 1 },
   title: { fontSize: 14, fontWeight: '600', color: colors.onSurface },
   unreadTitle: { fontWeight: '800', color: colors.onSurface },
-  body: { fontSize: 12, color: colors.text, marginTop: 2, lineHeight: 18 },
+  body: { fontSize: 13, color: colors.text, marginTop: 4, lineHeight: 20 },
   date: {
     fontSize: 11, color: colors.muted, marginTop: 4,
     backgroundColor: colors.muted + '12',

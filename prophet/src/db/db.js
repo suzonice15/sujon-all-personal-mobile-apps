@@ -32,6 +32,7 @@ export const initDB = async () => {
   try { await db.executeSql('ALTER TABLE settings ADD COLUMN sync_interval INTEGER DEFAULT 60'); } catch (e) {}
   try { await db.executeSql('ALTER TABLE settings ADD COLUMN last_sync_at INTEGER DEFAULT 0'); } catch (e) {}
   try { await db.executeSql("ALTER TABLE settings ADD COLUMN app_settings_json TEXT DEFAULT '{}'"); } catch (e) {}
+  try { await db.executeSql('ALTER TABLE settings ADD COLUMN interstitial_cooldown INTEGER DEFAULT 90000'); } catch (e) {}
   try { await db.executeSql("ALTER TABLE settings ADD COLUMN auth_token TEXT DEFAULT ''"); } catch (e) {}
   try { await db.executeSql("ALTER TABLE settings ADD COLUMN last_visit_date TEXT DEFAULT ''"); } catch (e) {}
   await db.executeSql('INSERT OR IGNORE INTO settings (id, dark_mode, cooldown_seconds) VALUES (1, 0, 180)');

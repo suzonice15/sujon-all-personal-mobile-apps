@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import RenderHtml from 'react-native-render-html';
 import { useTheme } from 'react-native-paper';
 import { getAllAppSettings } from '../../db/appSettings';
+import { ADMOB_ENABLED } from '../../config/url';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 
 const { width } = Dimensions.get('window');
 
@@ -13,6 +16,15 @@ export default function PrivacyScreen() {
   const [settings, setSettings] = useState(null);
   const isDark = dark;
   const s = styles(colors);
+  const entryShown = useRef(false);
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
+
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
 
   useEffect(() => {
     getAllAppSettings().then(setSettings);
@@ -29,6 +41,9 @@ export default function PrivacyScreen() {
       <View style={s.emptyWrap}>
         <MaterialIcons name="privacy-tip" size={64} color={colors.primary} />
         <Text style={s.emptyText}>প্রাইভেসি পলিসি শীঘ্রই যোগ করা হবে</Text>
+               <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+      
+      <AdBanner />
       </View>
     );
   }
@@ -57,6 +72,8 @@ export default function PrivacyScreen() {
           }}
         />
       </ScrollView>
+                                <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+      
       <AdBanner />
     </View>
   );

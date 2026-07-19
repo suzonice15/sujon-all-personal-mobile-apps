@@ -49,3 +49,8 @@ export const deleteNotificationByReference = async (referenceId) => {
   const db = await getDB();
   await db.executeSql('DELETE FROM notifications WHERE reference_id = ?', [referenceId]);
 };
+
+export const deleteAllNotifications = async () => {
+  const db = await getDB();
+  await db.executeSql('DELETE FROM notifications');
+};

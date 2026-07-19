@@ -1,6 +1,11 @@
 import { getDB } from './db';
 import DeviceInfo from 'react-native-device-info';
 
+const getLocalDate = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 const localNow = () => {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, '0');
@@ -14,7 +19,7 @@ export const getDeviceId = async () => {
 export const claimDailyBonus = async () => {
   const db = await getDB();
   const deviceId = await getDeviceId();
-  const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+  const today = getLocalDate(); // 'YYYY-MM-DD'
 
   const [res] = await db.executeSql(
     `SELECT id FROM earning_history WHERE device_id = ? AND content_id = -1 AND date(earned_at) = ?`,
@@ -32,7 +37,7 @@ export const claimDailyBonus = async () => {
 export const hasClaimedAdToday = async () => {
   const db = await getDB();
   const deviceId = await getDeviceId();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDate();
   const [res] = await db.executeSql(
     `SELECT id FROM earning_history WHERE device_id = ? AND content_id = 2000 AND date(earned_at) = ?`,
     [deviceId, today]
@@ -81,7 +86,7 @@ export const getTotalPoints = async () => {
 export const getTodayEarnings = async () => {
   const db = await getDB();
   const deviceId = await getDeviceId();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDate();
   const [res] = await db.executeSql(
     `SELECT SUM(points) as total FROM earning_history WHERE device_id = ? AND date(earned_at) = ?`,
     [deviceId, today]
