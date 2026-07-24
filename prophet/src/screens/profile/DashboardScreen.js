@@ -8,7 +8,7 @@ import { Alert } from 'react-native';
 import { usePoints } from '../../context/PointsContext';
 import { useCoins } from '../../context/CoinsContext';
 import useSyncWithCooldown from '../../hooks/useSyncWithCooldown';
-import { getTodayEarnings } from '../../db/earnings';
+import { getTodayEarnings, getDeviceId } from '../../db/earnings';
 import { getTodayCoins, getTodayCoinHistoryCount, getTodayCommission } from '../../db/coins';
 import { getPendingCount } from '../../db/claims';
 import { getPendingBoxesCount } from '../../db/adBoxes';
@@ -39,6 +39,7 @@ export default function DashboardScreen({ navigation }) {
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingBoxes, setPendingBoxes] = useState(0);
   const [totalWithdraw, setTotalWithdraw] = useState(0);
+  const [deviceId, setDeviceId] = useState('');
   const [visible, setVisible] = useState({ coin: false, point: false, income: false, withdraw: false });
   const timers = useRef({});
   const pendingKey = useRef(null);
@@ -121,6 +122,7 @@ export default function DashboardScreen({ navigation }) {
     const u = await getLoggedInUser();
     if (!u) { navigation.navigate('Login'); return; }
     setUser(u);
+    setDeviceId(await getDeviceId());
     await refreshCoins();
     await refreshPoints();
     setTodayPts(await getTodayEarnings());
@@ -164,6 +166,10 @@ export default function DashboardScreen({ navigation }) {
               <View style={s.infoRow}>
                 <MaterialIcons name="location-on" size={10} color="rgba(255,255,255,0.6)" />
                 <Text style={s.infoText} numberOfLines={1}>{user?.address || 'ঠিকানা দিন'}</Text>
+              </View>
+              <View style={s.infoRow}>
+                <MaterialIcons name="phone-android" size={10} color="rgba(255,255,255,0.6)" />
+                <Text style={s.infoText} numberOfLines={1}>{deviceId || 'Loading...'}</Text>
               </View>
             </View>
             <TouchableOpacity style={s.editBtn} onPress={() => navigation.navigate('EditProfile', { user })}>
@@ -244,7 +250,38 @@ export default function DashboardScreen({ navigation }) {
           </View>
         </View>
 
-     
+     <TouchableOpacity style={s.referBtn} onPress={handleSync} activeOpacity={0.7}>
+          <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.primary + '20', justifyContent: 'center', alignItems: 'center' }}>
+            <MaterialIcons name="sync" size={20} color={colors.primary} />
+          </View>
+          <Text style={s.referBtnText}>{syncing ? 'সিঙ্ক হচ্ছে...' : 'কয়েন সার্ভারে পাঠান'}</Text>
+          {syncing ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <MaterialIcons name="chevron-right" size={18} color={colors.muted} />
+          )}
+        </TouchableOpacity>
+        {syncMsg && (
+          <View style={{ paddingHorizontal: 4, marginTop: 4, marginLeft: 4 }}>
+            <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
+          </View>
+        )}
+
+        <TouchableOpacity style={s.referBtn} onPress={() => navigation.navigate('Referral')} activeOpacity={0.7}>
+          <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#4F46E515', justifyContent: 'center', alignItems: 'center' }}>
+            <MaterialIcons name="people-alt" size={20} color="#4F46E5" />
+          </View>
+          <Text style={s.referBtnText}>রেফারেল সিস্টেম</Text>
+          <MaterialIcons name="chevron-right" size={18} color="#9CA3AF" />
+        </TouchableOpacity>
+
+         {user && (
+          <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
+            <MaterialIcons name="logout" size={18} color="#EF4444" />
+            <Text style={s.logoutText}>লগআউট</Text>
+          </TouchableOpacity>
+        )}
+
 
         <View style={s.menuSection}>
           <Text style={s.menuTitle}>কয়েন সংগ্রহ</Text>
@@ -270,38 +307,9 @@ export default function DashboardScreen({ navigation }) {
           </View>
         </View>
 
-        <TouchableOpacity style={s.referBtn} onPress={handleSync} activeOpacity={0.7}>
-          <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.primary + '20', justifyContent: 'center', alignItems: 'center' }}>
-            <MaterialIcons name="sync" size={20} color={colors.primary} />
-          </View>
-          <Text style={s.referBtnText}>{syncing ? 'সিঙ্ক হচ্ছে...' : 'কয়েন সার্ভারে পাঠান'}</Text>
-          {syncing ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <MaterialIcons name="chevron-right" size={18} color={colors.muted} />
-          )}
-        </TouchableOpacity>
-        {syncMsg && (
-          <View style={{ paddingHorizontal: 4, marginTop: 4, marginLeft: 4 }}>
-            <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
-          </View>
-        )}
+        
 
-        <TouchableOpacity style={s.referBtn} onPress={() => navigation.navigate('Referral')} activeOpacity={0.7}>
-          <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#4F46E515', justifyContent: 'center', alignItems: 'center' }}>
-            <MaterialIcons name="people-alt" size={20} color="#4F46E5" />
-          </View>
-          <Text style={s.referBtnText}>রেফারেল সিস্টেম</Text>
-          <MaterialIcons name="chevron-right" size={18} color="#9CA3AF" />
-        </TouchableOpacity>
-
-        {user && (
-          <TouchableOpacity style={s.logoutBtn} onPress={handleLogout}>
-            <MaterialIcons name="logout" size={18} color="#EF4444" />
-            <Text style={s.logoutText}>লগআউট</Text>
-          </TouchableOpacity>
-        )}
-
+       
         <View style={s.menuSection}>
           <Text style={s.menuTitle}>দ্রুত লিংক</Text>
           <View style={s.menuGrid}>

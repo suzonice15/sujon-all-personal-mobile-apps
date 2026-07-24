@@ -33,6 +33,11 @@ export default function AdNative({ style }) {
 
   return (
     <NativeAdView style={[s.container, style]} nativeAd={nativeAd}>
+      <View style={s.adLabelWrap}>
+        <View style={s.adLabel}>
+          <Text style={s.adLabelText}>Ad</Text>
+        </View>
+      </View>
       <NativeMediaView style={s.media} />
       <View style={s.content}>
         <View style={s.header}>
@@ -70,6 +75,24 @@ const s = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  adLabelWrap: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 8,
+    paddingTop: 4,
+  },
+  adLabel: {
+    backgroundColor: '#9CA3AF',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  adLabelText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   media: {
     width: '100%',

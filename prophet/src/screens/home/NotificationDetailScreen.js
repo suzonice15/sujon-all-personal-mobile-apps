@@ -5,6 +5,7 @@ import { useTheme } from 'react-native-paper';
 import { ADMOB_ENABLED } from '../../config/url';
 import AdBanner from '../../components/ads/AdBanner';
 import useAdInterstitial from '../../components/ads/AdInterstitial';
+import AdNative from '../../components/ads/AdNative';
 
 const bnMonths = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
 
@@ -35,6 +36,8 @@ export default function NotificationDetailScreen({ route }) {
     <SafeAreaView style={s.container}>
       <View style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
+                                    <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+          
           <View style={s.iconRow}>
             <View style={s.iconCircle}>
               <MaterialIcons name={item.type === 'bonus' ? 'emoji-events' : 'notifications'} size={32} color="#fff" />

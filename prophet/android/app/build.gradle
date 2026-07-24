@@ -3,7 +3,7 @@ apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 project.ext.vectoricons = [
-    iconFontNames: ['MaterialIcons.ttf', 'FontAwesome.ttf', 'Ionicons.ttf']
+    iconFontNames: ['MaterialIcons.ttf']
 ]
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
@@ -63,7 +63,7 @@ react {
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
   
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -85,11 +85,20 @@ android {
 
     namespace "com.prophet"
     defaultConfig {
-        applicationId "com.prophetlife"
+        // applicationId "com.prophetlife" // prophet
+        applicationId "com.prophetsunnat"  // prophet sunnat
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+    }
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a"
+            universalApk true
+        }
     }
     signingConfigs {
         debug {
@@ -135,6 +144,11 @@ dependencies {
     implementation 'com.google.ads.mediation:facebook:6.18.0.0'
     implementation 'com.google.ads.mediation:unity:4.12.0.0'
     implementation 'com.google.ads.mediation:applovin:13.0.1.0'
+
+    // Required by mediation adapters above
+    implementation 'com.facebook.android:audience-network-sdk:6.18.0'
+    implementation 'com.unity3d.ads:unity-ads:4.12.0'
+    implementation 'com.applovin:applovin-sdk:13.0.1'
 }
 
 

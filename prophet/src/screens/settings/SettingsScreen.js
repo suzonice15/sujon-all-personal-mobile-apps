@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, Switch, Linking, Modal, Share, ActivityIndicator,
@@ -6,9 +6,8 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
 import AdBanner from '../../components/ads/AdBanner';
-import useAdInterstitial from '../../components/ads/AdInterstitial';
 import useSyncWithCooldown from '../../hooks/useSyncWithCooldown';
-import { published_app_slug, apps_title, email, ADMOB_ENABLED } from '../../config/url';
+import { published_app_slug, apps_title, email } from '../../config/url';
 import AdNative from '../../components/ads/AdNative';
 
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
@@ -28,36 +27,8 @@ const SectionTitle = ({ title, isDark }) => (
 );
 
 export default function SettingsScreen({ navigation }) {
-  const [notifications, setNotifications] = useState(true);
-  const [serverSettings, setServerSettings] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const { isDark, toggleTheme } = useTheme();
-  const { syncing, syncMsg, handleSync } = useSyncWithCooldown();
-  const entryShown = useRef(false);
-  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
-
-  useEffect(() => {
-    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
-      entryShown.current = true;
-      showInterstitial();
-    }
-  }, [isLoaded]);
-
-  const loadServerSettings = async () => {
-    try {
-      const data = await getAllAppSettings();
-      console.log('Server Settings:', data);
-      setServerSettings(data);
-      setShowModal(true);
-    } catch (e) {
-      console.log('loadServerSettings error:', e.message);
-    }
-  };
-
-  
-
-  console.log('Server Settings:', serverSettings);
-
+  const [notifications, setNotifications] = useState(true); 
+   const { isDark, toggleTheme } = useTheme(); 
   return (
     <View style={styles(isDark).container}>
       <ScrollView contentContainerStyle={styles(isDark).content}>
@@ -110,54 +81,9 @@ export default function SettingsScreen({ navigation }) {
           })} />
         </View>
 
-        {/* <SectionTitle title="সার্ভার সেটিংস" isDark={isDark} />
-        <View style={styles(isDark).card}>
-          <SettingItem icon="cloud" label="সার্ভার থেকে সেটিংস দেখুন" isDark={isDark} onPress={loadServerSettings} />
-        </View> */}
+     
 
-        {/* <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-          <View style={styles(isDark).modalOverlay}>
-            <View style={styles(isDark).modalContent}>
-              <Text style={styles(isDark).modalTitle}>সার্ভার সেটিংস</Text>
-              <ScrollView style={{ maxHeight: 400 }}>
-                {serverSettings && Object.entries(serverSettings).map(([key, value]) => (
-                  <View key={key} style={styles(isDark).modalRow}>
-                    <Text style={styles(isDark).modalKey}>{key}</Text>
-                    <Text style={styles(isDark).modalValue}>{value}</Text>
-                  </View>
-                ))}
-                {serverSettings && Object.keys(serverSettings).length === 0 && (
-                  <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>কোনো সেটিংস নেই</Text>
-                )}
-              </ScrollView>
-              <TouchableOpacity style={styles(isDark).modalClose} onPress={() => setShowModal(false)}>
-                <Text style={styles(isDark).modalCloseText}>বন্ধ করুন</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal> */}
-
-       <SectionTitle title="কয়েন সার্ভারে পাঠান" isDark={isDark} />
-        <TouchableOpacity
-          style={[styles(isDark).syncBtn, isDark && { borderColor: '#4F46E540', backgroundColor: '#4F46E515' }]}
-          onPress={handleSync}
-          activeOpacity={0.7}
-        >
-          <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#4F46E520', justifyContent: 'center', alignItems: 'center' }}>
-            <MaterialIcons name="sync" size={20} color="#4F46E5" />
-          </View>
-          <Text style={styles(isDark).syncBtnText}>{syncing ? 'সিঙ্ক হচ্ছে...' : 'কয়েন সার্ভারে পাঠান'}</Text>
-          {syncing ? (
-            <ActivityIndicator size="small" color="#4F46E5" />
-          ) : (
-            <MaterialIcons name="chevron-right" size={18} color="#9CA3AF" />
-          )}
-        </TouchableOpacity>
-        {syncMsg && (
-          <View style={{ paddingLeft: 4, marginTop: 4 }}>
-            <Text style={{ fontSize: 12, color: '#22C55E' }}>{syncMsg}</Text>
-          </View>
-        )}
+     
 
         <SectionTitle title="সাপোর্ট" isDark={isDark} />
         <View style={styles(isDark).card}>

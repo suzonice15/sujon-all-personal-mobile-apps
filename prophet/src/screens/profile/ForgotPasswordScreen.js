@@ -12,6 +12,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1=email, 2=otp, 3=password
   const [timer, setTimer] = useState(0);
@@ -159,14 +160,19 @@ export default function ForgotPasswordScreen({ navigation }) {
               <Text style={s.title}>নতুন পাসওয়ার্ড</Text>
               <Text style={s.subtitle}>আপনার নতুন পাসওয়ার্ড লিখুন</Text>
 
-              <TextInput
-                style={s.input}
-                placeholder="নতুন পাসওয়ার্ড"
-                placeholderTextColor={colors.onSurface + '66'}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
+              <View style={s.passwordRow}>
+                <TextInput
+                  style={[s.input, { flex: 1, marginBottom: 0 }]}
+                  placeholder="নতুন পাসওয়ার্ড"
+                  placeholderTextColor={colors.onSurface + '66'}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity style={s.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
+                  <MaterialIcons name={showPassword ? 'visibility' : 'visibility-off'} size={20} color={colors.onSurface + '88'} />
+                </TouchableOpacity>
+              </View>
 
               <TouchableOpacity style={s.btn} onPress={handleResetPassword} disabled={loading}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>পাসওয়ার্ড রিসেট ও লগইন</Text>}
@@ -193,6 +199,11 @@ const styles = (colors) => StyleSheet.create({
     borderWidth: 1, borderColor: colors.surface, borderRadius: 12,
     padding: 14, fontSize: 15, color: colors.onSurface, marginBottom: 14, backgroundColor: colors.surface,
   },
+  passwordRow: {
+    flexDirection: 'row', alignItems: 'center', marginBottom: 14,
+    borderWidth: 1, borderColor: colors.surface, borderRadius: 12, backgroundColor: colors.surface,
+  },
+  eyeBtn: { paddingHorizontal: 14 },
   btn: { backgroundColor: colors.primary, borderRadius: 12, padding: 15, alignItems: 'center', marginTop: 6, marginBottom: 18 },
   btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   link: { textAlign: 'center', color: colors.primary, fontWeight: '600', fontSize: 14, marginTop: 8 },

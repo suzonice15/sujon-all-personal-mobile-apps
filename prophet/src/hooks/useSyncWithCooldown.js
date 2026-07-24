@@ -1,23 +1,65 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { getLastSyncAt, setLastSyncAt } from '../db/settings';
 import { syncCoinsToServer, syncPointsToServer } from '../db/sync';
 import { saveReferralCache, insertReferralCommissions } from '../db/referral';
 import { getReferralInfo, getReferralHistory, getLeaderboard, getReferralCommissions, markCommissionsMoved } from '../api/userApi';
 import { getDeviceId } from '../db/earnings';
 
-const ONE_HOUR = 60 * 60 * 1000;
+const FIVE_MINUTES = 5 * 60 * 1000;
 
 export default function useSyncWithCooldown() {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState(null);
+  const intervalRef = useRef(null);
+
+  const formatCooldown = (ms) => {
+    const totalSec = Math.ceil(ms / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    if (min > 0) return `${min} মিনিট ${sec} সেকেন্ড`;
+    return `${sec} সেকেন্ড`;
+  };
+
+  const startCountdown = useCallback(async () => {
+    const lastSync = await getLastSyncAt();
+    const elapsed = Date.now() - lastSync;
+    const remaining = Math.max(0, FIVE_MINUTES - elapsed);
+
+    if (remaining <= 0) {
+      setSyncMsg(null);
+      return;
+    }
+
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    const update = () => {
+      const left = Math.max(0, FIVE_MINUTES - (Date.now() - lastSync));
+      if (left <= 0) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+        setSyncMsg(null);
+        return;
+      }
+      setSyncMsg(`আবার সিঙ্ক করতে ${formatCooldown(left)} অপেক্ষা করুন`);
+    };
+
+    update();
+    intervalRef.current = setInterval(update, 1000);
+  }, []);
+
+  useEffect(() => {
+    startCountdown();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [startCountdown]);
 
   const handleSync = useCallback(async () => {
     const lastSync = await getLastSyncAt();
     const now = Date.now();
-    if (now - lastSync < ONE_HOUR) {
-      const remaining = Math.ceil((ONE_HOUR - (now - lastSync)) / 60000);
-      setSyncMsg(`আবার সিঙ্ক করতে ${remaining} মিনিট অপেক্ষা করুন`);
-      // return;
+    if (now - lastSync < FIVE_MINUTES) {
+      startCountdown();
+      return;
     }
 
     setSyncing(true);
@@ -46,14 +88,12 @@ export default function useSyncWithCooldown() {
       await saveReferralCache('leaderboard', leader.data);
     }
 
-    // Fetch referral commissions (pending is_mobile_moved=0 records), save locally, mark moved
     const commissions = await getReferralCommissions(deviceId).catch(() => null);
     if (commissions?.success && commissions?.data) {
       const coinComms = commissions.data.coin_commissions || [];
       const pointComms = commissions.data.point_commissions || [];
       await insertReferralCommissions(coinComms, pointComms, deviceId);
 
-      // Mark them as moved on server
       const markRecords = [
         ...coinComms.map(r => ({ type: 'coin', id: r.id })),
         ...pointComms.map(r => ({ type: 'point', id: r.id })),
@@ -72,7 +112,9 @@ export default function useSyncWithCooldown() {
     }
     setSyncMsg(msg);
     setSyncing(false);
-  }, []);
+
+    startCountdown();
+  }, [startCountdown]);
 
   return { syncing, syncMsg, handleSync };
 }

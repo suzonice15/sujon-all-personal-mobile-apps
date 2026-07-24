@@ -3,7 +3,7 @@ import { apps_slug, api_url } from '../config/url';
 
 export const registerUser = async (userData) => {
   try {
-    const res = await fetch(`${api_url}/register`, {
+    const res = await fetch(`${api_url}/v2/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...userData, apps: apps_slug }),

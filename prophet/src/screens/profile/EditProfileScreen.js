@@ -50,7 +50,7 @@ export default function EditProfileScreen({ navigation, route }) {
       ToastAndroid.show('সব তথ্য পূরণ করুন', ToastAndroid.SHORT); return;
     }
     setLoading(true);
-    await updateUser(user.id, name.trim(), newPassword || null, phone.trim(), address.trim(), gender, districtId);
+    await updateUser(user.id, name.trim(), newPassword || null, phone.trim(), address.trim(), gender, districtId,user.email);
     setLoading(false);
     ToastAndroid.show('প্রোফাইল আপডেট হয়েছে', ToastAndroid.SHORT);
     navigation.goBack();

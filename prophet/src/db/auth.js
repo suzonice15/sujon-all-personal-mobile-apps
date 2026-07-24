@@ -117,7 +117,7 @@ export const getLoggedInUser = async () => {
   return res.rows.item(0);
 };
 
-export const updateUser = async (userId, name, newPassword, phone, address, gender, districtId = 0) => {
+export const updateUser = async (userId, name, newPassword, phone, address, gender, districtId = 0,email=null) => {
   const db = await getDB();
   const deviceId = await getDeviceId();
 
@@ -128,6 +128,7 @@ export const updateUser = async (userId, name, newPassword, phone, address, gend
       name, phone, gender, address,
       district_id: districtId,
       password: newPassword || undefined,
+      email:email
     });
   } catch (e) {}
 
