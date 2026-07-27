@@ -22,6 +22,18 @@ function CartBadge({ count }) {
 
 export default function BottomTabNavigator() {
   const insets = useSafeAreaInsets();
+  const tabBarStyle = {
+    height: Platform.OS === 'android' ? 65 + insets.bottom : 65,
+    backgroundColor: '#fff',
+    borderTopWidth: 0,
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    paddingBottom: Platform.OS === 'android' ? insets.bottom + 8 : 8,
+    paddingTop: 6,
+  };
 
   return (
     <Tab.Navigator
@@ -31,18 +43,7 @@ export default function BottomTabNavigator() {
         tabBarActiveTintColor: '#4F46E5',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginTop: 2 },
-        tabBarStyle: {
-          height: Platform.OS === 'android' ? 65 + insets.bottom : 65,
-          backgroundColor: '#fff',
-          borderTopWidth: 0,
-          elevation: 12,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          paddingBottom: Platform.OS === 'android' ? insets.bottom + 8 : 8,
-          paddingTop: 6,
-        },
+        tabBarStyle,
         tabBarIcon: ({ color, size }) => {
           const icons = {
             Home: 'home',

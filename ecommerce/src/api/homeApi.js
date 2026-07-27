@@ -22,5 +22,9 @@ export const searchProducts = (query) => {
   return api.get(`/search/${query}`);
 };
 
+export const getProductByName = (name) => {
+  return api.get(`/product/${name}`);
+};
+
 
  

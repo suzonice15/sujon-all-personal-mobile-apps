@@ -5,7 +5,6 @@ import {
   FlatList,
   StyleSheet,
   RefreshControl,
-  SafeAreaView,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getSliders, getHomeCategory, getHomeProduct } from '../../api/homeApi';
@@ -65,7 +64,7 @@ export default function HomeScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
+    <View style={[s.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={products}
         keyExtractor={(item, index) => index.toString()}
@@ -98,6 +97,6 @@ export default function HomeScreen({ navigation }) {
           </View>
         )}
       />
-    </SafeAreaView>
+    </View>
   );
 }

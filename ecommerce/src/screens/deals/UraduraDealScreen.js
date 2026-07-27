@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme as usePaperTheme } from 'react-native-paper';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import { getHomeProduct } from '../../api/homeApi';
 import ProductCard from '../../components/ProductCard';
 
@@ -9,6 +11,12 @@ export default function UraduraDealScreen({ navigation }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { colors } = usePaperTheme();
+
+  useFocusEffect(
+    useCallback(() => {
+      navigation.getParent()?.getParent()?.setOptions({ tabBarStyle: undefined });
+    }, [])
+  );
 
   useEffect(() => {
     loadDeals();

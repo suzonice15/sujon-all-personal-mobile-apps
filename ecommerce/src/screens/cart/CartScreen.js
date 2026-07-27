@@ -2,11 +2,19 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import { useCart } from '../../context/CartContext';
 
 export default function CartScreen({ navigation }) {
   const { items, removeItem, updateQty, clearCart } = useCart();
   const { colors } = useTheme();
+
+  useFocusEffect(
+    useCallback(() => {
+      navigation.getParent()?.getParent()?.setOptions({ tabBarStyle: undefined });
+    }, [])
+  );
 
   const renderItem = ({ item }) => (
     <View style={[s.cartItem, { backgroundColor: colors.surface }]}>

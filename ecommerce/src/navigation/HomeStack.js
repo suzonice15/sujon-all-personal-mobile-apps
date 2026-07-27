@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import { apps_title } from '../config/url';
 import { getHeaderOptions } from './headerOptions';
+import ProductDetailHeader from '../components/ProductDetailHeader';
 
 import HomeScreen from '../screens/home/HomeScreen';
 import SearchProductScreen from '../screens/home/SearchProductScreen';
@@ -16,6 +17,7 @@ import AboutDeveloperScreen from '../screens/settings/AboutDeveloperScreen';
 import PrivacyScreen from '../screens/settings/PrivacyScreen';
 import FeedbackScreen from '../screens/settings/FeedbackScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
+import EmiInfoScreen from '../screens/product/EmiInfoScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,7 +30,19 @@ export default function HomeStack() {
     <Stack.Navigator screenOptions={{ ...headerOpts, headerShown: true }}>
       <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ title: apps_title }} />
       <Stack.Screen name="SearchProduct" component={SearchProductScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'পণ্যের বিবরণ' }} />
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+        options={({ route }) => ({
+          tabBarStyle: { display: 'none' },
+          header: ({ navigation: nav }) => (
+            <ProductDetailHeader
+              navigation={nav}
+              title={route.params?.product?.product_title}
+            />
+          ),
+        })}
+      />
       <Stack.Screen name="CategoryPage" component={CategoryScreen} options={{ title: 'ক্যাটেগরি' }} />
       <Stack.Screen name="NotificationsMain" component={NotificationsScreen} options={{ title: 'নোটিফিকেশন' }} />
       <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} options={{ title: 'বিস্তারিত' }} />
@@ -37,6 +51,7 @@ export default function HomeStack() {
       <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'প্রাইভেসি পলিসি' }} />
       <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'মতামত দিন' }} />
       <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'সেটিংস' }} />
+      <Stack.Screen name="EmiInfo" component={EmiInfoScreen} options={{ title: 'EMI Information' }} />
     </Stack.Navigator>
   );
 }
