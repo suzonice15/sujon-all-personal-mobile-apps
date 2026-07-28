@@ -8,6 +8,7 @@ import DealStack from './DealStack';
 import CartStack from './CartStack';
 import AccountStack from './AccountStack';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +23,7 @@ function CartBadge({ count }) {
 
 export default function BottomTabNavigator() {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   const tabBarStyle = {
     height: Platform.OS === 'android' ? 65 + insets.bottom : 65,
     backgroundColor: '#fff',
@@ -40,7 +42,7 @@ export default function BottomTabNavigator() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#4F46E5',
+        tabBarActiveTintColor: '#EB592C',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginTop: 2 },
         tabBarStyle,
@@ -81,7 +83,7 @@ export default function BottomTabNavigator() {
       <Tab.Screen
         name="Account"
         component={AccountStack}
-        options={{ tabBarLabel: 'Account' }}
+        options={{ tabBarLabel: user?.name?.trim() || 'Account' }}
       />
     </Tab.Navigator>
   );

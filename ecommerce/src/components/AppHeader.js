@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NotificationBell from './NotificationBell';
 
-export default function AppHeader({ navigation, colors, showMenu }) {
+export default function AppHeader({ navigation, colors, showMenu, title }) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -17,11 +17,22 @@ export default function AppHeader({ navigation, colors, showMenu }) {
         )}
 
         <View style={s.center}>
-          <Image
-            source={require('../assets/images/logo.png')}
-            style={s.logo}
-            resizeMode="contain"
-          />
+          {title ? (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={s.backBtn}>
+              <MaterialIcons name="arrow-back" size={28} color={colors.headerColor} />
+            </TouchableOpacity>
+          ) : null}
+          {title ? (
+            <Text style={[s.titleText, { color: colors.headerColor }]} numberOfLines={1}>
+              {title}
+            </Text>
+          ) : (
+            <Image
+              source={require('../assets/images/logo.png')}
+              style={s.logo}
+              resizeMode="contain"
+            />
+          )}
         </View>
 
         <View style={s.right}>
@@ -51,14 +62,23 @@ const s = StyleSheet.create({
     padding: 8,
     marginRight: 8,
   },
+  backBtn: {
+    padding: 8,
+    marginRight: 4,
+  },
   center: {
     flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 0,
   },
   logo: {
-    // width: 140,
-    height: 45,
+    height: 40,
+  },
+  titleText: {
+    fontSize: 17,
+    fontWeight: '700',
+    flex: 1,
   },
   right: {
     flexDirection: 'row',

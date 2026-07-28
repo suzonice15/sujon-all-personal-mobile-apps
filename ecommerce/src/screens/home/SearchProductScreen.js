@@ -1,27 +1,18 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
-  StyleSheet, ActivityIndicator, Image,
+  StyleSheet, ActivityIndicator, Alert, Image,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NotificationBell from '../../components/NotificationBell';
+import ProductCard from '../../components/ProductCard';
 import { searchProducts } from '../../api/homeApi';
-import { api_image } from '../../config/url';
 
-const toFullUrl = (path, subdir = '') => {
-  if (!path) return null;
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  const base = api_image.endsWith('/') ? api_image.slice(0, -1) : api_image;
-  const prefix = subdir ? (subdir.startsWith('/') ? subdir : '/' + subdir) + '/' : '/';
-  return base + prefix + path;
-};
-
-const imgUrl = (item) => {
-  if (!item.main_image) return null;
-  return toFullUrl(item.main_image, 'products/' + (item.folder || ''));
-};
+const HISTORY_KEY = '@search_history';
+const MAX_HISTORY = 10;
 
 export default function SearchProductScreen({ navigation }) {
   const { colors } = useTheme();
@@ -33,6 +24,47 @@ export default function SearchProductScreen({ navigation }) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [isGridView, setIsGridView] = useState(false);
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  const loadHistory = async () => {
+    try {
+      const data = await AsyncStorage.getItem(HISTORY_KEY);
+      if (data) setHistory(JSON.parse(data));
+    } catch {}
+  };
+
+  const saveHistory = async (newHistory) => {
+    setHistory(newHistory);
+    await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+  };
+
+  const addToHistory = async (term) => {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+    setHistory((prev) => {
+      const filtered = prev.filter((h) => h.toLowerCase() !== trimmed.toLowerCase());
+      const updated = [trimmed, ...filtered].slice(0, MAX_HISTORY);
+      AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const removeFromHistory = async (term) => {
+    const updated = history.filter((h) => h !== term);
+    await saveHistory(updated);
+  };
+
+  const clearAllHistory = () => {
+    Alert.alert('Clear History', 'Remove all search history?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Clear', style: 'destructive', onPress: () => saveHistory([]) },
+    ]);
+  };
 
   const doSearch = useCallback(async (q) => {
     const trimmed = q.trim();
@@ -43,11 +75,13 @@ export default function SearchProductScreen({ navigation }) {
     }
     setLoading(true);
     setSearched(true);
+    await addToHistory(trimmed);
     try {
       const res = await searchProducts(trimmed);
-      const arr = Array.isArray(res) ? res : res?.data && Array.isArray(res.data) ? res.data : [];
+      const arr = Array.isArray(res) ? res : res?.data && Array.isArray(res.data) ? res.data : res?.products && Array.isArray(res.products) ? res.products : [];
       setResults(arr);
-    } catch {
+    } catch (e) {
+      console.log('Search error:', e);
       setResults([]);
     } finally {
       setLoading(false);
@@ -66,30 +100,6 @@ export default function SearchProductScreen({ navigation }) {
     setSearched(false);
     inputRef.current?.focus();
   };
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={s.item} activeOpacity={0.7} onPress={() => navigation.navigate('ProductDetail', { product: item })}>
-      {imgUrl(item) && (
-        <Image source={{ uri: imgUrl(item) }} style={s.itemImage} resizeMode="cover" />
-      )}
-      <View style={s.itemBody}>
-        <Text style={[s.itemTitle, { color: colors.text }]} numberOfLines={2}>
-          {item.product_title}
-        </Text>
-        <View style={s.priceRow}>
-          {item.offerActive === 1 && item.offer_price > 0 ? (
-            <>
-              <Text style={[s.price, { color: colors.primary }]}>৳{item.offer_price}</Text>
-              <Text style={[s.oldPrice, { color: colors.onSurface + '80' }]}>৳{item.product_price}</Text>
-            </>
-          ) : (
-            <Text style={[s.price, { color: colors.primary }]}>৳{item.product_price}</Text>
-          )}
-        </View>
-      </View>
-      <MaterialIcons name="chevron-right" size={22} color={colors.onSurface + '40'} />
-    </TouchableOpacity>
-  );
 
   const s = styles(colors);
 
@@ -129,30 +139,115 @@ export default function SearchProductScreen({ navigation }) {
         </View>
       )}
 
-      {!loading && (
+      {!loading && !query.trim() && history.length > 0 && (
+        <View style={s.historySection}>
+          <View style={s.historyHeader}>
+            <Text style={[s.historyTitle, { color: colors.text }]}>Recent Searches</Text>
+            <TouchableOpacity onPress={clearAllHistory}>
+              <Text style={s.clearAllText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={s.historyChipWrap}>
+            {history.map((h, i) => (
+              <View key={i} style={s.historyChip}>
+                <TouchableOpacity style={s.historyChipTouch} onPress={() => setQuery(h)} activeOpacity={0.7}>
+                  <MaterialIcons name="history" size={15} color="#6B7280" />
+                  <Text style={s.historyChipText} numberOfLines={1}>{h}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => removeFromHistory(h)} style={s.historyChipClose}>
+                  <MaterialIcons name="close" size={15} color="#9CA3AF" />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {!loading && !query.trim() && history.length === 0 && (
+        <View style={s.empty}>
+          <MaterialIcons name="search" size={64} color={colors.onSurface + '25'} />
+          <Text style={[s.emptyText, { color: colors.onSurface + '50' }]}>Type to search products</Text>
+          <Text style={[s.emptySub, { color: colors.onSurface + '30' }]}>Search by product name</Text>
+        </View>
+      )}
+
+      {!loading && query.trim() && (
         <FlatList
+          key={isGridView ? 'grid' : 'list'}
           data={results}
           keyExtractor={(_, i) => i.toString()}
+          numColumns={isGridView ? 2 : undefined}
+          columnWrapperStyle={isGridView ? { gap: 10, paddingHorizontal: 12 } : undefined}
           contentContainerStyle={s.list}
           keyboardShouldPersistTaps="handled"
-          ListEmptyComponent={
-            <View style={s.empty}>
-              <MaterialIcons
-                name={searched ? 'search-off' : 'search'}
-                size={64}
-                color={colors.onSurface + '25'}
-              />
-              <Text style={[s.emptyText, { color: colors.onSurface + '50' }]}>
-                {searched ? 'No products found' : 'Type to search products'}
-              </Text>
-              {!searched && (
-                <Text style={[s.emptySub, { color: colors.onSurface + '30' }]}>
-                  Search by product name
+          ListHeaderComponent={
+            results.length > 0 ? (
+              <View style={s.resultHeader}>
+                <Text style={[s.resultCount, { color: colors.text }]}>
+                  {results.length} {results.length === 1 ? 'product' : 'products'} found
                 </Text>
-              )}
-            </View>
+                <View style={s.viewToggleGroup}>
+                  <TouchableOpacity
+                    style={[s.viewToggleBtn, !isGridView && s.viewToggleActive]}
+                    onPress={() => setIsGridView(false)}
+                  >
+                    <MaterialIcons name="view-list" size={20} color={!isGridView ? '#fff' : colors.text} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[s.viewToggleBtn, isGridView && s.viewToggleActive]}
+                    onPress={() => setIsGridView(true)}
+                  >
+                    <MaterialIcons name="grid-view" size={20} color={isGridView ? '#fff' : colors.text} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : null
           }
-          renderItem={renderItem}
+          ListEmptyComponent={
+            results.length === 0 && searched ? (
+              <View style={s.empty}>
+                <MaterialIcons name="search-off" size={64} color={colors.onSurface + '25'} />
+                <Text style={[s.emptyText, { color: colors.onSurface + '50' }]}>No products found</Text>
+              </View>
+            ) : null
+          }
+          renderItem={({ item, index }) => {
+            if (isGridView) {
+              return (
+                <View style={{ flex: 1 }}>
+                  <ProductCard
+                    item={item}
+                    colors={colors}
+                    onPress={(product) => navigation.navigate('ProductDetail', { product })}
+                  />
+                </View>
+              );
+            }
+            const hasOffer = item.offerActive === 1 && item.offer_price > 0;
+            const price = hasOffer ? item.offer_price : item.product_price;
+            const imgUrl = item.main_image
+              ? `https://www.adminpanel.jncomputerbd.com/products/${item.folder || ''}/${item.main_image}`
+              : null;
+            return (
+              <TouchableOpacity style={s.itemCard} activeOpacity={0.7} onPress={() => navigation.navigate('ProductDetail', { product: item })}>
+                <View style={s.itemCardLeft}>
+                  {imgUrl ? (
+                    <Image source={{ uri: imgUrl }} style={s.itemCardImg} resizeMode="contain" />
+                  ) : (
+                    <View style={[s.itemCardImg, { backgroundColor: colors.onSurface + '10', alignItems: 'center', justifyContent: 'center' }]}>
+                      <MaterialIcons name="image" size={24} color={colors.onSurface + '30'} />
+                    </View>
+                  )}
+                </View>
+                <View style={s.itemCardBody}>
+                  <Text style={[s.itemCardTitle, { color: colors.text }]} numberOfLines={2}>{item.product_title}</Text>
+                  <Text style={[s.itemCardPrice, { color: '#EA580C' }]}>৳{price}</Text>
+                  {hasOffer && <Text style={s.itemCardOldPrice}>৳{item.product_price}</Text>}
+                </View>
+                <MaterialIcons name="chevron-right" size={20} color={colors.onSurface + '30'} />
+              </TouchableOpacity>
+            );
+          }}
         />
       )}
     </View>
@@ -216,48 +311,53 @@ const styles = (colors) => StyleSheet.create({
     marginTop: 4,
     fontSize: 13,
   },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    marginHorizontal: 12,
-    marginTop: 8,
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+  historySection: { flex: 1 },
+  historyHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8,
   },
-  itemImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: colors.onSurface + '10',
+  historyTitle: { fontSize: 15, fontWeight: '700' },
+  clearAllText: { fontSize: 13, fontWeight: '600', color: '#EF4444' },
+  historyChipWrap: {
+    flexDirection: 'row', flexWrap: 'wrap',
+    paddingHorizontal: 16, gap: 8,
   },
-  itemBody: {
-    flex: 1,
-    marginLeft: 12,
+  historyChip: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#fff', borderRadius: 20,
+    borderWidth: 1, borderColor: '#E5E7EB',
+    paddingLeft: 10, paddingRight: 4, paddingVertical: 5,
   },
-  itemTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    lineHeight: 18,
-    marginBottom: 4,
+  historyChipTouch: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
   },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  historyChipText: { fontSize: 13, fontWeight: '500', color: '#374151', maxWidth: 140 },
+  historyChipClose: { padding: 3, marginLeft: 2 },
+  resultHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 12,
+    borderBottomWidth: 1, borderBottomColor: '#E5E7EB',
   },
-  price: {
-    fontSize: 15,
-    fontWeight: '800',
+  viewToggleGroup: { flexDirection: 'row', gap: 4 },
+  viewToggleBtn: {
+    padding: 6, borderRadius: 6,
+    borderWidth: 1, borderColor: '#D1D5DB',
   },
-  oldPrice: {
-    fontSize: 12,
-    fontWeight: '500',
-    textDecorationLine: 'line-through',
+  viewToggleActive: { backgroundColor: '#EB592C', borderColor: '#EB592C' },
+  resultCount: { fontSize: 14, fontWeight: '600' },
+  itemCard: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: colors.surface, borderRadius: 12,
+    marginHorizontal: 12, marginTop: 10,
+    padding: 12, gap: 12,
+    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08, shadowRadius: 3,
   },
+  itemCardLeft: { width: 70, height: 70, borderRadius: 8, overflow: 'hidden' },
+  itemCardImg: { width: 70, height: 70, borderRadius: 8 },
+  itemCardBody: { flex: 1 },
+  itemCardTitle: { fontSize: 14, fontWeight: '600', lineHeight: 18 },
+  itemCardPrice: { fontSize: 16, fontWeight: '800', marginTop: 4 },
+  itemCardOldPrice: { fontSize: 12, color: '#9CA3AF', textDecorationLine: 'line-through', marginTop: 2 },
+
 });

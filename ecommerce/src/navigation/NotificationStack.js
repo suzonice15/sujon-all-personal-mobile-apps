@@ -16,8 +16,8 @@ export default function NotificationStack() {
 
   return (
     <Stack.Navigator screenOptions={{ ...baseOpts, headerShown: true }}>
-      <Stack.Screen name="NotificationsMain" component={NotificationsScreen} options={{ ...menuOpts, title: 'নোটিফিকেশন' }} />
-      <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} options={{ title: 'বিস্তারিত' }} />
+      <Stack.Screen name="NotificationsMain" component={NotificationsScreen} options={{ ...menuOpts, title: 'Notifications' }} />
+      <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} options={{ title: 'Details' }} />
     </Stack.Navigator>
   );
 }

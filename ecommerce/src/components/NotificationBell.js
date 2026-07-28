@@ -8,7 +8,7 @@ export default function NotificationBell({ color, onPress }) {
   const navigation = useNavigation();
   const { unread } = useNotifications();
 
-  const handlePress = onPress || (() => navigation.navigate('Notifications'));
+  const handlePress = onPress || (() => navigation.navigate('NotificationsMain'));
 
   return (
     <TouchableOpacity onPress={handlePress} style={{ marginRight: 6 }}>

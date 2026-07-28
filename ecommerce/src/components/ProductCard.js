@@ -13,8 +13,9 @@ const toFullUrl = (path, subdir = '') => {
 };
 
 const imgUrl = (item) => {
-  if (!item.main_image) return null;
-  return toFullUrl(item.main_image, 'products/' + (item.folder || ''));
+  const img = item.main_image || item.image || item.thumbnail;
+  if (!img) return null;
+  return toFullUrl(img, 'products/' + (item.folder || ''));
 };
 
 function ToastAlert({ visible, message }) {
@@ -74,7 +75,7 @@ export default function ProductCard({ item, colors, onPress }) {
     <View style={[s.card, { backgroundColor: colors.surface }]}>
       <TouchableOpacity onPress={() => onPress?.(item)} activeOpacity={0.7}>
         <View>
-          <Image source={{ uri: imgUrl(item) }} style={s.image} resizeMode="cover" />
+          <Image source={{ uri: imgUrl(item) }} style={s.image} resizeMode="contain" />
           {hasOffer && (
             <View style={s.discountBadge}>
               <Text style={s.discountBadgeText}>-{discount}%</Text>
@@ -82,12 +83,12 @@ export default function ProductCard({ item, colors, onPress }) {
           )}
         </View>
         <View style={s.body}>
-          <Text style={[s.title, { color: colors.text }]} numberOfLines={2}>
+          <Text style={[s.title, { color: '#111827' }]} numberOfLines={2}>
             {item.product_title}
           </Text>
           {item.product_price > 0 && (
             <View style={s.priceRow}>
-              <Text style={[s.price, { color: colors.primary }]}>৳{price}</Text>
+              <Text style={[s.price]}>৳{price}</Text>
               {hasOffer && <Text style={s.oldPrice}>৳{item.product_price}</Text>}
             </View>
           )}
@@ -118,7 +119,7 @@ const s = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 12,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
@@ -126,9 +127,9 @@ const s = StyleSheet.create({
   },
   image: { width: '100%', height: 130 },
   body: { padding: 10, paddingBottom: 8 },
-  title: { fontSize: 13, fontWeight: '700', marginBottom: 6, lineHeight: 18 },
+  title: { fontSize: 13, fontWeight: '700', marginBottom: 6, lineHeight: 18, height: 36 },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  price: { fontSize: 15, fontWeight: '800' },
+  price: { fontSize: 16, fontWeight: '800', color: '#EA580C' },
   oldPrice: { fontSize: 12, textDecorationLine: 'line-through', color: '#9CA3AF' },
   discountBadge: {
     position: 'absolute', top: 6, left: 6,

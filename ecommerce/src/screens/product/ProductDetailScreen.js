@@ -2,7 +2,7 @@ import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Image, TouchableOpacity,
   Dimensions, Linking, FlatList, Animated, RefreshControl,
-  Modal, StatusBar,
+  Modal, StatusBar, Platform,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme as usePaperTheme, Snackbar } from 'react-native-paper';
@@ -151,6 +151,34 @@ export default function ProductDetailScreen({ route, navigation }) {
   const [emiModalVisible, setEmiModalVisible] = useState(false);
   const [selectedBankId, setSelectedBankId] = useState(null);
   const [singleEmiRecord, setSingleEmiRecord] = useState(null);
+
+  useLayoutEffect(() => {
+    const parent = navigation.getParent();
+    if (parent) {
+      parent.setOptions({
+        tabBarStyle: { display: 'none' },
+      });
+    }
+    return () => {
+      if (parent) {
+        parent.setOptions({
+          tabBarStyle: {
+            height: Platform.OS === 'android' ? 65 + insets.bottom : 65,
+            backgroundColor: '#fff',
+            borderTopWidth: 0,
+            elevation: 12,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            paddingBottom: Platform.OS === 'android' ? insets.bottom + 8 : 8,
+            paddingTop: 6,
+            display: 'flex',
+          },
+        });
+      }
+    };
+  }, [navigation]);
 
   const p = fullProduct;
   const price = p.discount_price || p.product_price;

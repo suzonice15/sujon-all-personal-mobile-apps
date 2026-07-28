@@ -4,7 +4,7 @@ import { useTheme as usePaperTheme } from 'react-native-paper';
 import { api } from '../../api/client';
 
 const percentCal = (value) => {
-  if (value > 0) return value + ' %';
+  if (value > 0) return value + '%';
   return 'N/A';
 };
 

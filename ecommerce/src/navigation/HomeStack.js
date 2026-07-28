@@ -5,6 +5,7 @@ import { useTheme } from 'react-native-paper';
 import { apps_title } from '../config/url';
 import { getHeaderOptions } from './headerOptions';
 import ProductDetailHeader from '../components/ProductDetailHeader';
+import AppHeader from '../components/AppHeader';
 
 import HomeScreen from '../screens/home/HomeScreen';
 import SearchProductScreen from '../screens/home/SearchProductScreen';
@@ -34,7 +35,6 @@ export default function HomeStack() {
         name="ProductDetail"
         component={ProductDetailScreen}
         options={({ route }) => ({
-          tabBarStyle: { display: 'none' },
           header: ({ navigation: nav }) => (
             <ProductDetailHeader
               navigation={nav}
@@ -43,14 +43,27 @@ export default function HomeStack() {
           ),
         })}
       />
-      <Stack.Screen name="CategoryPage" component={CategoryScreen} options={{ title: 'ক্যাটেগরি' }} />
-      <Stack.Screen name="NotificationsMain" component={NotificationsScreen} options={{ title: 'নোটিফিকেশন' }} />
-      <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} options={{ title: 'বিস্তারিত' }} />
-      <Stack.Screen name="AboutApps" component={AboutAppsScreen} options={{ title: 'অ্যাপ সম্পর্কে' }} />
-      <Stack.Screen name="AboutDeveloper" component={AboutDeveloperScreen} options={{ title: 'ডেভেলপার সম্পর্কে' }} />
-      <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'প্রাইভেসি পলিসি' }} />
-      <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'মতামত দিন' }} />
-      <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'সেটিংস' }} />
+      <Stack.Screen
+        name="CategoryPage"
+        component={CategoryScreen}
+        options={({ route }) => ({
+          header: ({ navigation: nav }) => (
+            <AppHeader
+              navigation={nav}
+              colors={colors}
+              showMenu={false}
+              title={route.params?.category?.category_title || route.params?.category?.name || route.params?.category?.title || 'Category'}
+            />
+          ),
+        })}
+      />
+      <Stack.Screen name="NotificationsMain" component={NotificationsScreen} options={{ title: 'Notifications' }} />
+      <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} options={{ title: 'Details' }} />
+      <Stack.Screen name="AboutApps" component={AboutAppsScreen} options={{ title: 'About App' }} />
+      <Stack.Screen name="AboutDeveloper" component={AboutDeveloperScreen} options={{ title: 'About Developer' }} />
+      <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'Privacy Policy' }} />
+      <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'Feedback' }} />
+      <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'Settings' }} />
       <Stack.Screen name="EmiInfo" component={EmiInfoScreen} options={{ title: 'EMI Information' }} />
     </Stack.Navigator>
   );

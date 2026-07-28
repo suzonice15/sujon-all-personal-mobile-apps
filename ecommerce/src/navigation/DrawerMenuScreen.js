@@ -7,15 +7,14 @@ import { useAuth } from '../context/AuthContext';
  
 const menu = [
   
-  { title: 'অ্যাপ সম্পর্কে', icon: 'info-outline', screen: 'AboutApps', tab: 'Home' },
-  // { title: 'সহযোগিতা করুন', icon: 'volunteer-activism', screen: 'Donation', tab: 'Home' },
-  { title: 'ডেভেলপার সম্পর্কে', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
-  { title: 'অ্যাপ শেয়ার করুন', icon: 'share', action: 'share' },
-  { title: 'অ্যাপ রেটিং দিন', icon: 'star-border', action: 'rate' },
-  { title: 'মতামত দিন', icon: 'feedback', screen: 'Feedback', tab: 'Home' },
-  { title: 'প্রাইভেসি পলিসি', icon: 'lock-outline', screen: 'Privacy', tab: 'Home' },
-  { title: 'আরো অ্যাপ', icon: 'apps', action: 'moreApps' },
-  { title: 'সেটিংস', icon: 'settings', screen: 'SettingInfo', tab: 'Home' },
+  { title: 'About App', icon: 'info-outline', screen: 'AboutApps', tab: 'Home' },
+  { title: 'About Developer', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
+  { title: 'Share App', icon: 'share', action: 'share' },
+  { title: 'Rate App', icon: 'star-border', action: 'rate' },
+  { title: 'Feedback', icon: 'feedback', screen: 'Feedback', tab: 'Home' },
+  { title: 'Privacy Policy', icon: 'lock-outline', screen: 'Privacy', tab: 'Home' },
+  { title: 'More Apps', icon: 'apps', action: 'moreApps' },
+  { title: 'Settings', icon: 'settings', screen: 'SettingInfo', tab: 'Home' },
 ];
 
 export default function DrawerMenuScreen({ navigation }) {
@@ -49,7 +48,7 @@ export default function DrawerMenuScreen({ navigation }) {
         : { screen: item.screen };
       navigation.navigate('Home', params);
     } else if (item.action === 'share') {
-      await Share.share({ message: 'নবীদের গল্প অ্যাপটি ডাউনলোড করুন: https://play.google.com/store/apps/details?id=com.prophet' });
+      await Share.share({ message: 'Download the app: https://play.google.com/store/apps/details?id=com.prophet' });
     } else if (item.action === 'rate') {
       Linking.openURL('market://details?id=com.prophet');
     } else if (item.action === 'moreApps') {
@@ -58,9 +57,9 @@ export default function DrawerMenuScreen({ navigation }) {
   };
 
   const handleLogout = () => {
-    Alert.alert('লগআউট', 'আপনি কি লগআউট করতে চান?', [
-      { text: 'না', style: 'cancel' },
-      { text: 'হ্যাঁ', onPress: async () => { await logout(); ToastAndroid.show('লগআউট সফল হয়েছে', ToastAndroid.SHORT); } },
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'No', style: 'cancel' },
+      { text: 'Yes', onPress: async () => { await logout(); ToastAndroid.show('Logged out successfully', ToastAndroid.SHORT); } },
     ]);
   };
 
@@ -71,12 +70,12 @@ export default function DrawerMenuScreen({ navigation }) {
           {user ? <Text style={s.avatarText}>{user.name?.charAt(0).toUpperCase()}</Text>
             : <MaterialIcons name="person" size={28} color={colors.primary} />}
         </View>
-        <Text style={s.userName}>{user ? user.name : 'অতিথি ব্যবহারকারী'}</Text>
-        <Text style={s.userEmail}>{user ? user.email : 'লগইন করুন'}</Text>
+        <Text style={s.userName}>{user ? user.name : 'Guest User'}</Text>
+        <Text style={s.userEmail}>{user ? user.email : 'Login'}</Text>
       </View>
 
       <View style={s.menuContainer}>
-        <Text style={s.sectionTitle}>ক্যাটেগরিসমূহ</Text>
+        <Text style={s.sectionTitle}>Categories</Text>
         {catLoading ? (
           <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 10 }} />
         ) : (
@@ -106,7 +105,7 @@ export default function DrawerMenuScreen({ navigation }) {
         <TouchableOpacity style={s.menuItem} onPress={user ? handleLogout : () => navigation.navigate('Account', { screen: 'Login' })}>
           <MaterialIcons name={user ? 'logout' : 'login'} size={20} color={user ? colors.danger : colors.text} />
           <Text style={[s.menuText, { color: user ? colors.danger : colors.text }]}>
-            {user ? 'লগআউট' : 'লগইন / নিবন্ধন'}
+            {user ? 'Logout' : 'Login / Register'}
           </Text>
         </TouchableOpacity>
       </View>

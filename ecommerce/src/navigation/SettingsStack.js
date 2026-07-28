@@ -14,9 +14,9 @@ export default function SettingsStack() {
 
   return (
     <Stack.Navigator screenOptions={headerOpts}>
-      <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ title: 'সেটিংস' }} />
-      <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'প্রাইভেসি পলিসি' }} />
-      <Stack.Screen name="Terms" component={TermsScreen} options={{ title: 'ব্যবহারের শর্তাবলী' }} />
+      <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'Privacy Policy' }} />
+      <Stack.Screen name="Terms" component={TermsScreen} options={{ title: 'Terms of Use' }} />
     </Stack.Navigator>
   );
 }

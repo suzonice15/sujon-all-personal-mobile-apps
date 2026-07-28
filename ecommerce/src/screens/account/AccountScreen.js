@@ -48,7 +48,7 @@ export default function AccountScreen({ navigation }) {
         </View>
         <View style={s.profileInfo}>
           <Text style={[s.profileName, { color: colors.text }]}>{user.name || 'User'}</Text>
-          <Text style={[s.profileEmail, { color: colors.onSurface + '60' }]}>{user.email || ''}</Text>
+          <Text style={[s.profileEmail, { color: colors.onSurface + '60' }]}>{user.phone || ''}</Text>
         </View>
         <MaterialIcons name="chevron-right" size={24} color={colors.onSurface + '40'} />
       </TouchableOpacity>

@@ -23,15 +23,15 @@ export default function AccountStack() {
 
   return (
     <Stack.Navigator screenOptions={{ ...headerOpts, headerShown: true }}>
-      <Stack.Screen name="AccountMain" component={AccountScreen} options={{ title: 'আমার অ্যাকাউন্ট' }} />
+      <Stack.Screen name="AccountMain" component={AccountScreen} options={{ title: 'My Account' }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
-      <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'সেটিংস' }} />
-      <Stack.Screen name="AboutApps" component={AboutAppsScreen} options={{ title: 'অ্যাপ সম্পর্কে' }} />
-      <Stack.Screen name="AboutDeveloper" component={AboutDeveloperScreen} options={{ title: 'ডেভেলপার সম্পর্কে' }} />
-      <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'প্রাইভেসি পলিসি' }} />
-      <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'মতামত দিন' }} />
-      <Stack.Screen name="Terms" component={TermsScreen} options={{ title: 'শর্তাবলী' }} />
+      <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <Stack.Screen name="AboutApps" component={AboutAppsScreen} options={{ title: 'About App' }} />
+      <Stack.Screen name="AboutDeveloper" component={AboutDeveloperScreen} options={{ title: 'About Developer' }} />
+      <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'Privacy Policy' }} />
+      <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'Feedback' }} />
+      <Stack.Screen name="Terms" component={TermsScreen} options={{ title: 'Terms' }} />
     </Stack.Navigator>
   );
 }

@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { loginUser, googleLogin } from '../api/authApi';
+import { loginUser } from '../api/authApi';
 
 const AuthContext = createContext({
   user: null,
   token: null,
   loading: true,
   login: () => {},
-  loginWithGoogle: () => {},
   logout: () => {},
   updateUser: () => {},
 });
@@ -40,18 +39,26 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.setItem('auth', JSON.stringify({ user: userData, token: authToken }));
   };
 
-  const login = useCallback(async (email, password) => {
-    const res = await loginUser(email, password);
-    const userData = res?.user || res?.data?.user || { id: 1, name: email.split('@')[0], email };
-    const authToken = res?.token || res?.data?.token || 'token_' + Date.now();
-    await saveAuth(userData, authToken);
-    return userData;
-  }, []);
+  const decodeToken = (token) => {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return {
+        id: decoded.id,
+        name: decoded.name?.trim(),
+        phone: decoded.phone,
+        picture: decoded.picture,
+      };
+    } catch {
+      return null;
+    }
+  };
 
-  const loginWithGoogle = useCallback(async () => {
-    const res = await googleLogin('mock_id_token');
-    const userData = res?.user || res?.data?.user || { id: 2, name: 'Google User', email: 'user@gmail.com' };
-    const authToken = res?.token || res?.data?.token || 'google_token_' + Date.now();
+  const login = useCallback(async (phone, password) => {
+    const res = await loginUser(phone, password);
+    const authToken = res?.api_token;
+    if (!authToken) throw new Error('Login failed');
+    const userData = decodeToken(authToken) || { name: 'User', phone };
     await saveAuth(userData, authToken);
     return userData;
   }, []);
@@ -71,7 +78,7 @@ export const AuthProvider = ({ children }) => {
   }, [user, token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, loginWithGoogle, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

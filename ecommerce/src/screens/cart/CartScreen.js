@@ -6,6 +6,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { useCart } from '../../context/CartContext';
 
+const fmtPrice = (val) => {
+  const n = Number(val);
+  return isNaN(n) ? '0' : n.toLocaleString('en-IN');
+};
+
 export default function CartScreen({ navigation }) {
   const { items, removeItem, updateQty, clearCart } = useCart();
   const { colors } = useTheme();
@@ -19,49 +24,49 @@ export default function CartScreen({ navigation }) {
   const renderItem = ({ item }) => (
     <View style={[s.cartItem, { backgroundColor: colors.surface }]}>
       {item.image ? (
-        <Image source={{ uri: item.image }} style={s.itemImage} />
+        <Image source={{ uri: item.image }} style={s.itemImage} resizeMode="contain" />
       ) : (
-        <View style={[s.itemImage, { backgroundColor: colors.onSurface + '15' }]}>
-          <MaterialIcons name="image" size={28} color={colors.onSurface + '40'} />
+        <View style={[s.itemImage, { backgroundColor: '#F3F4F6' }]}>
+          <MaterialIcons name="image" size={28} color="#D1D5DB" />
         </View>
       )}
       <View style={s.itemInfo}>
         <Text style={[s.itemName, { color: colors.text }]} numberOfLines={2}>
-          {item.name || item.title}
+          {item.name || item.title || 'Product'}
         </Text>
-        <Text style={[s.itemPrice, { color: colors.primary }]}>৳{item.price}</Text>
+        <Text style={[s.itemPrice, { color: colors.primary }]}>৳{fmtPrice(item.price)}</Text>
         <View style={s.qtyRow}>
           <TouchableOpacity onPress={() => updateQty(item.id, -1)} style={[s.qtyBtn, { backgroundColor: colors.primary }]}>
             <MaterialIcons name="remove" size={16} color="#fff" />
           </TouchableOpacity>
-          <Text style={[s.qtyText, { color: colors.text }]}>{item.qty}</Text>
+          <Text style={[s.qtyText, { color: colors.text }]}>{item.qty || 1}</Text>
           <TouchableOpacity onPress={() => updateQty(item.id, 1)} style={[s.qtyBtn, { backgroundColor: colors.primary }]}>
             <MaterialIcons name="add" size={16} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
       <View style={s.itemRight}>
-        <Text style={[s.itemSubtotal, { color: colors.text }]}>৳{item.price * item.qty}</Text>
+        <Text style={[s.itemSubtotal, { color: colors.text }]}>৳{fmtPrice((item.price || 0) * (item.qty || 1))}</Text>
         <TouchableOpacity onPress={() => removeItem(item.id)} style={s.deleteBtn}>
-          <MaterialIcons name="delete-outline" size={22} color={colors.danger || '#EF4444'} />
+          <MaterialIcons name="delete-outline" size={22} color="#EF4444" />
         </TouchableOpacity>
       </View>
     </View>
   );
 
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (i.qty || 1), 0);
 
   if (items.length === 0) {
     return (
       <View style={[s.emptyContainer, { backgroundColor: colors.background }]}>
-        <MaterialIcons name="shopping-cart" size={80} color={colors.onSurface + '20'} />
-        <Text style={[s.emptyTitle, { color: colors.text }]}>কার্ট খালি</Text>
-        <Text style={[s.emptySub, { color: colors.onSurface + '60' }]}>আপনার কার্টে কোনো পণ্য নেই</Text>
+        <MaterialIcons name="shopping-cart" size={80} color="#D1D5DB" />
+        <Text style={[s.emptyTitle, { color: colors.text }]}>Cart is Empty</Text>
+        <Text style={[s.emptySub, { color: '#9CA3AF' }]}>No items in your cart</Text>
         <TouchableOpacity
           style={[s.shopBtn, { backgroundColor: colors.primary }]}
           onPress={() => navigation.navigate('Home')}
         >
-          <Text style={s.shopBtnText}>শপিং চালিয়ে যান</Text>
+          <Text style={s.shopBtnText}>Continue Shopping</Text>
         </TouchableOpacity>
       </View>
     );
@@ -74,25 +79,26 @@ export default function CartScreen({ navigation }) {
         renderItem={renderItem}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={s.list}
+        showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={s.listHeader}>
-            <Text style={[s.itemCount, { color: colors.onSurface + '80' }]}>
-              {items.length} টি পণ্য
+            <Text style={[s.itemCount, { color: '#6B7280' }]}>
+              {items.length} item{items.length > 1 ? 's' : ''}
             </Text>
             <TouchableOpacity onPress={clearCart}>
-              <Text style={[s.clearBtn, { color: colors.danger || '#EF4444' }]}>সব মুছুন</Text>
+              <Text style={[s.clearBtn, { color: '#EF4444' }]}>Clear All</Text>
             </TouchableOpacity>
           </View>
         }
       />
-      <View style={[s.footer, { backgroundColor: colors.surface, borderTopColor: colors.onSurface + '15' }]}>
+      <View style={[s.footer, { backgroundColor: '#fff', borderTopColor: '#E5E7EB' }]}>
         <View style={s.totalRow}>
-          <Text style={[s.totalLabel, { color: colors.text }]}>সর্বমোট:</Text>
-          <Text style={[s.totalAmount, { color: colors.primary }]}>৳{subtotal}</Text>
+          <Text style={[s.totalLabel, { color: '#374151' }]}>Total:</Text>
+          <Text style={[s.totalAmount, { color: colors.primary }]}>৳{fmtPrice(subtotal)}</Text>
         </View>
         <TouchableOpacity style={[s.checkoutBtn, { backgroundColor: '#25D366' }]}>
           <MaterialIcons name="whatsapp" size={20} color="#fff" />
-          <Text style={s.checkoutText}>অর্ডার সম্পন্ন করুন</Text>
+          <Text style={s.checkoutText}>Complete Order</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -101,7 +107,7 @@ export default function CartScreen({ navigation }) {
 
 const s = StyleSheet.create({
   container: { flex: 1 },
-  list: { padding: 12, paddingBottom: 130 },
+  list: { padding: 12, paddingBottom: 140 },
   listHeader: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     marginBottom: 8, paddingHorizontal: 4,

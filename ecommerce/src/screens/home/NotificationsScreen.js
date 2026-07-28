@@ -1,47 +1,76 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useTheme } from 'react-native-paper';
- import { useNotifications } from '../../context/NotificationsContext';
+import { useNavigation } from '@react-navigation/native';
 
-const bnMonths = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
+const STATIC_NOTIFICATIONS = [
+  {
+    id: 1,
+    type: 'general',
+    title: 'Welcome to JN Computer!',
+    body: 'Thank you for joining us. Stay tuned for exclusive offers and updates.',
+    created_at: '2026-07-28 10:30:00',
+    is_read: 0,
+  },
+  {
+    id: 2,
+    type: 'bonus',
+    title: 'Summer Sale is Live!',
+    body: 'Get up to 50% off on selected items. Hurry, limited time offer!',
+    created_at: '2026-07-27 14:15:00',
+    is_read: 0,
+  },
+  {
+    id: 3,
+    type: 'general',
+    title: 'New Arrivals',
+    body: 'Check out the latest products added to our store.',
+    created_at: '2026-07-26 09:00:00',
+    is_read: 1,
+  },
+  {
+    id: 4,
+    type: 'bonus',
+    title: 'Free Shipping Weekend',
+    body: 'Enjoy free shipping on all orders this weekend. No minimum purchase required.',
+    created_at: '2026-07-25 18:45:00',
+    is_read: 1,
+  },
+  {
+    id: 5,
+    type: 'general',
+    title: 'Payment Method Updated',
+    body: 'We now support additional payment methods for your convenience.',
+    created_at: '2026-07-24 11:20:00',
+    is_read: 1,
+  },
+];
+
+const enMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const formatTime = (dateStr) => {
   if (!dateStr) return '';
   const d = new Date(dateStr.replace(' ', 'T') + 'Z');
   const now = new Date();
   const diff = Math.floor((now - d) / 1000);
-  if (diff < 60) return 'এখনই';
-  if (diff < 3600) return `${Math.floor(diff / 60)} মি. আগে`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} ঘ. আগে`;
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
-  if (d.toDateString() === yesterday.toDateString()) return 'গতকাল';
-  if (diff < 172800) return 'গতকাল';
-  if (diff < 259200) return '২ দিন আগে';
-  return `${d.getDate()} ${bnMonths[d.getMonth()]}, ${d.getFullYear()}`;
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  if (diff < 172800) return 'Yesterday';
+  if (diff < 259200) return '2 days ago';
+  return `${d.getDate()} ${enMonths[d.getMonth()]}, ${d.getFullYear()}`;
 };
 
 export default function NotificationsScreen() {
   const navigation = useNavigation();
-  const { colors } = useTheme();
-  const s = styles(colors);
-  const [notifications, setNotifications] = useState([]);
-  const { refresh } = useNotifications();
+  const [list, setList] = useState(STATIC_NOTIFICATIONS);
 
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [])
-  );
- 
-
-  const handlePress = async (item) => {
+  const handlePress = (item) => {
     if (!item.is_read) {
-      await markAsRead(item.id);
-      await refresh();
-      setNotifications(prev =>
+      setList(prev =>
         prev.map(n => n.id === item.id ? { ...n, is_read: 1 } : n)
       );
     }
@@ -54,8 +83,12 @@ export default function NotificationsScreen() {
       onPress={() => handlePress(item)}
       activeOpacity={0.7}
     >
-      <View style={[s.iconBox, !item.is_read && { backgroundColor: colors.primary + '20' }]}>
-        <MaterialIcons name={item.type === 'bonus' ? 'emoji-events' : 'notifications'} size={22} color={!item.is_read ? colors.primary : colors.muted} />
+      <View style={[s.iconBox, !item.is_read && s.iconBoxActive]}>
+        <MaterialIcons
+          name={item.type === 'bonus' ? 'emoji-events' : 'notifications'}
+          size={22}
+          color={!item.is_read ? '#EB592C' : '#9CA3AF'}
+        />
       </View>
       <View style={s.textBox}>
         <Text style={[s.title, !item.is_read && s.unreadTitle]}>{item.title}</Text>
@@ -69,15 +102,15 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={s.container}>
       <FlatList
-        data={notifications}
-        keyExtractor={item => String(item.id)}
+        data={list}
+        keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={s.empty}>
-            <MaterialIcons name="notifications-off" size={48} color={colors.muted} />
-            <Text style={s.emptyText}>কোনো নোটিফিকেশন নেই</Text>
+            <MaterialIcons name="notifications-off" size={48} color="#9CA3AF" />
+            <Text style={s.emptyText}>No notifications</Text>
           </View>
         }
       />
@@ -85,39 +118,42 @@ export default function NotificationsScreen() {
   );
 }
 
-const styles = (colors) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const s = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F9FAFB' },
   card: {
     flexDirection: 'row', alignItems: 'flex-start',
-    backgroundColor: colors.surface, borderRadius: 12,
+    backgroundColor: '#fff', borderRadius: 12,
     padding: 14, marginBottom: 10, gap: 12,
     opacity: 0.6,
   },
   unread: {
     opacity: 1,
-    borderLeftWidth: 3, borderLeftColor: colors.primary,
-    backgroundColor: colors.primary + '08',
+    borderLeftWidth: 3, borderLeftColor: '#EB592C',
+    backgroundColor: '#FFF5F0',
   },
   iconBox: {
     width: 40, height: 40, borderRadius: 10,
-    backgroundColor: colors.muted + '20',
+    backgroundColor: '#F3F4F6',
     justifyContent: 'center', alignItems: 'center',
     marginTop: 2,
   },
+  iconBoxActive: {
+    backgroundColor: '#FEF0EB',
+  },
   textBox: { flex: 1 },
-  title: { fontSize: 14, fontWeight: '600', color: colors.onSurface },
-  unreadTitle: { fontWeight: '800', color: colors.onSurface },
-  body: { fontSize: 12, color: colors.text, marginTop: 2, lineHeight: 18 },
+  title: { fontSize: 14, fontWeight: '600', color: '#111827' },
+  unreadTitle: { fontWeight: '800', color: '#111827' },
+  body: { fontSize: 12, color: '#6B7280', marginTop: 2, lineHeight: 18 },
   date: {
-    fontSize: 11, color: colors.muted, marginTop: 4,
-    backgroundColor: colors.muted + '12',
+    fontSize: 11, color: '#9CA3AF', marginTop: 4,
+    backgroundColor: '#F3F4F6',
     alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2,
     borderRadius: 8, overflow: 'hidden',
   },
   dot: {
     width: 8, height: 8, borderRadius: 4,
-    backgroundColor: colors.primary, marginTop: 6,
+    backgroundColor: '#EB592C', marginTop: 6,
   },
   empty: { alignItems: 'center', marginTop: 80 },
-  emptyText: { fontSize: 14, color: colors.muted, marginTop: 12 },
+  emptyText: { fontSize: 14, color: '#9CA3AF', marginTop: 12 },
 });
