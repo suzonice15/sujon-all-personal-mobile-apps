@@ -1,5 +1,6 @@
 import { getDB } from './db';
 import { getDeviceId } from './earnings';
+import { showLocalNotification } from '../utils/localNotifications';
 
 const getLocalDate = () => {
   const d = new Date();
@@ -19,6 +20,12 @@ export const addCoins = async (amount, reason, type = 'income') => {
     'INSERT INTO coin_history (device_id, name, email, amount, reason, type, earned_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
     [deviceId, '', '', amount, reason, type, localNow()]
   );
+  if (amount > 0 && type !== 'withdraw') {
+    showLocalNotification({
+      title: 'কয়েন প্রাপ্ত',
+      body: `${reason || 'নতুন'} - ${amount} কয়েন যোগ হয়েছে!`,
+    });
+  }
 };
 
 export const getTotalCoins = async () => {

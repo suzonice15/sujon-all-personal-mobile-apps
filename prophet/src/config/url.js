@@ -1,32 +1,35 @@
 export const api_url='https://education.tablighshop.com/api';
-// export const api_url='http://192.168.0.122:7070/api';
+// export const api_url='http:// 192.168.0.122:7070/api';
 
 
 
 // start nobijir sunnat apps configuaration 
-export const apps_slug='sunnah-of-the-holy-prophet';
-export const published_app_slug='com.prophetsunnat';
-export const quize_slug='islamic-quize';
-export const app_version='1.0.0';
-export const lastUpdate = '২৫ জুলাই ২০২৬';
-export const apps_title='রাসূল ﷺ এর সুন্নাহ'; 
-const REAL_BANNER_ID = 'ca-app-pub-4817870874747259/7747901141';
-const REAL_INTERSTITIAL_ID = 'ca-app-pub-4817870874747259/4364024051';
-const REAL_REWARDED_ID = 'ca-app-pub-4817870874747259/7129788191';
-const REAL_NATIVE_ID = 'ca-app-pub-4817870874747259/5541374358';
+// export const apps_slug='sunnah-of-the-holy-prophet';
+// export const published_app_slug='com.prophetsunnat';
+// export const quize_slug='islamic-quize';
+// export const app_version='1.0.0';
+// export const lastUpdate = '২৫ জুলাই ২০২৬';
+// export const apps_title='রাসূল ﷺ এর সুন্নাহ'; 
+// const REAL_BANNER_ID = 'ca-app-pub-4817870874747259/7747901141';
+// const REAL_INTERSTITIAL_ID = 'ca-app-pub-4817870874747259/4364024051';
+// const REAL_REWARDED_ID = 'ca-app-pub-4817870874747259/7129788191';
+// const REAL_NATIVE_ID = 'ca-app-pub-4817870874747259/5541374358';
+// const add_app_id = 'ca-app-pub-4817870874747259~9388140084';
 
 // start prophet apps configuaration 
 
-// export const apps_slug='profet';
-// export const published_app_slug='com.prophetlife';
-// export const quize_slug='islamic-quize';
-// export const app_version='4.0.0';
-// export const lastUpdate = '৩ জুলাই ২০২৬'; 
-// export const apps_title='নবী রাসূলের জীবনী'; 
-// const REAL_BANNER_ID = 'ca-app-pub-4817870874747259/8444849224';
-// const REAL_INTERSTITIAL_ID = 'ca-app-pub-4817870874747259/3002619155';
-// const REAL_REWARDED_ID = 'ca-app-pub-4817870874747259/1845414760';
-// const REAL_NATIVE_ID = 'ca-app-pub-4817870874747259/4445481779';
+export const apps_slug='profet';
+export const published_app_slug='com.prophetlife';
+export const quize_slug='islamic-quize';
+export const app_version='6.0.0';
+export const lastUpdate = '৩ জুলাই ২০২৬'; 
+export const apps_title='নবী রাসূলের জীবনী'; 
+const REAL_BANNER_ID = 'ca-app-pub-4817870874747259/8444849224';
+const REAL_INTERSTITIAL_ID = 'ca-app-pub-4817870874747259/3002619155';
+const REAL_REWARDED_ID = 'ca-app-pub-4817870874747259/1845414760';
+const REAL_NATIVE_ID = 'ca-app-pub-4817870874747259/4445481779';
+const add_app_id = 'ca-app-pub-4817870874747259~4412023883';
+ 
 
 
 

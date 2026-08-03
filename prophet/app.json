@@ -2,11 +2,11 @@
   "name": "prophet",
   "displayName": "prophet",
   "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-4817870874747259~9388140084",
-    "ios_app_id": "ca-app-pub-3940256099942544~1458002511",
+    "android_app_id": "ca-app-pub-4817870874747259~4412023883",
+    "ios_app_id": "ca-app-pub-4817870874747259~4412023883",
     "delay_app_measurement_init": false,
     "optimize_initialization": true,
-    "optimize_ad_loading": true,
-    "note":"sunnat ID: ca-app-pub-4817870874747259~9388140084 prophet ID: ca-app-pub-4817870874747259~4412023883"
+    "optimize_ad_loading": true
+
   }
 }

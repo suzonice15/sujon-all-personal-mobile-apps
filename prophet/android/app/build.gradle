@@ -85,12 +85,12 @@ android {
 
     namespace "com.prophet"
     defaultConfig {
-        // applicationId "com.prophetlife" // prophet
-        applicationId "com.prophetsunnat"  // prophet sunnat
+        applicationId "com.prophetlife" // prophet
+        // applicationId "com.prophetsunnat"  // prophet sunnat
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 6
+        versionName "6.0"
     }
     splits {
         abi {
@@ -131,6 +131,14 @@ android {
 }
 
 dependencies {
+    configurations.all {
+        exclude group: 'com.android.support'
+        resolutionStrategy {
+            force 'androidx.work:work-runtime:2.8.0'
+            force 'androidx.work:work-runtime-ktx:2.8.0'
+        }
+    }
+
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     // implementation project(':react-native-sqlite-storage') 

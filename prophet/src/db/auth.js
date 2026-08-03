@@ -2,6 +2,7 @@ import { getDB } from './db';
 import { registerUser as apiRegister, loginUser as apiLogin, updateProfile as apiUpdateProfile, resetPassword as apiResetPassword } from '../api/userApi';
 import { apps_slug } from '../config/url';
 import { getDeviceId } from './earnings';
+import { emit } from '../utils/events';
 
 export const registerUser = async (name, email, password, phone, gender = 'male', districtId = 0, address = '', referralCode = '') => {
   const db = await getDB();
@@ -49,11 +50,11 @@ export const registerUser = async (name, email, password, phone, gender = 'male'
     } catch (e) {}
   }
 
+  emit('authChanged');
   return { success: true, user, referral_code: myReferralCode };
 };
 
-export const loginUser = async (email, password) => {
-  const db = await getDB();
+export const loginUser = async (email, password) => {  const db = await getDB();
 
   const deviceId = await getDeviceId();
   const apiRes = await apiLogin(email, password, deviceId);
@@ -93,6 +94,7 @@ export const loginUser = async (email, password) => {
       try { await db.executeSql("UPDATE settings SET server_user_id = ? WHERE id = 1", [String(serverUser.id)]); } catch (e) {}
     }
 
+    emit('authChanged');
     return { success: true, user };
   }
 
@@ -103,6 +105,7 @@ export const loginUser = async (email, password) => {
   }
   const user = local.rows.item(0);
   await saveSession(user.id);
+  emit('authChanged');
   return { success: true, user };
 };
 
@@ -192,12 +195,14 @@ export const resetPasswordAndLogin = async (email, otp, password) => {
     try { await db.executeSql("UPDATE settings SET server_user_id = ? WHERE id = 1", [String(serverUser.id)]); } catch (e) {}
   }
 
+  emit('authChanged');
   return { success: true, user };
 };
 
 export const logoutUser = async () => {
   const db = await getDB();
   await db.executeSql('DELETE FROM auth_session WHERE id = 1');
+  emit('authChanged');
 };
 
 const saveSession = async (userId) => {

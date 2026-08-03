@@ -2,9 +2,8 @@ import { getDB } from './db';
 
 export const syncQuizes = async (items) => {
     const db = await getDB();
-    for (const item of items) {
-        await db.executeSql(
-            `INSERT INTO mobile_quizzes 
+    const SQL = `
+      INSERT INTO mobile_quizzes 
       (
         category,
         data_id,
@@ -17,7 +16,6 @@ export const syncQuizes = async (items) => {
         answer
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-
       ON CONFLICT(data_id) DO UPDATE SET
         category = excluded.category,
         sub_category = excluded.sub_category,
@@ -27,19 +25,25 @@ export const syncQuizes = async (items) => {
         option_c = excluded.option_c,
         option_d = excluded.option_d,
         answer = excluded.answer;
-      `,
-            [
-                item.category,
-                item.id,
-                item.sub_category,
-                item.name,
-                item.option_a,
-                item.option_b,
-                item.option_c,
-                item.option_d,
-                item.answer,
-            ],
-        );
+    `;
+
+    const statements = items.map((item) => [
+        SQL,
+        [
+            item.category,
+            item.id,
+            item.sub_category,
+            item.name,
+            item.option_a,
+            item.option_b,
+            item.option_c,
+            item.option_d,
+            item.answer,
+        ],
+    ]);
+
+    for (let i = 0; i < statements.length; i += 500) {
+        await db.sqlBatch(statements.slice(i, i + 500));
     }
 };
 

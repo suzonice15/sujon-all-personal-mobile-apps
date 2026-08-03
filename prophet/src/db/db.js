@@ -6,15 +6,16 @@ const dbPromise = SQLite.openDatabase({ name: 'app.db', location: 'default' });
 let initPromise = null;
 
 export const getDB = async () => {
-  if (!initPromise) initPromise = initDB();
-  await initPromise;
+  await initDB();
   return dbPromise;
 };
 
-let _initialized = false;
-export const initDB = async () => {
-  if (_initialized) return;
-  _initialized = true;
+export const initDB = () => {
+  if (!initPromise) initPromise = doInit();
+  return initPromise;
+};
+
+async function doInit() {
   const db = await dbPromise;
  
 

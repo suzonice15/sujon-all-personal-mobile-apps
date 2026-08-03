@@ -222,7 +222,7 @@ export default function ClaimScreen({ navigation }) {
             <Text style={s.emptyTitle}>কোনো কয়েন দাবি বাকি নেই</Text>
             <Text style={s.emptySub}>গল্প পড়ে নতুন কয়েন দাবি করুন</Text>
             <TouchableOpacity
-              onPress={() => navigation.navigate('Home', { screen: 'HomeScreen' })}
+              onPress={() => navigation.navigate('HomeScreen')}
               style={s.storyBtn}>
               <MaterialIcons name="menu-book" size={16} color="#fff" />
               <Text style={s.storyBtnText}>গল্প পড়ুন</Text>

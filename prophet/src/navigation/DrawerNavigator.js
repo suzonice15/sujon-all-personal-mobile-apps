@@ -16,7 +16,7 @@ export default function DrawerNavigator() {
         swipeEnabled: true,
       }}
       drawerContent={(props) => <DrawerMenuScreen {...props} />}>
-      <Drawer.Screen name="Home" component={BottomTabNavigator} />
+      <Drawer.Screen name="Main" component={BottomTabNavigator} />
     </Drawer.Navigator>
   );
 }

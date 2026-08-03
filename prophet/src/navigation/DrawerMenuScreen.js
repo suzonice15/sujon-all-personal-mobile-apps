@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Share, Linking, A
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { getLoggedInUser, logoutUser } from '../db/auth';
+import { subscribe } from '../utils/events';
 import { apps_title, developer_id, published_app_slug } from '../config/url';
 
 const menu = [
@@ -27,15 +28,12 @@ export default function DrawerMenuScreen({ navigation }) {
   const s = styles(colors);
 
   useEffect(() => {
-    getLoggedInUser().then(setUser);
+    let mounted = true;
+    const load = () => getLoggedInUser().then((u) => { if (mounted) setUser(u); }).catch(() => {});
+    load();
+    const unsub = subscribe('authChanged', load);
+    return () => { mounted = false; unsub(); };
   }, []);
-
-  useEffect(() => {
-    const unsub = navigation.getParent()?.addListener('state', () => {
-      getLoggedInUser().then(setUser);
-    });
-    return unsub;
-  }, [navigation]);
 
   const handlePress = async (item) => {
     if (item.screen) {
@@ -43,7 +41,7 @@ export default function DrawerMenuScreen({ navigation }) {
       const params = item.tab
         ? { screen: item.tab, params: { screen: item.screen } }
         : { screen: item.screen };
-      navigation.navigate('Home', params);
+      navigation.navigate('Main', params);
     } else if (item.action === 'share') {
       await Share.share({
   message: `${apps_title}
@@ -87,7 +85,7 @@ https://play.google.com/store/apps/details?id=${published_app_slug}${
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={s.menuItem} onPress={user ? handleLogout : () => navigation.navigate('Home', { screen: 'Profile' })}>
+        <TouchableOpacity style={s.menuItem} onPress={user ? handleLogout : () => navigation.navigate('Main', { screen: 'Profile' })}>
           <MaterialIcons name={user ? 'logout' : 'login'} size={20} color={user ? colors.danger : colors.text} />
           <Text style={[s.menuText, { color: user ? colors.danger : colors.text }]}>
             {user ? 'লগআউট' : 'লগইন / নিবন্ধন'}

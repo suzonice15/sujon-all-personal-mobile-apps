@@ -2,6 +2,7 @@ import { getDB } from './db';
 import { syncMobileContents } from './mobileContents';
 import { syncQuizes } from './quizeContents';
 import { getHomeData, getQuizeData } from '../api';
+import { emit } from '../utils/events';
 
 export const seedDB = async () => {
   const db = await getDB();
@@ -10,6 +11,7 @@ export const seedDB = async () => {
     // API থেকে mobile_contents sync
     const res = await getHomeData();
     await syncMobileContents(res.data);
+    emit('contentsSynced');
 
     const quize = await getQuizeData();
     await syncQuizes(quize.data);

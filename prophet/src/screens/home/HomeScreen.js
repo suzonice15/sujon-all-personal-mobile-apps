@@ -13,6 +13,7 @@ import { getMobileContents } from '../../db/mobileContents';
 import { useTheme as usePaperTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AdBanner from '../../components/ads/AdBanner';
+import { subscribe } from '../../utils/events';
  
 export default function HomeScreen({ navigation }) {
   const [data, setData] = useState([]);
@@ -31,6 +32,11 @@ export default function HomeScreen({ navigation }) {
       setLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    const unsub = subscribe('contentsSynced', () => loadData());
+    return unsub;
+  }, []);
 
   useFocusEffect(
     useCallback(() => {

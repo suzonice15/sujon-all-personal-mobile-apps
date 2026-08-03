@@ -10,6 +10,7 @@ import { initTodayBoxes, getTodayBoxes, claimBox } from '../../db/adBoxes';
 import { getCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
 import { video_coin_per_box, ADMOB_ENABLED, BOX_CLAIM_COOLDOWN_SEC } from '../../config/url';
 import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
 import useAdRewarded from '../../components/ads/AdRewarded';
 import useAdInterstitial from '../../components/ads/AdInterstitial';
 
@@ -85,14 +86,13 @@ export default function AdEarnScreen() {
     }
     pendingBox.current = box;
     setLoading(box.id);
-    if (!showAd()) {
-      setLoading(null);
-      pendingBox.current = null;
-      if (!ADMOB_ENABLED) {
-        doClaim(box);
-      } else {
-        ToastAndroid.show('বিজ্ঞাপন লোড হচ্ছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
-      }
+    if (!ADMOB_ENABLED) {
+      doClaim(box);
+      return;
+    }
+    const shown = showAd();
+    if (!shown) {
+      ToastAndroid.show('বিজ্ঞাপন লোড হচ্ছে, একটু অপেক্ষা করুন...', ToastAndroid.SHORT);
     }
   };
 
@@ -120,16 +120,20 @@ export default function AdEarnScreen() {
     if (box) doClaim(box);
   };
 
-  const { showAd } = useAdRewarded(onEarned);
+  const { showAd, loadFailed } = useAdRewarded(onEarned);
   const { showAd: showInterstitial, isLoaded: interstitialLoaded } = useAdInterstitial();
-  const entryAdShown = useRef(false);
+
+  useEffect(() => {
+    if (loadFailed && loading !== null) {
+      setLoading(null);
+      pendingBox.current = null;
+      ToastAndroid.show('বিজ্ঞাপন লোড ব্যর্থ হয়েছে, আবার চেষ্টা করুন', ToastAndroid.SHORT);
+    }
+  }, [loadFailed, loading]);
 
   useFocusEffect(useCallback(() => {
-    if (interstitialLoaded && !entryAdShown.current) {
-      entryAdShown.current = true;
-      showInterstitial();
-    }
-  }, [interstitialLoaded]));
+    if (interstitialLoaded) showInterstitial();
+  }, [interstitialLoaded, showInterstitial]));
 
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
@@ -245,6 +249,7 @@ export default function AdEarnScreen() {
           showsVerticalScrollIndicator={false}
           columnWrapperStyle={s.row}
         />
+        <AdNative style={{ marginTop: 4 }} />
         <AdBanner />
       </View>
     </SafeAreaView>

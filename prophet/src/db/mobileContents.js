@@ -5,33 +5,39 @@ export const syncMobileContents = async (items) => {
   // console.log(items)
 
   const db = await getDB();
-  for (const item of items) {
-    await db.executeSql(
-      `INSERT INTO mobile_contents (data_id,title, sub_title, serial, audio, image, audio_title, slug, content, parent_id)
-       VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)
-       ON CONFLICT(slug) DO UPDATE SET
-         data_id = excluded.data_id,
-         title = excluded.title,
-         sub_title = excluded.sub_title,
-         serial = excluded.serial,
-         audio = excluded.audio,
-         image = excluded.image,
-         audio_title = excluded.audio_title,
-         content = excluded.content,
-         parent_id = excluded.parent_id;`,
-      [
-        item.id,
-        item.title,
-        item.sub_title,
-        item.serial ?? 999,
-        item.audio,
-        item.image,
-        item.audio_title,
-        item.slug,
-        item.content,
-        item.parent_id,
-      ],
-    );
+  const SQL = `
+    INSERT INTO mobile_contents (data_id,title, sub_title, serial, audio, image, audio_title, slug, content, parent_id)
+    VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(slug) DO UPDATE SET
+      data_id = excluded.data_id,
+      title = excluded.title,
+      sub_title = excluded.sub_title,
+      serial = excluded.serial,
+      audio = excluded.audio,
+      image = excluded.image,
+      audio_title = excluded.audio_title,
+      content = excluded.content,
+      parent_id = excluded.parent_id;
+  `;
+
+  const statements = items.map((item) => [
+    SQL,
+    [
+      item.id,
+      item.title,
+      item.sub_title,
+      item.serial ?? 999,
+      item.audio,
+      item.image,
+      item.audio_title,
+      item.slug,
+      item.content,
+      item.parent_id,
+    ],
+  ]);
+
+  for (let i = 0; i < statements.length; i += 500) {
+    await db.sqlBatch(statements.slice(i, i + 500));
   }
 };
 
