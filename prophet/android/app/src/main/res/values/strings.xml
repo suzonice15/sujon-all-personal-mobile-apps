@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">নবী রাসূলের জীবনী</string>
+    <!-- <string name="app_name">নবী রাসূলের জীবনী</string> -->
     <!-- <string name="app_name">প্রিয় নবীর সুন্নাহ</string> -->
+    <!-- <string name="app_name">নারী ও ইসলাম</string> -->
+    <!-- <string name="app_name">ছয় নম্বর</string> -->
+    <string name="app_name">মাস্তুরাত জামাত</string>
 </resources>

@@ -85,12 +85,15 @@ android {
 
     namespace "com.prophet"
     defaultConfig {
-        applicationId "com.prophetlife" // prophet
+        // applicationId "com.narioislam" // nari-o-islam
+        // applicationId "com.prophetlife" // prophet
         // applicationId "com.prophetsunnat"  // prophet sunnat
+        // applicationId "com.sixpoint"  // six point  
+        applicationId "com.masturatjamat"  // masturat jamat
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName "6.0"
+        versionCode 1
+        versionName "1.0"
     }
     splits {
         abi {
