@@ -11,7 +11,7 @@ class MainActivity : ReactActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     SplashScreen.show(this, true)
-    super.onCreate(savedInstanceState)
+    super.onCreate(null)
   }
 
   override fun getMainComponentName(): String = "prophet"

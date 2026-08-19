@@ -18,6 +18,9 @@ end
 target 'prophet' do
   use_expo_modules!
 
+  # AdMob mediation adapters (Meta Audience Network v6.22)
+  pod 'GoogleMobileAdsMediationFacebook', '~> 6.22'
+
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
   else
