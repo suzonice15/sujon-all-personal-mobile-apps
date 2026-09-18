@@ -76,6 +76,7 @@ const add_app_id = 'ca-app-pub-4817870874747259~4412023883';
 
 
 // ===== AdMob / Mediation Configuration (Android only) =====
+// export const ADMOB_ENABLED = false;
 export const ADMOB_ENABLED = true;
 export const ADMOB_TEST_MODE = __DEV__;
 // export const ADMOB_TEST_MODE = false;
@@ -93,12 +94,13 @@ export const AD_UNIT_ID_BANNER = ADMOB_USE_REAL ? REAL_BANNER_ID : TEST_BANNER;
 export const AD_UNIT_ID_INTERSTITIAL = ADMOB_USE_REAL ? REAL_INTERSTITIAL_ID : TEST_INTERSTITIAL;
 export const AD_UNIT_ID_REWARDED = ADMOB_USE_REAL ? REAL_REWARDED_ID : TEST_REWARDED;
 export const AD_UNIT_ID_NATIVE = ADMOB_USE_REAL ? REAL_NATIVE_ID : TEST_NATIVE;
-export const BOX_CLAIM_COOLDOWN_SEC = 60; 
+export const BOX_CLAIM_COOLDOWN_SEC = 120; 
 export const AD_INTERSTITIAL_COOLDOWN = 100000;
 export const AD_REWARDED_COOLDOWN = 60000;
+export const AD_NATIVE_COOLDOWN = 300000;
 export const developer_id='8499372884242273199';
 export const email='suzonice15@gmail.com';
-export const DAILY_BOXES=30;
+export const DAILY_BOXES=9;
 export const video_coin_per_box=10;
 export const story_detail_per_box=10;
 export const daily_coin_count=10;

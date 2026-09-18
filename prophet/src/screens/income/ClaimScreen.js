@@ -16,6 +16,7 @@ import AdBanner from '../../components/ads/AdBanner';
 import useAdRewarded from '../../components/ads/AdRewarded';
 import useAdInterstitial from '../../components/ads/AdInterstitial';
 import AdNative from '../../components/ads/AdNative';
+import ConfirmWatchAdModal from '../../components/ConfirmWatchAdModal';
 
 export default function ClaimScreen({ navigation }) {
   const { refreshCoins } = useCoins();
@@ -28,6 +29,7 @@ export default function ClaimScreen({ navigation }) {
   const [todayClaimCoins, setTodayClaimCoins] = useState(0);
   const [totalPendingAmount, setTotalPendingAmount] = useState(0);
   const [cooldownSec, setCooldownSec] = useState(BOX_CLAIM_COOLDOWN_SEC);
+  const [confirmModal, setConfirmModal] = useState({ visible: false, id: null, amount: 0, title: '' });
   const timerRef = useRef(null);
   const { refresh: refreshNotifs } = useNotifications();
   const { colors } = useTheme();
@@ -59,7 +61,14 @@ export default function ClaimScreen({ navigation }) {
   const load = async () => {
     setLoading(true);
     const pendingList = await getPendingClaims();
-    setClaims(pendingList);
+    const seenContent = new Set();
+    const availableClaims = pendingList.filter((c) => {
+      const dedupeKey = `${c.content_title}|${c.amount}`;
+      if (seenContent.has(dedupeKey)) return false;
+      seenContent.add(dedupeKey);
+      return true;
+    });
+    setClaims(availableClaims);
     setPendingCount(await getPendingCount());
     setTotalPendingAmount(pendingList.reduce((sum, c) => sum + c.amount, 0));
     setTodayClaimCount(await getTodayClaimCount());
@@ -91,7 +100,7 @@ export default function ClaimScreen({ navigation }) {
     setCountdown(cooldownSec);
     refreshCoins();
     setClaimingId(null);
-    ToastAndroid.show(` ${toBn(claim.amount)} কয়েন সংগ্রহ করেছেন!`, ToastAndroid.SHORT);
+    ToastAndroid.show(`${toBn(claim.amount)} কয়েন সংগ্রহ করেছেন!`, ToastAndroid.SHORT);
     try { SoundPlayer.playSoundFile('finish', 'mp3'); } catch (e) {}
   };
 
@@ -131,6 +140,19 @@ export default function ClaimScreen({ navigation }) {
     }
   };
 
+  const openConfirmModal = (item) => {
+    if (claimingId || countdown > 0) return;
+    setConfirmModal({ visible: true, id: item.id, amount: item.amount, title: item.content_title });
+  };
+
+  const closeConfirmModal = () => setConfirmModal({ visible: false, id: null, amount: 0, title: '' });
+
+  const confirmAndWatch = () => {
+    const id = confirmModal.id;
+    closeConfirmModal();
+    if (id) handleClaim(id);
+  };
+
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
@@ -152,7 +174,7 @@ export default function ClaimScreen({ navigation }) {
         </View>
         <TouchableOpacity
           style={[s.claimBtn, disabled && s.claimBtnDisabled]}
-          onPress={() => handleClaim(item.id)}
+          onPress={() => openConfirmModal(item)}
           disabled={disabled}>
           {isClaiming ? (
             <ActivityIndicator color="#fff" size="small" />
@@ -241,6 +263,14 @@ export default function ClaimScreen({ navigation }) {
         
         <AdBanner />
       </View>
+
+      <ConfirmWatchAdModal
+        visible={confirmModal.visible}
+        onClose={closeConfirmModal}
+        onConfirm={confirmAndWatch}
+        contentTitle={confirmModal.title}
+        amountText={`+${toBn(confirmModal.amount)} কয়েন`}
+      />
     </SafeAreaView>
   );
 }

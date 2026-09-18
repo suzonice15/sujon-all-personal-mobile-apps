@@ -13,6 +13,7 @@ import AdBanner from '../../components/ads/AdBanner';
 import AdNative from '../../components/ads/AdNative';
 import useAdRewarded from '../../components/ads/AdRewarded';
 import useAdInterstitial from '../../components/ads/AdInterstitial';
+import ConfirmWatchAdModal from '../../components/ConfirmWatchAdModal';
 
 export default function AdEarnScreen() {
   const { refreshCoins } = useCoins();
@@ -21,6 +22,7 @@ export default function AdEarnScreen() {
   const [initialLoading, setInitialLoading] = useState(true);
   const [cooldown, setCooldown] = useState(0);
   const [cooldownSec, setCooldownSec] = useState(BOX_CLAIM_COOLDOWN_SEC);
+  const [confirmBox, setConfirmBox] = useState(null);
   const timerRef = useRef(null);
   const pendingBox = useRef(null);
   const { width } = useWindowDimensions();
@@ -73,12 +75,21 @@ export default function AdEarnScreen() {
     loadBoxes();
   }, []));
 
-  const handleBoxPress = async (box) => {
+  const handleBoxPress = (box) => {
     if (box.status === 'claimed' || loading) return;
     if (cooldown > 0) {
       ToastAndroid.show(`অনুগ্রহ করে ${formatTime(cooldown)} অপেক্ষা করুন`, ToastAndroid.SHORT);
       return;
     }
+    setConfirmBox(box);
+  };
+
+  const closeConfirmModal = () => setConfirmBox(null);
+
+  const confirmAndWatch = async () => {
+    const box = confirmBox;
+    setConfirmBox(null);
+    if (!box) return;
     const online = await isOnline();
     if (!online) {
       ToastAndroid.show('ইন্টারনেট সংযোগ নেই!', ToastAndroid.SHORT);
@@ -252,6 +263,13 @@ export default function AdEarnScreen() {
         <AdNative style={{ marginTop: 4 }} />
         <AdBanner />
       </View>
+
+      <ConfirmWatchAdModal
+        visible={!!confirmBox}
+        onClose={closeConfirmModal}
+        onConfirm={confirmAndWatch}
+        amountText={`+${toBn(video_coin_per_box)} কয়েন`}
+      />
     </SafeAreaView>
   );
 }

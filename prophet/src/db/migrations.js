@@ -75,6 +75,12 @@ const migrations = [
       await addColumnIfMissing(db, 'settings', 'auth_token', "TEXT DEFAULT ''");
     },
   },
+  {
+    name: 'bump_interstitial_cooldown_to_10min',
+    migrate: async (db) => {
+      await db.executeSql('UPDATE settings SET interstitial_cooldown = 600000 WHERE id = 1');
+    },
+  },
 ];
 
 export const runMigrations = async () => {

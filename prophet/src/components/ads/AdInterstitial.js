@@ -8,7 +8,7 @@ let globalLastShown = 0;
 export default function useAdInterstitial() {
   const pendingShow = useRef(false);
   const timerRef = useRef(null);
-  const cooldownRef = useRef(90000);
+  const cooldownRef = useRef(600000);
 
   useEffect(() => {
     getInterstitialCooldown().then(ms => { cooldownRef.current = ms; });

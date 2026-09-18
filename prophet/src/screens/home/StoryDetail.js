@@ -16,9 +16,10 @@ const htmlTemplate = (content, fontSize, background, text) => `
   <!DOCTYPE html>
   <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { touch-action: pan-x pan-y; }
       body {
         font-family: 'Georgia', serif;
         font-size: ${fontSize}px;
@@ -96,6 +97,9 @@ export default function StoryDetail({ navigation, route }) {
         renderLoading={() => <ActivityIndicator size="large" color={colors.primary} />}
         startInLoadingState
         onLoadEnd={handleReadComplete}
+        scalesPageToFit={false}
+        setBuiltInZoomControls={false}
+        setDisplayZoomControls={false}
       />
 
       <View style={styles.fab}>
@@ -128,10 +132,10 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   titleBox: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 4,
     borderBottomWidth: 1,
   },
-  storyTitle: { fontSize: 17, fontWeight: 'bold', lineHeight: 26 },
+  storyTitle: { fontSize: 17, fontWeight: 'bold', lineHeight: 20 },
   fab: {
     position: 'absolute',
     bottom: 24,

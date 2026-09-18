@@ -14,6 +14,7 @@ import useAdRewarded from '../../components/ads/AdRewarded';
 import AdNative from '../../components/ads/AdNative';
 import useAdInterstitial from '../../components/ads/AdInterstitial';
 import { getAllAppSettings } from '../../db/appSettings';
+import ConfirmWatchAdModal from '../../components/ConfirmWatchAdModal';
 
 export default function DailyCoinScreen() {
 
@@ -27,6 +28,7 @@ export default function DailyCoinScreen() {
   const [collecting, setCollecting] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [cooldownSec, setCooldownSec] = useState(BOX_CLAIM_COOLDOWN_SEC);
+  const [confirmModal, setConfirmModal] = useState(false);
   const timerRef = useRef(null);
   const { colors } = useTheme();
   const s = styles(colors);
@@ -112,6 +114,13 @@ export default function DailyCoinScreen() {
     }
   };
 
+  const closeConfirmModal = () => setConfirmModal(false);
+
+  const confirmAndWatch = () => {
+    setConfirmModal(false);
+    handleCollect();
+  };
+
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
@@ -155,7 +164,7 @@ export default function DailyCoinScreen() {
             <TouchableOpacity
               style={s.collectBtn}
               activeOpacity={0.8}
-              onPress={handleCollect}
+              onPress={() => setConfirmModal(true)}
               disabled={collecting}>
               {collecting ? (
                 <ActivityIndicator color="#fff" />
@@ -184,6 +193,13 @@ export default function DailyCoinScreen() {
         
         <AdBanner />
       </View>
+
+      <ConfirmWatchAdModal
+        visible={confirmModal}
+        onClose={closeConfirmModal}
+        onConfirm={confirmAndWatch}
+        amountText={`+${toBn(daily_coin_count)} কয়েন`}
+      />
     </SafeAreaView>
   );
 }

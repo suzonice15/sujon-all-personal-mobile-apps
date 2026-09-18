@@ -22,6 +22,7 @@ import { useCoins } from '../../context/CoinsContext';
 import { story_detail_per_box, story_detail_points, ADMOB_ENABLED } from '../../config/url';
 import { getCooldown, setCooldown, setLastClaimTime, getLastClaimTime } from '../../db/settings';
 import AdNative from '../../components/ads/AdNative';
+import ConfirmWatchAdModal from '../../components/ConfirmWatchAdModal';
 
 
 export default function QuizStartScreen({ route, navigation }) {
@@ -43,6 +44,7 @@ export default function QuizStartScreen({ route, navigation }) {
   const [claimingCoin, setClaimingCoin] = useState(false);
   const [claimCooldown, setClaimCooldown] = useState(0);
   const [claimCooldownSec, setClaimCooldownSec] = useState(60);
+  const [confirmModal, setConfirmModal] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -229,12 +231,22 @@ export default function QuizStartScreen({ route, navigation }) {
 
   const pointsClaimed = useRef(false);
 
-  const handleClaimCoin = async () => {
+  const openConfirmModal = () => {
     if (score === 0) {
       Alert.alert('😢 দুঃখিত!', 'ক্লেইম করার জন্য অন্তত একটি সঠিক উত্তর দিতে হবে।');
       return;
     }
-    // পয়েন্ট শুধু প্রথমবার
+    setConfirmModal(true);
+  };
+
+  const closeConfirmModal = () => setConfirmModal(false);
+
+  const confirmAndClaim = () => {
+    setConfirmModal(false);
+    handleClaimCoin();
+  };
+
+  const handleClaimCoin = async () => {
     if (!pointsClaimed.current) {
       await addEarning(fetch_data, title || 'কুইজ', score * 10);
       pointsClaimed.current = true;
@@ -305,7 +317,7 @@ export default function QuizStartScreen({ route, navigation }) {
         {/* একটি বাটন — পয়েন্ট auto, কয়েন rewarded ad দেখে */}
         <TouchableOpacity 
           style={[styles.claimBtn, styles.coinClaimBtn, (isClaimed || claimingCoin || claimCooldown > 0) && styles.claimBtnDisabled]} 
-          onPress={handleClaimCoin}
+          onPress={openConfirmModal}
           disabled={isClaimed || claimingCoin || claimCooldown > 0}
         >
           <MaterialIcons name="monetization-on" size={22} color="#FFF" style={styles.btnIconLeft} />
@@ -367,6 +379,15 @@ export default function QuizStartScreen({ route, navigation }) {
         </TouchableOpacity>
       </ScrollView>
       <AdBanner />
+
+      <ConfirmWatchAdModal
+        visible={confirmModal}
+        onClose={closeConfirmModal}
+        onConfirm={confirmAndClaim}
+        title="ভিডিও দেখে পুরস্কার সংগ্রহ করবেন?"
+        amountText={`+${score * 10} পয়েন্ট + ${earnedCoins} কয়েন`}
+        subtitle="একটি ভিডিও বিজ্ঞাপন দেখে পুরস্কার সংগ্রহ করুন"
+      />
       </View>
     );
   }

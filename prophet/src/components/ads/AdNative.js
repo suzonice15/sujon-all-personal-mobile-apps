@@ -7,7 +7,9 @@ import {
   NativeAsset,
   NativeAssetType,
 } from 'react-native-google-mobile-ads';
-import { ADMOB_ENABLED, AD_UNIT_ID_NATIVE } from '../../config/url';
+import { ADMOB_ENABLED, AD_UNIT_ID_NATIVE, AD_NATIVE_COOLDOWN } from '../../config/url';
+
+let lastNativeLoadAt = 0;
 
 export default function AdNative({ style }) {
   const [nativeAd, setNativeAd] = useState(null);
@@ -15,6 +17,9 @@ export default function AdNative({ style }) {
 
   useEffect(() => {
     if (!ADMOB_ENABLED) return;
+    const now = Date.now();
+    if (now - lastNativeLoadAt < AD_NATIVE_COOLDOWN) return;
+    lastNativeLoadAt = now;
     (async () => {
       try {
         const ad = await NativeAd.createForAdRequest(AD_UNIT_ID_NATIVE);
