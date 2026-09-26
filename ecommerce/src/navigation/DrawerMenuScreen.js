@@ -8,12 +8,12 @@ import { useAuth } from '../context/AuthContext';
 const menu = [
   
   { title: 'About App', icon: 'info-outline', screen: 'AboutApps', tab: 'Home' },
-  { title: 'About Developer', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
+  // { title: 'About Developer', icon: 'person-outline', screen: 'AboutDeveloper', tab: 'Home' },
   { title: 'Share App', icon: 'share', action: 'share' },
-  { title: 'Rate App', icon: 'star-border', action: 'rate' },
-  { title: 'Feedback', icon: 'feedback', screen: 'Feedback', tab: 'Home' },
-  { title: 'Privacy Policy', icon: 'lock-outline', screen: 'Privacy', tab: 'Home' },
-  { title: 'More Apps', icon: 'apps', action: 'moreApps' },
+  // { title: 'Rate App', icon: 'star-border', action: 'rate' },
+  // { title: 'Feedback', icon: 'feedback', screen: 'Feedback', tab: 'Home' },
+  // { title: 'Privacy Policy', icon: 'lock-outline', screen: 'Privacy', tab: 'Home' },
+  // { title: 'More Apps', icon: 'apps', action: 'moreApps' },
   { title: 'Settings', icon: 'settings', screen: 'SettingInfo', tab: 'Home' },
 ];
 
@@ -31,8 +31,9 @@ export default function DrawerMenuScreen({ navigation }) {
   const loadCategories = async () => {
     try {
       const res = await getHomeCategory();
+      console.log('Drawer categories:', res.data);
       const list = Array.isArray(res) ? res : res?.data || res?.categories || [];
-      setCategories(list);
+      setCategories(res);
     } catch (e) {
       console.log('Drawer categories load error:', e);
     } finally {
@@ -79,7 +80,7 @@ export default function DrawerMenuScreen({ navigation }) {
         {catLoading ? (
           <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 10 }} />
         ) : (
-          categories.slice(0, 6).map((cat, i) => (
+          categories.slice(0, 15).map((cat, i) => (
             <TouchableOpacity
               key={i}
               style={s.menuItem}
@@ -88,12 +89,12 @@ export default function DrawerMenuScreen({ navigation }) {
                 navigation.navigate('Home', { screen: 'CategoryPage', params: { category: cat } });
               }}
             >
-              <MaterialIcons name="category" size={18} color={colors.primary} />
+              {/* <MaterialIcons name="category" size={18} color={colors.primary} /> */}
               <Text style={s.menuText}>{cat.category_title}</Text>
             </TouchableOpacity>
           ))
         )}
-        <View style={s.divider} />
+        {/* <View style={s.divider} /> */}
 
         {menu.map((item, index) => (
           <TouchableOpacity key={index} style={s.menuItem} onPress={() => handlePress(item)}>

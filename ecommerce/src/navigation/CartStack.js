@@ -6,10 +6,13 @@ import { getHeaderOptions } from './headerOptions';
 import ProductDetailHeader from '../components/ProductDetailHeader';
 
 import CartScreen from '../screens/cart/CartScreen';
+import CheckoutScreen from '../screens/cart/CheckoutScreen';
+import PaymentWebViewScreen from '../screens/cart/PaymentWebViewScreen';
 import ProductDetailScreen from '../screens/product/ProductDetailScreen';
 import SearchProductScreen from '../screens/home/SearchProductScreen';
 import NotificationsScreen from '../screens/home/NotificationsScreen';
 import NotificationDetailScreen from '../screens/home/NotificationDetailScreen';
+import CmsPageScreen from '../screens/settings/CmsPageScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +24,13 @@ export default function CartStack() {
   return (
     <Stack.Navigator screenOptions={{ ...headerOpts, headerShown: true }}>
       <Stack.Screen name="CartMain" component={CartScreen} options={{ title: 'My Cart' }} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
+      <Stack.Screen name="PaymentWebView" component={PaymentWebViewScreen} options={{ title: 'Payment' }} />
+      <Stack.Screen
+        name="CmsPage"
+        component={CmsPageScreen}
+        options={({ route }) => ({ title: route.params?.title || '' })}
+      />
       <Stack.Screen name="SearchProduct" component={SearchProductScreen} options={{ headerShown: false }} />
       <Stack.Screen name="NotificationsMain" component={NotificationsScreen} options={{ title: 'Notifications' }} />
       <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} options={{ title: 'Details' }} />

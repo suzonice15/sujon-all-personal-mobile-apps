@@ -1,0 +1,25 @@
+{
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/android/build/**": true,
+    "**/android/app/build/**": true,
+    "**/android/.gradle/**": true,
+    "**/android/**/.cxx/**": true,
+    "**/ios/build/**": true,
+    "**/ios/Pods/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/android/build": true,
+    "**/android/app/build": true,
+    "**/android/.gradle": true,
+    "**/android/**/.cxx": true,
+    "**/ios/build": true,
+    "**/ios/Pods": true
+  },
+  "files.exclude": {
+    "**/android/build": true,
+    "**/android/app/build": true,
+    "**/android/.gradle": true
+  }
+}

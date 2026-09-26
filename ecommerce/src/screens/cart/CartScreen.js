@@ -5,6 +5,7 @@ import { useTheme } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 const fmtPrice = (val) => {
   const n = Number(val);
@@ -13,7 +14,16 @@ const fmtPrice = (val) => {
 
 export default function CartScreen({ navigation }) {
   const { items, removeItem, updateQty, clearCart } = useCart();
+  const { user } = useAuth();
   const { colors } = useTheme();
+
+  const handleCheckout = () => {
+    if (user) {
+      navigation.navigate('Checkout');
+    } else {
+      navigation.navigate('Account', { screen: 'Login' });
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -96,9 +106,9 @@ export default function CartScreen({ navigation }) {
           <Text style={[s.totalLabel, { color: '#374151' }]}>Total:</Text>
           <Text style={[s.totalAmount, { color: colors.primary }]}>৳{fmtPrice(subtotal)}</Text>
         </View>
-        <TouchableOpacity style={[s.checkoutBtn, { backgroundColor: '#25D366' }]}>
-          <MaterialIcons name="whatsapp" size={20} color="#fff" />
-          <Text style={s.checkoutText}>Complete Order</Text>
+        <TouchableOpacity style={[s.checkoutBtn, { backgroundColor: colors.primary }]} onPress={handleCheckout}>
+          <MaterialIcons name="shopping-cart-checkout" size={20} color="#fff" />
+          <Text style={s.checkoutText}>Proceed to Checkout</Text>
         </TouchableOpacity>
       </View>
     </View>

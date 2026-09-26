@@ -7,6 +7,11 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { useAuth } from '../../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../../api/profileApi';
+import OrdersTab from './OrdersTab';
+import AddressTab from './AddressTab';
+import TransactionTab from './TransactionTab';
+import ReviewsTab from './ReviewsTab';
+import DateOfBirthPicker from '../../components/DateOfBirthPicker';
 
 const TABS = [
   { key: 'profile', label: 'Basic Information', icon: 'person' },
@@ -15,13 +20,18 @@ const TABS = [
   { key: 'reviews', label: 'Reviews', icon: 'rate-review' },
   { key: 'transactions', label: 'Transaction', icon: 'account-balance-wallet' },
   { key: 'password', label: 'Change Password', icon: 'lock' },
-  { key: 'logout', label: 'Logout', icon: 'logout' },
 ];
 
-export default function DashboardScreen({ navigation }) {
-  const { user, token, logout, updateUser } = useAuth();
+export default function DashboardScreen({ navigation, route }) {
+  const { user, token, updateUser } = useAuth();
   const { colors } = useTheme();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(route?.params?.tab || 'profile');
+
+  useEffect(() => {
+    if (route?.params?.tab) {
+      setActiveTab(route.params.tab);
+    }
+  }, [route?.params?.tab]);
 
   // profile state
   const [profileEdit, setProfileEdit] = useState(false);
@@ -43,6 +53,9 @@ export default function DashboardScreen({ navigation }) {
   const [oldPass, setOldPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
+  const [showOldPass, setShowOldPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   useEffect(() => {
     if (token && activeTab === 'profile' && !profileEdit) {
@@ -125,13 +138,6 @@ export default function DashboardScreen({ navigation }) {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', style: 'destructive', onPress: logout },
-    ]);
   };
 
   const handleChangePassword = async () => {
@@ -238,12 +244,10 @@ export default function DashboardScreen({ navigation }) {
             </View>
             <View style={s.fieldRow}>
               <Text style={[s.fieldLabel, { color: colors.onSurface + '70' }]}>Date of Birth:</Text>
-              <TextInput
-                style={[s.editInput, { color: colors.text, borderColor: colors.onSurface + '20', backgroundColor: colors.background }]}
+              <DateOfBirthPicker
                 value={profile.birth_date}
-                onChangeText={text => setProfile(p => ({ ...p, birth_date: text }))}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor={colors.onSurface + '50'}
+                onChange={date => setProfile(p => ({ ...p, birth_date: date }))}
+                colors={colors}
               />
             </View>
             <View style={s.fieldRow}>
@@ -290,89 +294,55 @@ export default function DashboardScreen({ navigation }) {
       case 'profile':
         return renderProfile();
       case 'address':
-        return (
-          <View style={[s.section, { backgroundColor: colors.surface }]}>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>Saved Addresses</Text>
-            <View style={s.emptyState}>
-              <MaterialIcons name="location-off" size={48} color={colors.onSurface + '20'} />
-              <Text style={[s.emptyText, { color: colors.onSurface + '50' }]}>No addresses saved yet</Text>
-            </View>
-            <TouchableOpacity style={[s.addBtn, { backgroundColor: colors.primary }]}>
-              <MaterialIcons name="add" size={20} color="#fff" />
-              <Text style={s.addBtnText}>Add New Address</Text>
-            </TouchableOpacity>
-          </View>
-        );
+        return <AddressTab />;
       case 'orders':
-        return (
-          <View style={[s.section, { backgroundColor: colors.surface }]}>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>My Orders</Text>
-            <View style={s.emptyState}>
-              <MaterialIcons name="receipt-long" size={48} color={colors.onSurface + '20'} />
-              <Text style={[s.emptyText, { color: colors.onSurface + '50' }]}>No orders yet</Text>
-            </View>
-          </View>
-        );
+        return <OrdersTab />;
       case 'reviews':
-        return (
-          <View style={[s.section, { backgroundColor: colors.surface }]}>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>My Reviews</Text>
-            <View style={s.emptyState}>
-              <MaterialIcons name="rate-review" size={48} color={colors.onSurface + '20'} />
-              <Text style={[s.emptyText, { color: colors.onSurface + '50' }]}>No reviews yet</Text>
-            </View>
-          </View>
-        );
+        return <ReviewsTab />;
       case 'transactions':
-        return (
-          <View style={[s.section, { backgroundColor: colors.surface }]}>
-            <Text style={[s.sectionTitle, { color: colors.text }]}>Transaction History</Text>
-            <View style={s.emptyState}>
-              <MaterialIcons name="account-balance-wallet" size={48} color={colors.onSurface + '20'} />
-              <Text style={[s.emptyText, { color: colors.onSurface + '50' }]}>No transactions yet</Text>
-            </View>
-          </View>
-        );
+        return <TransactionTab />;
       case 'password':
         return (
           <View style={[s.section, { backgroundColor: colors.surface }]}>
             <Text style={[s.sectionTitle, { color: colors.text }]}>Change Password</Text>
             <View style={s.field}>
               <Text style={[s.label, { color: colors.onSurface + '70' }]}>Current Password</Text>
-              <TextInput
-                style={[s.input, { color: colors.text, borderColor: colors.onSurface + '20', backgroundColor: colors.background }]}
-                value={oldPass} onChangeText={setOldPass} secureTextEntry
-              />
+              <View style={s.passwordRow}>
+                <TextInput
+                  style={[s.input, s.passwordInput, { color: colors.text, borderColor: colors.onSurface + '20', backgroundColor: colors.background }]}
+                  value={oldPass} onChangeText={setOldPass} secureTextEntry={!showOldPass}
+                />
+                <TouchableOpacity style={s.eyeBtn} onPress={() => setShowOldPass(v => !v)}>
+                  <MaterialIcons name={showOldPass ? 'visibility-off' : 'visibility'} size={20} color={colors.onSurface + '60'} />
+                </TouchableOpacity>
+              </View>
             </View>
             <View style={s.field}>
               <Text style={[s.label, { color: colors.onSurface + '70' }]}>New Password</Text>
-              <TextInput
-                style={[s.input, { color: colors.text, borderColor: colors.onSurface + '20', backgroundColor: colors.background }]}
-                value={newPass} onChangeText={setNewPass} secureTextEntry
-              />
+              <View style={s.passwordRow}>
+                <TextInput
+                  style={[s.input, s.passwordInput, { color: colors.text, borderColor: colors.onSurface + '20', backgroundColor: colors.background }]}
+                  value={newPass} onChangeText={setNewPass} secureTextEntry={!showNewPass}
+                />
+                <TouchableOpacity style={s.eyeBtn} onPress={() => setShowNewPass(v => !v)}>
+                  <MaterialIcons name={showNewPass ? 'visibility-off' : 'visibility'} size={20} color={colors.onSurface + '60'} />
+                </TouchableOpacity>
+              </View>
             </View>
             <View style={s.field}>
               <Text style={[s.label, { color: colors.onSurface + '70' }]}>Confirm New Password</Text>
-              <TextInput
-                style={[s.input, { color: colors.text, borderColor: colors.onSurface + '20', backgroundColor: colors.background }]}
-                value={confirmPass} onChangeText={setConfirmPass} secureTextEntry
-              />
+              <View style={s.passwordRow}>
+                <TextInput
+                  style={[s.input, s.passwordInput, { color: colors.text, borderColor: colors.onSurface + '20', backgroundColor: colors.background }]}
+                  value={confirmPass} onChangeText={setConfirmPass} secureTextEntry={!showConfirmPass}
+                />
+                <TouchableOpacity style={s.eyeBtn} onPress={() => setShowConfirmPass(v => !v)}>
+                  <MaterialIcons name={showConfirmPass ? 'visibility-off' : 'visibility'} size={20} color={colors.onSurface + '60'} />
+                </TouchableOpacity>
+              </View>
             </View>
             <TouchableOpacity style={[s.saveBtn, { backgroundColor: colors.primary }]} onPress={handleChangePassword} disabled={saving}>
               {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.saveBtnText}>Change Password</Text>}
-            </TouchableOpacity>
-          </View>
-        );
-      case 'logout':
-        return (
-          <View style={[s.section, { backgroundColor: colors.surface }]}>
-            <View style={s.emptyState}>
-              <MaterialIcons name="logout" size={48} color="#EF4444" />
-              <Text style={[s.emptyText, { color: colors.onSurface + '70' }]}>Are you sure you want to logout?</Text>
-            </View>
-            <TouchableOpacity style={[s.logoutBtn]} onPress={handleLogout}>
-              <MaterialIcons name="logout" size={20} color="#fff" />
-              <Text style={s.logoutBtnText}>Logout</Text>
             </TouchableOpacity>
           </View>
         );
@@ -444,12 +414,13 @@ const s = StyleSheet.create({
   field: { marginBottom: 14 },
   label: { fontSize: 13, fontWeight: '600', marginBottom: 6 },
   input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, height: 46, fontSize: 15 },
+  passwordRow: { position: 'relative', justifyContent: 'center' },
+  passwordInput: { paddingRight: 44 },
+  eyeBtn: { position: 'absolute', right: 12, padding: 4 },
   saveBtn: { height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
   emptyState: { alignItems: 'center', paddingVertical: 30, gap: 8 },
   emptyText: { fontSize: 14 },
   addBtn: { flexDirection: 'row', height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', gap: 6 },
   addBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  logoutBtn: { flexDirection: 'row', height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#EF4444' },
-  logoutBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });

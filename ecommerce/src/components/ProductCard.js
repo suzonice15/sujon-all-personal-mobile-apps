@@ -48,7 +48,6 @@ export default function ProductCard({ item, colors, onPress }) {
   const { addItem } = useCart();
   const hasOffer = item.offerActive === 1 && item.offer_price > 0;
   const price = hasOffer ? item.offer_price : item.product_price;
-  const discount = hasOffer ? Math.round((1 - Number(item.offer_price) / Number(item.product_price)) * 100) : 0;
   const [loading, setLoading] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const timerRef = useRef(null);
@@ -76,11 +75,6 @@ export default function ProductCard({ item, colors, onPress }) {
       <TouchableOpacity onPress={() => onPress?.(item)} activeOpacity={0.7}>
         <View>
           <Image source={{ uri: imgUrl(item) }} style={s.image} resizeMode="contain" />
-          {hasOffer && (
-            <View style={s.discountBadge}>
-              <Text style={s.discountBadgeText}>-{discount}%</Text>
-            </View>
-          )}
         </View>
         <View style={s.body}>
           <Text style={[s.title, { color: '#111827' }]} numberOfLines={2}>
@@ -89,7 +83,6 @@ export default function ProductCard({ item, colors, onPress }) {
           {item.product_price > 0 && (
             <View style={s.priceRow}>
               <Text style={[s.price]}>৳{price}</Text>
-              {hasOffer && <Text style={s.oldPrice}>৳{item.product_price}</Text>}
             </View>
           )}
         </View>
@@ -130,13 +123,6 @@ const s = StyleSheet.create({
   title: { fontSize: 13, fontWeight: '700', marginBottom: 6, lineHeight: 18, height: 36 },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   price: { fontSize: 16, fontWeight: '800', color: '#EA580C' },
-  oldPrice: { fontSize: 12, textDecorationLine: 'line-through', color: '#9CA3AF' },
-  discountBadge: {
-    position: 'absolute', top: 6, left: 6,
-    backgroundColor: '#EF4444',
-    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10,
-  },
-  discountBadgeText: { color: '#fff', fontSize: 11, fontWeight: '800' },
   addBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 6,

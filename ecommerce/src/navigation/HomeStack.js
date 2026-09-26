@@ -19,6 +19,7 @@ import PrivacyScreen from '../screens/settings/PrivacyScreen';
 import FeedbackScreen from '../screens/settings/FeedbackScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import EmiInfoScreen from '../screens/product/EmiInfoScreen';
+import CmsPageScreen from '../screens/settings/CmsPageScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -65,6 +66,11 @@ export default function HomeStack() {
       <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'Feedback' }} />
       <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'Settings' }} />
       <Stack.Screen name="EmiInfo" component={EmiInfoScreen} options={{ title: 'EMI Information' }} />
+      <Stack.Screen
+        name="CmsPage"
+        component={CmsPageScreen}
+        options={({ route }) => ({ title: route.params?.title || '' })}
+      />
     </Stack.Navigator>
   );
 }

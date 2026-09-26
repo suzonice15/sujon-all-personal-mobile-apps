@@ -7,31 +7,41 @@ import { getHeaderOptions } from './headerOptions';
 import AccountScreen from '../screens/account/AccountScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import DashboardScreen from '../screens/auth/DashboardScreen';
+import OrderDetailScreen from '../screens/auth/OrderDetailScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import AboutAppsScreen from '../screens/settings/AboutAppsScreen';
 import AboutDeveloperScreen from '../screens/settings/AboutDeveloperScreen';
 import PrivacyScreen from '../screens/settings/PrivacyScreen';
 import FeedbackScreen from '../screens/settings/FeedbackScreen';
 import TermsScreen from '../screens/settings/TermsScreen';
+import CmsPageScreen from '../screens/settings/CmsPageScreen';
+import EmiInfoScreen from '../screens/product/EmiInfoScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function AccountStack() {
   const navigation = useNavigation();
   const { colors } = useTheme();
-  const headerOpts = getHeaderOptions(colors, { showMenu: false, navigation });
+  const headerOpts = getHeaderOptions(colors, { showMenu: true, navigation });
 
   return (
     <Stack.Navigator screenOptions={{ ...headerOpts, headerShown: true }}>
       <Stack.Screen name="AccountMain" component={AccountScreen} options={{ title: 'My Account' }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
+      <Stack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: 'Order Details' }} />
       <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'Settings' }} />
       <Stack.Screen name="AboutApps" component={AboutAppsScreen} options={{ title: 'About App' }} />
       <Stack.Screen name="AboutDeveloper" component={AboutDeveloperScreen} options={{ title: 'About Developer' }} />
       <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'Privacy Policy' }} />
       <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'Feedback' }} />
       <Stack.Screen name="Terms" component={TermsScreen} options={{ title: 'Terms' }} />
+      <Stack.Screen name="EmiInfo" component={EmiInfoScreen} options={{ title: 'EMI Information' }} />
+      <Stack.Screen
+        name="CmsPage"
+        component={CmsPageScreen}
+        options={({ route }) => ({ title: route.params?.title || '' })}
+      />
     </Stack.Navigator>
   );
 }

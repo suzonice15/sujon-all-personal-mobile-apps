@@ -73,7 +73,8 @@ const s = StyleSheet.create({
     paddingHorizontal: 0,
   },
   logo: {
-    height: 40,
+    height: 45,
+    marginLeft: -25,
   },
   titleText: {
     fontSize: 17,

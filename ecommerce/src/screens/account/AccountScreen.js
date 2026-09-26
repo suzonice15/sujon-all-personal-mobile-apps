@@ -1,23 +1,32 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import { useAuth } from '../../context/AuthContext';
 
 const menuItems = [
-  { icon: 'person', label: 'My Profile', screen: 'Dashboard', params: { tab: 'profile' } },
+  // { icon: 'person', label: 'My Profile', screen: 'Dashboard', params: { tab: 'profile' } },
   { icon: 'receipt', label: 'My Orders', screen: 'Dashboard', params: { tab: 'orders' } },
-  { icon: 'favorite', label: 'Wishlist', screen: null },
+  // { icon: 'favorite', label: 'Wishlist', screen: null },
   { icon: 'location-on', label: 'Address', screen: 'Dashboard', params: { tab: 'address' } },
-  { icon: 'rate-review', label: 'Reviews', screen: 'Dashboard', params: { tab: 'reviews' } },
   { icon: 'account-balance-wallet', label: 'Transactions', screen: 'Dashboard', params: { tab: 'transactions' } },
+    { icon: 'rate-review', label: 'Reviews', screen: 'Dashboard', params: { tab: 'reviews' } },
+
   { icon: 'lock', label: 'Change Password', screen: 'Dashboard', params: { tab: 'password' } },
   { icon: 'settings', label: 'Settings', screen: 'SettingInfo' },
+  { icon: 'logout', label: 'Logout', action: 'logout' },
 ];
 
 export default function AccountScreen({ navigation }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { colors } = useTheme();
+
+  const handleLogout = () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Logout', style: 'destructive', onPress: logout },
+    ]);
+  };
 
   if (!user) {
     return (
@@ -54,22 +63,28 @@ export default function AccountScreen({ navigation }) {
       </TouchableOpacity>
 
       <View style={[s.menuCard, { backgroundColor: colors.surface }]}>
-        {menuItems.map((item, index) => (
-          <TouchableOpacity
-            key={item.label}
-            style={[s.menuItem, index < menuItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.onSurface + '10' }]}
-            onPress={() => item.screen && navigation.navigate(item.screen, item.params)}
-            activeOpacity={0.7}
-          >
-            <View style={s.menuLeft}>
-              <View style={[s.menuIcon, { backgroundColor: colors.primary + '15' }]}>
-                <MaterialIcons name={item.icon} size={20} color={colors.primary} />
+        {menuItems.map((item, index) => {
+          const isLogout = item.action === 'logout';
+          return (
+            <TouchableOpacity
+              key={item.label}
+              style={[s.menuItem, index < menuItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.onSurface + '10' }]}
+              onPress={() => {
+                if (isLogout) handleLogout();
+                else if (item.screen) navigation.navigate(item.screen, item.params);
+              }}
+              activeOpacity={0.7}
+            >
+              <View style={s.menuLeft}>
+                <View style={[s.menuIcon, { backgroundColor: isLogout ? '#EF444415' : colors.primary + '15' }]}>
+                  <MaterialIcons name={item.icon} size={20} color={isLogout ? '#EF4444' : colors.primary} />
+                </View>
+                <Text style={[s.menuLabel, { color: isLogout ? '#EF4444' : colors.text }]}>{item.label}</Text>
               </View>
-              <Text style={[s.menuLabel, { color: colors.text }]}>{item.label}</Text>
-            </View>
-            <MaterialIcons name="chevron-right" size={22} color={colors.onSurface + '30'} />
-          </TouchableOpacity>
-        ))}
+              {!isLogout && <MaterialIcons name="chevron-right" size={22} color={colors.onSurface + '30'} />}
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </ScrollView>
   );

@@ -83,7 +83,7 @@ export default function BottomTabNavigator() {
       <Tab.Screen
         name="Account"
         component={AccountStack}
-        options={{ tabBarLabel: user?.name?.trim() || 'Account' }}
+        options={{ tabBarLabel: user ? 'Account' : 'Login' }}
       />
     </Tab.Navigator>
   );

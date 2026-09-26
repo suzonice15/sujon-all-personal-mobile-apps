@@ -406,11 +406,11 @@ export default function ProductDetailScreen({ route, navigation }) {
                 ))}
               </View>
             )}
-            {hasOffer && (
+            {/* {hasOffer && (
               <View style={styles.discountBadge}>
                 <Text style={styles.discountBadgeText}>-{discount}%</Text>
               </View>
-            )}
+            )} */}
           </View>
         )}
 
@@ -483,7 +483,7 @@ export default function ProductDetailScreen({ route, navigation }) {
           <View style={styles.cashDiscountCard}>
             <View style={styles.priceCardHeader}>
               <MaterialIcons name="local-offer" size={18} color="#16A34A" />
-              <Text style={styles.priceCardTitle}>Cash Discount Price</Text>
+              <Text style={styles.priceCardTitle}>  Price</Text>
             </View>
             <View style={styles.priceCardBody}>
               <Text style={styles.mainPriceText}>৳ {formatPrice(price)}</Text>
@@ -507,21 +507,9 @@ export default function ProductDetailScreen({ route, navigation }) {
           </View>
 
           {/* EMI Card */}
-          <View style={styles.emiPriceCard}>
-            <View style={styles.priceCardHeader}>
-              <MaterialIcons name="credit-card" size={18} color="#EA580C" />
-              <Text style={[styles.priceCardTitle, { color: '#111' }]}>EMI Price*</Text>
-            </View>
-            <View style={styles.priceCardBody}>
-              <Text style={styles.mainPriceText}>৳ {formatPrice(emiTotal)}</Text>
-              <TouchableOpacity onPress={() => setEmiModalVisible(true)}>
-                <Text style={styles.emiLinkText}>
-                  Starting from {formatPrice(emiMonthly)}৳/month. {`\n`}
-                  For Discount Price Click here to view {emiInfo.length} banks EMI Plans
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+
+         
+
         </View>
 
         {/* Collapsible Sections */}

@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
-  
+
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
     <View style={styles(isDark).itemLeft}>
@@ -61,22 +61,7 @@ export default function SettingsScreen({ navigation }) {
             />
           }
         />
-        <View style={styles(isDark).divider} />
-        <SettingItem
-          icon="dark-mode"
-          label="ডার্ক মোড"
-          isDark={isDark}
-          right={
-            <Switch
-              value={isDark}
-              onValueChange={toggleTheme}
-              trackColor={{ false: '#ddd', true: '#4F46E5' }}
-              thumbColor="#fff"
-            />
-          }
-        />
-        <View style={styles(isDark).divider} />
-        <SettingItem icon="language" label="ভাষা" isDark={isDark} />
+  
       </View>
 
       <SectionTitle title="অ্যাপ তথ্য" isDark={isDark} />
@@ -92,61 +77,64 @@ export default function SettingsScreen({ navigation }) {
         <View style={styles(isDark).divider} />
         <SettingItem icon="share" label="বন্ধুদের সাথে শেয়ার করুন" isDark={isDark} onPress={() => {}} />
       </View>
+ 
 
-      <SectionTitle title="সার্ভার সেটিংস" isDark={isDark} />
-      <View style={styles(isDark).card}>
-        <SettingItem icon="cloud" label="সার্ভার থেকে সেটিংস দেখুন" isDark={isDark} onPress={loadServerSettings} />
-      </View>
-
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles(isDark).modalOverlay}>
-          <View style={styles(isDark).modalContent}>
-            <Text style={styles(isDark).modalTitle}>সার্ভার সেটিংস</Text>
-            <ScrollView style={{ maxHeight: 400 }}>
-              {serverSettings && Object.entries(serverSettings).map(([key, value]) => (
-                <View key={key} style={styles(isDark).modalRow}>
-                  <Text style={styles(isDark).modalKey}>{key}</Text>
-                  <Text style={styles(isDark).modalValue}>{value}</Text>
-                </View>
-              ))}
-              {serverSettings && Object.keys(serverSettings).length === 0 && (
-                <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>কোনো সেটিংস নেই</Text>
-              )}
-            </ScrollView>
-            <TouchableOpacity style={styles(isDark).modalClose} onPress={() => setShowModal(false)}>
-              <Text style={styles(isDark).modalCloseText}>বন্ধ করুন</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
+      
        
 
       <SectionTitle title="সাপোর্ট" isDark={isDark} />
       <View style={styles(isDark).card}>
         <SettingItem
-          icon="privacy-tip"
-          label="প্রাইভেসি পলিসি"
+          icon="info"
+          label="About"
           isDark={isDark}
-          onPress={() => navigation.navigate('Privacy')}
+          onPress={() => navigation.navigate('CmsPage', { link: 'about-us', title: 'About' })}
         />
         <View style={styles(isDark).divider} />
         <SettingItem
           icon="description"
-          label="ব্যবহারের শর্তাবলী"
+          label="Terms & Conditions"
           isDark={isDark}
-          onPress={() => navigation.navigate('Terms')}
+          onPress={() => navigation.navigate('CmsPage', { link: 'terms-and-conditions', title: 'Terms & Conditions' })}
+        />
+        <View style={styles(isDark).divider} />
+        <SettingItem
+          icon="credit-card"
+          label="EMI Information"
+          isDark={isDark}
+          onPress={() => navigation.navigate('EmiInfo')}
+        />
+        <View style={styles(isDark).divider} />
+        <SettingItem
+          icon="assignment-return"
+          label="Return Policy"
+          isDark={isDark}
+          onPress={() => navigation.navigate('CmsPage', { link: 'refund-and-returns-policy', title: 'Return Policy' })}
+        />
+        <View style={styles(isDark).divider} />
+        <SettingItem
+          icon="privacy-tip"
+          label="Privacy Policy"
+          isDark={isDark}
+          onPress={() => navigation.navigate('CmsPage', { link: 'privacy-policy', title: 'Privacy Policy' })}
+        />
+        <View style={styles(isDark).divider} />
+        <SettingItem
+          icon="local-shipping"
+          label="Delivery"
+          isDark={isDark}
+          onPress={() => navigation.navigate('CmsPage', { link: 'delivery', title: 'Delivery' })}
         />
         <View style={styles(isDark).divider} />
         <SettingItem
           icon="mail"
-          label="যোগাযোগ করুন"
+          label="Contact Us"
           isDark={isDark}
-          onPress={() => Linking.openURL('mailto:support@example.com')}
+          onPress={() => Linking.openURL('mailto:jncomputerbd1@gmail.com')}
         />
       </View>
 
-      <Text style={styles(isDark).footer}>নবীদের গল্প © ২০২৪</Text>
+     
 
     </ScrollView>
   );
