@@ -1,15 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import React, { createContext, useContext } from 'react';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const systemScheme = useColorScheme();
-  const [userTheme, setUserTheme] = useState(null); // null = follow system
+  // App is light-mode only — ignore the device's system dark mode setting.
+  const isDark = false;
 
-  const isDark = userTheme !== null ? userTheme : systemScheme === 'dark';
-
-  const toggleTheme = (value) => setUserTheme(value);
+  const toggleTheme = () => {};
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>

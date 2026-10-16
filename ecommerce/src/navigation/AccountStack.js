@@ -6,6 +6,8 @@ import { getHeaderOptions } from './headerOptions';
 
 import AccountScreen from '../screens/account/AccountScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
+import RegisterScreen from '../screens/auth/RegisterScreen';
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import DashboardScreen from '../screens/auth/DashboardScreen';
 import OrderDetailScreen from '../screens/auth/OrderDetailScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
@@ -28,6 +30,8 @@ export default function AccountStack() {
     <Stack.Navigator screenOptions={{ ...headerOpts, headerShown: true }}>
       <Stack.Screen name="AccountMain" component={AccountScreen} options={{ title: 'My Account' }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: 'Order Details' }} />
       <Stack.Screen name="SettingInfo" component={SettingsScreen} options={{ title: 'Settings' }} />

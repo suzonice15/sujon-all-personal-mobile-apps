@@ -84,6 +84,12 @@ export default function BottomTabNavigator() {
         name="Account"
         component={AccountStack}
         options={{ tabBarLabel: user ? 'Account' : 'Login' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('Account', { screen: user ? 'AccountMain' : 'Login' });
+          },
+        })}
       />
     </Tab.Navigator>
   );

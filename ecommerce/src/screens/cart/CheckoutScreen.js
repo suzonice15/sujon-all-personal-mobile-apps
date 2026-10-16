@@ -9,6 +9,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { getAllAddress, editAddress } from '../../api/addressApi';
 import { placeOrder } from '../../api/checkoutApi';
+import LoginScreen from '../auth/LoginScreen';
+import AddressFormModal from '../../components/AddressFormModal';
 
 const SHIPPING_CHARGE = 100;
 
@@ -31,6 +33,8 @@ export default function CheckoutScreen({ navigation }) {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [addressPickerOpen, setAddressPickerOpen] = useState(false);
+  const [addAddressOpen, setAddAddressOpen] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
   const [paymentType, setPaymentType] = useState('cash_on_delevery');
   const [customerNote, setCustomerNote] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -59,6 +63,34 @@ export default function CheckoutScreen({ navigation }) {
     navigation.addListener?.('focus', fetchAddresses);
   }, [navigation, fetchAddresses]);
 
+  const handleAddressSaved = async () => {
+    const prevIds = new Set(addresses.map((a) => a.address_id));
+    const selectedId = selectedAddress?.address_id;
+    try {
+      const res = await getAllAddress(user.id);
+      const list = Array.isArray(res) ? res : [];
+      setAddresses(list);
+      const stillSelected = selectedId && list.find((a) => a.address_id === selectedId);
+      if (stillSelected) {
+        setSelectedAddress(stillSelected);
+        return;
+      }
+      const newlyAdded = list.find((a) => !prevIds.has(a.address_id));
+      setSelectedAddress(newlyAdded || list[list.length - 1] || list[0] || null);
+    } catch {}
+  };
+
+  const openAddAddress = () => {
+    setEditingAddressId(null);
+    setAddAddressOpen(true);
+  };
+
+  const openEditAddress = (id) => {
+    setEditingAddressId(id);
+    setAddAddressOpen(true);
+    setAddressPickerOpen(false);
+  };
+
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (i.qty || 1), 0);
   const total = subtotal + SHIPPING_CHARGE;
 
@@ -79,8 +111,8 @@ export default function CheckoutScreen({ navigation }) {
 
       const res = await placeOrder({
         auth: 'login',
+        login_success: true,
         user_id: user.id,
-        api_token: token,
         name: user.name,
         phone: user.phone,
         address: addr.address,
@@ -88,8 +120,9 @@ export default function CheckoutScreen({ navigation }) {
         district_id: addr.district_id,
         upazila_id: addr.upazila_id,
         payment_type: paymentType,
+        emi_option: 2,
         customer_note: customerNote,
-        checked: 1,
+        checked: '1',
         shipping_charge: SHIPPING_CHARGE,
         subtotal,
         order_total: total,
@@ -125,17 +158,26 @@ export default function CheckoutScreen({ navigation }) {
           {loadingAddresses ? (
             <ActivityIndicator color={colors.primary} />
           ) : selectedAddress ? (
-            <View>
-              <Text style={[s.addressText, { color: colors.text }]}>{selectedAddress.address}</Text>
-              <Text style={[s.addressSub, { color: colors.onSurface + '70' }]}>
-                {[selectedAddress.upazilas_name, selectedAddress.district_name, selectedAddress.division_name].filter(Boolean).join(', ')}
-              </Text>
-              <Text style={[s.addressSub, { color: colors.onSurface + '70' }]}>{user?.phone}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.addressText, { color: colors.text }]}>{selectedAddress.address}</Text>
+                <Text style={[s.addressSub, { color: colors.onSurface + '70' }]}>
+                  {[selectedAddress.upazilas_name, selectedAddress.district_name, selectedAddress.division_name].filter(Boolean).join(', ')}
+                </Text>
+                <Text style={[s.addressSub, { color: colors.onSurface + '70' }]}>{user?.phone}</Text>
+              </View>
+              <TouchableOpacity
+                style={s.editAddressBtn}
+                onPress={() => openEditAddress(selectedAddress.address_id)}
+              >
+                <MaterialIcons name="edit" size={16} color={colors.primary} />
+                <Text style={[s.changeLink, { color: colors.primary }]}>Edit</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity
               style={s.addAddressBtn}
-              onPress={() => navigation.navigate('Account', { screen: 'Dashboard', params: { tab: 'address' } })}
+              onPress={openAddAddress}
             >
               <MaterialIcons name="add-location-alt" size={18} color={colors.primary} />
               <Text style={[s.addAddressText, { color: colors.primary }]}>Add a delivery address</Text>
@@ -205,12 +247,22 @@ export default function CheckoutScreen({ navigation }) {
         </View>
 
         {/* Terms */}
-        <TouchableOpacity style={s.termsRow} onPress={() => setAgreed((v) => !v)}>
-          <MaterialIcons
-            name={agreed ? 'check-box' : 'check-box-outline-blank'}
-            size={20}
-            color={agreed ? colors.primary : colors.onSurface + '50'}
-          />
+        <TouchableOpacity
+          style={[s.termsRow, { backgroundColor: colors.surface, borderColor: agreed ? colors.primary : colors.onSurface + '15' }]}
+          onPress={() => setAgreed((v) => !v)}
+          activeOpacity={0.7}
+        >
+          <View
+            style={[
+              s.checkbox,
+              {
+                backgroundColor: agreed ? colors.primary : 'transparent',
+                borderColor: agreed ? colors.primary : colors.onSurface + '40',
+              },
+            ]}
+          >
+            {agreed && <MaterialIcons name="check" size={18} color="#fff" />}
+          </View>
           <Text style={[s.termsText, { color: colors.onSurface + '80' }]}>
             I agree to the{' '}
             <Text
@@ -261,6 +313,13 @@ export default function CheckoutScreen({ navigation }) {
                       {[item.upazilas_name, item.district_name, item.division_name].filter(Boolean).join(', ')}
                     </Text>
                   </View>
+                  <TouchableOpacity
+                    style={s.editIconBtn}
+                    onPress={() => openEditAddress(item.address_id)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <MaterialIcons name="edit" size={18} color={colors.primary} />
+                  </TouchableOpacity>
                 </TouchableOpacity>
               )}
               ListEmptyComponent={<Text style={{ color: colors.onSurface + '50', padding: 16 }}>No saved addresses</Text>}
@@ -269,12 +328,39 @@ export default function CheckoutScreen({ navigation }) {
               style={[s.addAddressBtn, { justifyContent: 'center', paddingVertical: 12 }]}
               onPress={() => {
                 setAddressPickerOpen(false);
-                navigation.navigate('Account', { screen: 'Dashboard', params: { tab: 'address' } });
+                openAddAddress();
               }}
             >
               <MaterialIcons name="add" size={18} color={colors.primary} />
               <Text style={[s.addAddressText, { color: colors.primary }]}>Add New Address</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <AddressFormModal
+        visible={addAddressOpen}
+        onClose={() => { setAddAddressOpen(false); setEditingAddressId(null); }}
+        addressId={editingAddressId}
+        colors={colors}
+        onSaved={handleAddressSaved}
+      />
+
+      <Modal
+        visible={!user}
+        transparent
+        animationType="fade"
+        onRequestClose={() => navigation.goBack()}
+      >
+        <View style={s.loginModalOverlay}>
+          <View style={s.loginModalCard}>
+            <LoginScreen
+              navigation={navigation}
+              route={{ params: {} }}
+              onSuccess={() => {}}
+              onBack={() => navigation.goBack()}
+              compact
+            />
           </View>
         </View>
       </Modal>
@@ -297,6 +383,8 @@ const s = StyleSheet.create({
   addressSub: { fontSize: 12, marginTop: 3 },
   addAddressBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   addAddressText: { fontSize: 14, fontWeight: '600' },
+  editAddressBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 8 },
+  editIconBtn: { padding: 4, marginLeft: 6 },
   paymentRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
   paymentLabel: { fontSize: 14, marginLeft: 8 },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
@@ -309,8 +397,18 @@ const s = StyleSheet.create({
   summaryLabel: { fontSize: 13 },
   summaryValue: { fontSize: 13, fontWeight: '600' },
   noteInput: { borderWidth: 1, borderRadius: 10, padding: 10, minHeight: 60, fontSize: 14, textAlignVertical: 'top' },
-  termsRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingHorizontal: 4, marginBottom: 10 },
-  termsText: { fontSize: 13, flex: 1, lineHeight: 19 },
+  termsRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingHorizontal: 14, paddingVertical: 14,
+    borderRadius: 14, borderWidth: 1.5, marginBottom: 14,
+    elevation: 1, shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2,
+  },
+  checkbox: {
+    width: 26, height: 26, borderRadius: 8, borderWidth: 2,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  termsText: { fontSize: 14, flex: 1, lineHeight: 20 },
   footer: { padding: 16, borderTopWidth: 1 },
   placeOrderBtn: { height: 50, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   placeOrderText: { color: '#fff', fontSize: 15, fontWeight: '700' },
@@ -318,4 +416,6 @@ const s = StyleSheet.create({
   modalSheet: { borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 16, maxHeight: '75%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   addressOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  loginModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  loginModalCard: { width: '90%', maxWidth: 400, height: 560, maxHeight: '85%', borderRadius: 20, overflow: 'hidden', backgroundColor: '#fff' },
 });

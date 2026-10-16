@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
+  ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, StatusBar,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, route, onSuccess, onBack, compact }) {
   const { login } = useAuth();
   const insets = useSafeAreaInsets();
   const [phone, setPhone] = useState('');
@@ -23,7 +23,16 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     try {
       await login(phone.trim(), password);
-      navigation.goBack();
+      if (onSuccess) {
+        onSuccess();
+        return;
+      }
+      const redirect = route?.params?.redirect;
+      if (redirect?.stack) {
+        navigation.navigate(redirect.stack, { screen: redirect.screen, params: redirect.params });
+      } else {
+        navigation.replace(redirect?.screen || 'AccountMain', redirect?.params);
+      }
     } catch (e) {
       Alert.alert('Login Failed', e?.response?.data?.message || e.message || 'Something went wrong');
     } finally {
@@ -36,21 +45,28 @@ export default function LoginScreen({ navigation }) {
       style={[s.container, { backgroundColor: '#fff' }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
-        <TouchableOpacity style={[s.backBtn, { marginTop: insets.top + 12 }]} onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={26} color="#333" />
+      {!compact && <StatusBar barStyle="dark-content" backgroundColor="#fff" />}
+      <ScrollView
+        contentContainerStyle={[s.scroll, compact && s.scrollCompact]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <TouchableOpacity
+          style={[s.backBtn, { marginTop: compact ? 4 : insets.top + 12 }, compact && s.backBtnCompact]}
+          onPress={onBack || (() => navigation.goBack())}
+        >
+          <MaterialIcons name="arrow-back" size={compact ? 20 : 26} color="#333" />
         </TouchableOpacity>
 
-        <View style={s.logoWrap}>
-          <View style={s.logoCircle}>
-            <MaterialIcons name="person" size={40} color="#27C34B" />
+        <View style={[s.logoWrap, compact && s.logoWrapCompact]}>
+          <View style={[s.logoCircle, compact && s.logoCircleCompact]}>
+            <MaterialIcons name="person" size={compact ? 28 : 40} color="#27C34B" />
           </View>
         </View>
 
-        <Text style={s.headTitle}>Login</Text>
-        <Text style={s.headSub}>Welcome back! Sign in to your account.</Text>
+        <Text style={[s.headTitle, compact && s.headTitleCompact]}>Login</Text>
+        <Text style={[s.headSub, compact && s.headSubCompact]}>Welcome back! Sign in to your account.</Text>
 
-        <View style={s.form}>
+        <View style={[s.form, compact && s.formCompact]}>
           <View style={[s.inputWrap, { borderColor: '#E5E7EB' }]}>
             <MaterialIcons name="phone" size={20} color="#9CA3AF" />
             <TextInput
@@ -78,7 +94,7 @@ export default function LoginScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={() => Alert.alert('Coming Soon', 'Forgot password feature coming soon.')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Account', { screen: 'ForgotPassword' })}>
             <Text style={s.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
@@ -97,7 +113,7 @@ export default function LoginScreen({ navigation }) {
 
           <View style={s.signupRow}>
             <Text style={s.signupText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => Alert.alert('Coming Soon', 'Registration will be available soon.')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Account', { screen: 'Register' })}>
               <Text style={s.signupLink}>Sign up</Text>
             </TouchableOpacity>
           </View>
@@ -110,16 +126,23 @@ export default function LoginScreen({ navigation }) {
 const s = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flexGrow: 1, paddingHorizontal: 32, paddingBottom: 40 },
+  scrollCompact: { paddingHorizontal: 24, paddingTop: 20, paddingBottom: 24 },
   backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#F3F4F6', alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
+  backBtnCompact: { width: 32, height: 32, borderRadius: 16, marginBottom: 12 },
   logoWrap: { alignItems: 'center', marginBottom: 20 },
+  logoWrapCompact: { marginBottom: 10 },
   logoCircle: {
     width: 80, height: 80, borderRadius: 40,
     backgroundColor: '#ECFDF5', alignItems: 'center', justifyContent: 'center',
     borderWidth: 2, borderColor: '#D1FAE5',
   },
+  logoCircleCompact: { width: 56, height: 56, borderRadius: 28, borderWidth: 1.5 },
   headTitle: { fontSize: 28, fontWeight: '800', color: '#111827', textAlign: 'center' },
+  headTitleCompact: { fontSize: 20 },
   headSub: { fontSize: 14, color: '#6B7280', textAlign: 'center', marginTop: 6, marginBottom: 28 },
+  headSubCompact: { fontSize: 12, marginBottom: 16 },
   form: { gap: 14 },
+  formCompact: { gap: 10 },
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
     borderWidth: 1, borderRadius: 14,

@@ -1,37 +1,80 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { getCart, addToCart, incrementCartItem, decrementCartItem, removeCartItem } from '../api/cartApi';
+import { api_image } from '../config/url';
 
-const CartContext = createContext({ items: [], count: 0, addItem: () => {}, removeItem: () => {}, updateQty: () => {}, clearCart: () => {} });
+const CartContext = createContext({
+  items: [], count: 0, loading: true,
+  addItem: () => {}, removeItem: () => {}, updateQty: () => {}, clearCart: () => {}, refresh: () => {},
+});
+
+const toFullUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const base = api_image.endsWith('/') ? api_image.slice(0, -1) : api_image;
+  const rel = path.startsWith('/') ? path.slice(1) : path;
+  return base + '/products/' + rel;
+};
+
+const normalize = (carts) =>
+  (Array.isArray(carts) ? carts : []).map((c) => ({
+    cart_id: c.cart_id,
+    product_id: c.product_id,
+    id: c.product_id,
+    name: c.product_name,
+    image: toFullUrl(c.product_image),
+    price: Number(c.price) || 0,
+    qty: Number(c.qty) || 1,
+  }));
 
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const getId = (item) => item.product_id || item.id;
+  const refresh = useCallback(async () => {
+    try {
+      const res = await getCart();
+      setItems(normalize(res?.carts));
+    } catch {
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const addItem = useCallback((product) => {
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const addItem = useCallback(async (product, qty = 1) => {
     const pid = product.product_id || product.id;
-    setItems((prev) => {
-      const existing = prev.find((i) => getId(i) === pid);
-      if (existing) {
-        return prev.map((i) => getId(i) === pid ? { ...i, qty: i.qty + 1 } : i);
-      }
-      return [...prev, { ...product, qty: 1 }];
-    });
-  }, []);
+    await addToCart(pid, qty);
+    await refresh();
+  }, [refresh]);
 
-  const removeItem = useCallback((id) => {
-    setItems((prev) => prev.filter((i) => getId(i) !== id));
-  }, []);
+  const removeItem = useCallback(async (cartId) => {
+    await removeCartItem(cartId);
+    await refresh();
+  }, [refresh]);
 
-  const updateQty = useCallback((id, delta) => {
-    setItems((prev) => prev.map((i) => getId(i) === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i));
-  }, []);
+  const updateQty = useCallback(async (cartId, delta) => {
+    if (delta > 0) await incrementCartItem(cartId);
+    else await decrementCartItem(cartId);
+    await refresh();
+  }, [refresh]);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = useCallback(async () => {
+    try {
+      await Promise.all(items.map((i) => removeCartItem(i.cart_id)));
+    } catch {
+      // server may have already cleared the cart (e.g. after checkout)
+    }
+    await refresh();
+  }, [items, refresh]);
 
   const count = items.reduce((sum, i) => sum + i.qty, 0);
 
   return (
-    <CartContext.Provider value={{ items, count, addItem, removeItem, updateQty, clearCart }}>
+    <CartContext.Provider value={{ items, count, loading, addItem, removeItem, updateQty, clearCart, refresh }}>
       {children}
     </CartContext.Provider>
   );

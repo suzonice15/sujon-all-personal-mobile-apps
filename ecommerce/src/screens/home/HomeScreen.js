@@ -12,6 +12,7 @@ import { useTheme as usePaperTheme } from 'react-native-paper';
 import BannerSlider from '../../components/BannerSlider';
 import CategoryGrid from '../../components/CategoryGrid';
 import ProductCard from '../../components/ProductCard';
+import HomeSkeleton from '../../components/skeleton/HomeSkeleton';
 
 const s = StyleSheet.create({
   container: { flex: 1 },
@@ -23,7 +24,7 @@ export default function HomeScreen({ navigation }) {
   const [products, setProducts] = useState([]);
   const [sliders, setSliders] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { colors } = usePaperTheme();
 
   const loadData = useCallback(async (force = false) => {
@@ -62,6 +63,16 @@ export default function HomeScreen({ navigation }) {
       if (products.length === 0) loadData();
     }, [products.length, loadData])
   );
+
+  const isInitialLoading = loading && products.length === 0 && sliders.length === 0 && categories.length === 0;
+
+  if (isInitialLoading) {
+    return (
+      <View style={[s.container, { backgroundColor: colors.background }]}>
+        <HomeSkeleton colors={colors} />
+      </View>
+    );
+  }
 
   return (
     <View style={[s.container, { backgroundColor: colors.background }]}>

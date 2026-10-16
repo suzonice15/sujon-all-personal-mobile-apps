@@ -18,11 +18,7 @@ export default function CartScreen({ navigation }) {
   const { colors } = useTheme();
 
   const handleCheckout = () => {
-    if (user) {
-      navigation.navigate('Checkout');
-    } else {
-      navigation.navigate('Account', { screen: 'Login' });
-    }
+    navigation.navigate('Checkout');
   };
 
   useFocusEffect(
@@ -46,18 +42,18 @@ export default function CartScreen({ navigation }) {
         </Text>
         <Text style={[s.itemPrice, { color: colors.primary }]}>৳{fmtPrice(item.price)}</Text>
         <View style={s.qtyRow}>
-          <TouchableOpacity onPress={() => updateQty(item.id, -1)} style={[s.qtyBtn, { backgroundColor: colors.primary }]}>
+          <TouchableOpacity onPress={() => updateQty(item.cart_id, -1)} style={[s.qtyBtn, { backgroundColor: colors.primary }]}>
             <MaterialIcons name="remove" size={16} color="#fff" />
           </TouchableOpacity>
           <Text style={[s.qtyText, { color: colors.text }]}>{item.qty || 1}</Text>
-          <TouchableOpacity onPress={() => updateQty(item.id, 1)} style={[s.qtyBtn, { backgroundColor: colors.primary }]}>
+          <TouchableOpacity onPress={() => updateQty(item.cart_id, 1)} style={[s.qtyBtn, { backgroundColor: colors.primary }]}>
             <MaterialIcons name="add" size={16} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
       <View style={s.itemRight}>
         <Text style={[s.itemSubtotal, { color: colors.text }]}>৳{fmtPrice((item.price || 0) * (item.qty || 1))}</Text>
-        <TouchableOpacity onPress={() => removeItem(item.id)} style={s.deleteBtn}>
+        <TouchableOpacity onPress={() => removeItem(item.cart_id)} style={s.deleteBtn}>
           <MaterialIcons name="delete-outline" size={22} color="#EF4444" />
         </TouchableOpacity>
       </View>
@@ -87,7 +83,7 @@ export default function CartScreen({ navigation }) {
       <FlatList
         data={items}
         renderItem={renderItem}
-        keyExtractor={(item) => String(item.id)}
+        keyExtractor={(item) => String(item.cart_id)}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={

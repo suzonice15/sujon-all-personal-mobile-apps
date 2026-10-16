@@ -24,6 +24,7 @@ function AppInner() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <PaperProvider theme={isDark ? darkTheme : lightTheme}>
         <NavigationContainer ref={navigationRef}>
           <DrawerNavigator />

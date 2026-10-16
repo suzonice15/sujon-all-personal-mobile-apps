@@ -52,22 +52,22 @@ export default function ProductCard({ item, colors, onPress }) {
   const [toastVisible, setToastVisible] = useState(false);
   const timerRef = useRef(null);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (loading) return;
     setLoading(true);
-    setTimeout(() => {
-      addItem({
+    try {
+      await addItem({
         product_id: item.product_id || item.id,
         id: item.product_id || item.id,
-        name: item.product_title,
-        image: imgUrl(item),
-        price: Number(price),
       });
-      setLoading(false);
       setToastVisible(true);
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => setToastVisible(false), 2000);
-    }, 600);
+    } catch {
+      // ignore; cart state stays unchanged on failure
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useCart } from '../context/CartContext';
@@ -10,6 +10,7 @@ export default function ProductDetailHeader({ navigation, title }) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar backgroundColor="#000" barStyle="light-content" />
       <View style={styles.row}>
         {/* Left - Back */}
         <TouchableOpacity

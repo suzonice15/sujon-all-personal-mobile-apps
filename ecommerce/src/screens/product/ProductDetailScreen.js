@@ -314,9 +314,13 @@ export default function ProductDetailScreen({ route, navigation }) {
     });
   }, [navigation, product, count]);
 
-  const handleAddToCart = () => {
-    addItem(p);
-    setSnackVisible(true);
+  const handleAddToCart = async () => {
+    try {
+      await addItem(p);
+      setSnackVisible(true);
+    } catch {
+      // ignore; cart state stays unchanged on failure
+    }
   };
 
   const startFlyToCart = () => {

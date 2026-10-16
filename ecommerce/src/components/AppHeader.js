@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NotificationBell from './NotificationBell';
@@ -9,6 +9,7 @@ export default function AppHeader({ navigation, colors, showMenu, title }) {
 
   return (
     <View style={[s.container, { backgroundColor: colors.headerBackground, paddingTop: insets.top + 6 }]}>
+      <StatusBar backgroundColor={colors.headerBackground} barStyle="light-content" />
       <View style={s.row}>
         {showMenu && navigation && (
           <TouchableOpacity onPress={() => navigation.openDrawer()} style={s.menuBtn}>
