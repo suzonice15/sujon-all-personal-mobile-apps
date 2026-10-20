@@ -30,6 +30,10 @@ export const getOfferDetails = (offerName) => {
   return api.get(`/singleOffer/${offerName}`);
 };
 
+export const getHeaderPicture = () => {
+  return api.get('/getHeaderPicture');
+};
+
 export const getOfferCategories = () => {
   return api.get('/offerAllCategoryList');
 };

@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api_image } from '../../config/url';
 import ProductCard from '../../components/ProductCard';
 import {
-  getOfferDetails,
+  getHeaderPicture,
   getOfferCategories,
   getOfferProducts,
   getBrandByCategory,
@@ -29,8 +29,6 @@ const toFullBannerUrl = (path) => {
   return base + '/public/pages/' + path;
 };
 
-const DEFAULT_OFFER = 'offer';
-
 export default function UraduraDealScreen({ navigation }) {
   const { colors } = usePaperTheme();
   const insets = useSafeAreaInsets();
@@ -46,6 +44,7 @@ export default function UraduraDealScreen({ navigation }) {
   const [brands, setBrands] = useState([]);
   const [offerBanner, setOfferBanner] = useState(null);
   const [offerActive, setOfferActive] = useState(true);
+  const [offerName, setOfferName] = useState('');
 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBrand, setSelectedBrand] = useState(null);
@@ -74,15 +73,16 @@ export default function UraduraDealScreen({ navigation }) {
   const loadInitialData = async () => {
     setLoading(true);
     try {
-      const [offerRes, catRes, prodRes] = await Promise.all([
-        getOfferDetails(DEFAULT_OFFER).catch(() => null),
+      const [headerRes, catRes, prodRes] = await Promise.all([
+        getHeaderPicture().catch(() => null),
         getOfferCategories().catch(() => []),
         getOfferProducts().catch(() => ({ products: [], min_price: 0, max_price: 50000 })),
       ]);
 
-      if (offerRes?.setting) {
-        setOfferBanner(toFullBannerUrl(offerRes.setting.offer_banner));
-        setOfferActive(offerRes.setting.offerActiveStatus === 1);
+      if (headerRes) {
+        setOfferName(headerRes.offer_name || '');
+        setOfferBanner(toFullBannerUrl(headerRes.offer_banner));
+        setOfferActive(headerRes.offerActiveStatus === 1);
       }
 
       const catList = Array.isArray(catRes) ? catRes : catRes?.data || catRes?.categories || [];
@@ -221,7 +221,7 @@ export default function UraduraDealScreen({ navigation }) {
               <MaterialIcons name="local-offer" size={20} color="#fff" />
               <Text style={styles.bannerTagText}>SPECIAL OFFERS</Text>
             </View>
-                <Text style={styles.bannerTitle}>Best Offers</Text>
+                <Text style={styles.bannerTitle}>{offerName || 'Best Offers'}</Text>
                 <Text style={styles.bannerSub}>Special discounts for limited time</Text>
           </View>
         </View>
