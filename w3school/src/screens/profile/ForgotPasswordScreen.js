@@ -1,0 +1,211 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ToastAndroid, ActivityIndicator, KeyboardAvoidingView, ScrollView } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useTheme } from 'react-native-paper';
+import { forgotPassword, verifyOtp } from '../../api/userApi';
+import { resetPasswordAndLogin } from '../../db/auth';
+import AdBanner from '../../components/ads/AdBanner';
+import AdNative from '../../components/ads/AdNative';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
+
+export default function ForgotPasswordScreen({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1); // 1=email, 2=otp, 3=password
+  const [timer, setTimer] = useState(0);
+  const intervalRef = useRef(null);
+  const { colors } = useTheme();
+  const s = styles(colors);
+  const { showAd } = useAdInterstitial();
+
+  useEffect(() => { showAd(); }, []);
+
+  useEffect(() => {
+    if (timer > 0) {
+      intervalRef.current = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(intervalRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(intervalRef.current);
+    }
+  }, [timer]);
+
+  const handleSendOtp = async () => {
+    if (!email.trim()) {
+      ToastAndroid.show('Enter your email', ToastAndroid.SHORT);
+      return;
+    }
+    setLoading(true);
+    const res = await forgotPassword(email.trim());
+    setLoading(false);
+    if (res.success) {
+      setStep(2);
+      setTimer(300);
+      ToastAndroid.show('OTP sent', ToastAndroid.SHORT);
+    } else {
+      ToastAndroid.show(res.message || 'Failed', ToastAndroid.SHORT);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp.trim() || otp.length !== 4) {
+      ToastAndroid.show('Enter the 4-digit OTP', ToastAndroid.SHORT);
+      return;
+    }
+    setLoading(true);
+    const res = await verifyOtp(email.trim(), otp.trim());
+    setLoading(false);
+    if (res.success) {
+      setStep(3);
+      ToastAndroid.show('OTP verified', ToastAndroid.SHORT);
+    } else {
+      ToastAndroid.show(res.message || 'Wrong OTP', ToastAndroid.SHORT);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!password.trim() || password.length < 4) {
+      ToastAndroid.show('New password must be at least 4 characters', ToastAndroid.SHORT);
+      return;
+    }
+    setLoading(true);
+    const res = await resetPasswordAndLogin(email.trim(), otp.trim(), password.trim());
+    setLoading(false);
+    if (res.success) {
+      ToastAndroid.show('Password has been reset', ToastAndroid.SHORT);
+      navigation.replace('Dashboard');
+    } else {
+      ToastAndroid.show(res.message || 'Failed', ToastAndroid.SHORT);
+    }
+  };
+
+  const formatTime = sec => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <KeyboardAvoidingView style={s.container} behavior="padding">
+      <View style={s.inner}>
+        <ScrollView contentContainerStyle={s.scrollContent} keyboardShouldPersistTaps="handled">
+          <View style={s.iconBox}>
+            <MaterialIcons name="lock-reset" size={60} color={colors.primary} />
+          </View>
+
+          {step === 1 && (
+            <>
+              <Text style={s.title}>Forgot password?</Text>
+              <Text style={s.subtitle}>Enter your registered email. We will send you an OTP.</Text>
+
+              <TextInput
+                style={s.input}
+                placeholder="Email"
+                placeholderTextColor={colors.onSurface + '66'}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <TouchableOpacity style={s.btn} onPress={handleSendOtp} disabled={loading}>
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>Send OTP</Text>}
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Text style={s.link}>Back to login</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <Text style={s.title}>Verify OTP</Text>
+              <Text style={s.subtitle}>Enter the OTP sent to {email}</Text>
+
+              <TextInput
+                style={s.input}
+                placeholder="4-digit OTP"
+                placeholderTextColor={colors.onSurface + '66'}
+                value={otp}
+                onChangeText={setOtp}
+                keyboardType="number-pad"
+                maxLength={4}
+              />
+
+              {timer > 0 && (
+                <Text style={s.timerText}>{formatTime(timer)}</Text>
+              )}
+
+              <TouchableOpacity style={s.btn} onPress={handleVerifyOtp} disabled={loading}>
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>Verify OTP</Text>}
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleSendOtp} disabled={loading || timer > 0}>
+                <Text style={[s.link, timer > 0 && { opacity: 0.4 }]}>Resend OTP</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {step === 3 && (
+            <>
+              <Text style={s.title}>New password</Text>
+              <Text style={s.subtitle}>Enter your new password</Text>
+
+              <View style={s.passwordRow}>
+                <TextInput
+                  style={[s.input, { flex: 1, marginBottom: 0 }]}
+                  placeholder="New password"
+                  placeholderTextColor={colors.onSurface + '66'}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity style={s.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
+                  <MaterialIcons name={showPassword ? 'visibility' : 'visibility-off'} size={20} color={colors.onSurface + '88'} />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity style={s.btn} onPress={handleResetPassword} disabled={loading}>
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>Reset Password & Log In</Text>}
+              </TouchableOpacity>
+            </>
+          )}
+
+          <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+        </ScrollView>
+        <AdBanner />
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  inner: { flex: 1 },
+  scrollContent: { padding: 20, flexGrow: 1, justifyContent: 'center' },
+  iconBox: { alignItems: 'center', marginBottom: 10 },
+  title: { fontSize: 20, fontWeight: 'bold', color: colors.onSurface, textAlign: 'center', marginBottom: 10 },
+  subtitle: { fontSize: 14, color: colors.onSurface, textAlign: 'center', marginBottom: 24, opacity: 0.6, lineHeight: 20 },
+  input: {
+    borderWidth: 1, borderColor: colors.surface, borderRadius: 12,
+    padding: 14, fontSize: 15, color: colors.onSurface, marginBottom: 14, backgroundColor: colors.surface,
+  },
+  passwordRow: {
+    flexDirection: 'row', alignItems: 'center', marginBottom: 14,
+    borderWidth: 1, borderColor: colors.surface, borderRadius: 12, backgroundColor: colors.surface,
+  },
+  eyeBtn: { paddingHorizontal: 14 },
+  btn: { backgroundColor: colors.primary, borderRadius: 12, padding: 15, alignItems: 'center', marginTop: 6, marginBottom: 18 },
+  btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  link: { textAlign: 'center', color: colors.primary, fontWeight: '600', fontSize: 14, marginTop: 8 },
+  timerText: { textAlign: 'center', fontSize: 20, fontWeight: '700', color: '#EF4444', marginBottom: 10 },
+});

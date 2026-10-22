@@ -1,0 +1,34 @@
+buildscript {
+    ext {
+        buildToolsVersion = "36.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 36
+        targetSdkVersion = 36
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.3.21"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.7.3")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+    }
+}
+
+plugins {
+    id("com.facebook.react.rootproject")
+}
+
+// Native libraries (reanimated, worklets, screens...) put their CMake build folders inside
+// node_modules. In release builds ("RelWithDebInfo") those paths pass ~250 characters and the
+// Ninja bundled with CMake 3.22 fails with "build.ninja still dirty after 100 tries" on Windows.
+// Keeping the CMake folders under a short path avoids it.
+// (The app module sets the same thing in app/build.gradle.)
+subprojects { project ->
+    project.plugins.withId("com.android.library") {
+        project.android.externalNativeBuild.cmake.buildStagingDirectory =
+            new File(System.getProperty("os.name").toLowerCase().contains("windows") ? "C:/rnx" : "${rootDir}/build/rnx", project.name)
+    }
+}

@@ -1,0 +1,5 @@
+<resources>
+    <color name="splash_background">#4F46E5</color>
+    <color name="splash_status_bar">#4F46E5</color>
+    <color name="splash_nav_bar">#4F46E5</color>
+</resources>
