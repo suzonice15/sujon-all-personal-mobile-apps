@@ -14,8 +14,7 @@ const REAL_REWARDED_ID = 'ca-app-pub-4817870874747259/1845414760';
 const REAL_NATIVE_ID = 'ca-app-pub-4817870874747259/4445481779';
 const add_app_id = 'ca-app-pub-4817870874747259~4412023883';
  
- 
-// ===== AdMob / Mediation Configuration (Android only) =====
+ // ===== AdMob / Mediation Configuration (Android only) =====
 // export const ADMOB_ENABLED = false;
 export const ADMOB_ENABLED = true;
 export const ADMOB_TEST_MODE = __DEV__;
