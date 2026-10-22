@@ -1,9 +1,7 @@
 export const api_url='https://education.tablighshop.com/api';
 // export const api_url='http:// 192.168.0.122:7070/api';
 
- 
 // start prophet apps configuaration 
-
 export const apps_slug='profet';
 export const published_app_slug='com.prophetlife';
 export const quize_slug='islamic-quize';
