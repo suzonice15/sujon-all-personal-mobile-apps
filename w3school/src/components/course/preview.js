@@ -2,6 +2,8 @@
 // Kept free of React Native imports so the same functions can be used by
 // tooling that checks every lesson sample.
 
+import { GIT_PLAYGROUND_JS } from './gitPlayground';
+
 // Injected first into every preview: mirrors console.log/warn/error and
 // uncaught errors into a "Console" panel on the page, so students can see
 // what their JavaScript printed. For JS-only snippets an empty run says so.
@@ -216,11 +218,152 @@ try {
 }
 </script></body></html>`;
 
+// Python previews run CPython 3.14 compiled to WebAssembly (Pyodide, from a CDN, so they
+// need internet; the WebView caches it). Packages the code imports (numpy, pandas,
+// matplotlib, scikit-learn, bs4...) are downloaded automatically. matplotlib figures are
+// rendered to PNG and shown under the output. input() has no keyboard here: samples set
+// their values in code, so stdin reports end-of-file.
+export const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v314.0.7/full/';
+
+// Python run after the user's code: turns open matplotlib figures into base64 PNGs.
+export const PY_FIGURES = `
+import sys
+_figs = []
+if 'matplotlib.pyplot' in sys.modules:
+    import io, base64, warnings
+    _plt = sys.modules['matplotlib.pyplot']
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        for _n in _plt.get_fignums():
+            _buf = io.BytesIO()
+            _plt.figure(_n).savefig(_buf, format='png', dpi=110, bbox_inches='tight')
+            _figs.append(base64.b64encode(_buf.getvalue()).decode())
+    _plt.close('all')
+_figs
+`;
+
+// Removes Pyodide's own frames from a traceback so students only see their code.
+// Kept as source text (not a function) because it runs inside the WebView page, and
+// Hermes release builds do not keep function source for Function.prototype.toString().
+export const CLEAN_TRACEBACK_JS = `(text) => {
+  const out = [];
+  let skipping = false;
+  for (const line of String(text).split('\\n')) {
+    if (line.startsWith('  File "')) skipping = line.includes('/_pyodide/');
+    else if (!line.startsWith(' ')) skipping = false;
+    if (!skipping) out.push(line);
+  }
+  return out.join('\\n').trim();
+}`;
+
+const toPythonDocument = (code) => `<!DOCTYPE html><html><head>${HEAD}
+<style>
+body{margin:0;padding:10px;background:#0f172a;color:#e2e8f0;font-family:sans-serif}
+#status{color:#94a3b8;font-size:13px;margin-bottom:6px}
+#out{font:13px/1.5 monospace;white-space:pre-wrap;word-break:break-word;margin:0}
+#err{font:13px/1.5 monospace;white-space:pre-wrap;color:#f87171;margin:6px 0 0}
+#figs img{display:block;max-width:100%;margin-top:10px;border-radius:8px;background:#fff}
+</style></head>
+<body><div id="status">Loading Python... (the first run downloads about 12 MB)</div>
+<pre id="out"></pre><pre id="err"></pre><div id="figs"></div>
+<script type="module">
+const code = ${JSON.stringify(code).replace(/<\//g, '<\\/')};
+const $ = (id) => document.getElementById(id);
+const cleanTraceback = ${CLEAN_TRACEBACK_JS};
+let out = '', err = '';
+const flush = () => { $('out').textContent = out; $('err').textContent = err; };
+try {
+  const { loadPyodide } = await import('${PYODIDE_URL}pyodide.mjs');
+  const py = await loadPyodide({ indexURL: '${PYODIDE_URL}' });
+  // Raw writes keep output exactly as printed (print(..., end="") and progress dots).
+  const dec = new TextDecoder();
+  py.setStdout({ write: (b) => { out += dec.decode(b, { stream: true }); flush(); return b.length; } });
+  py.setStderr({ write: (b) => { err += dec.decode(b, { stream: true }); flush(); return b.length; } });
+  py.setStdin({ stdin: () => undefined });
+  $('status').textContent = 'Loading packages...';
+  await py.loadPackagesFromImports(code, { messageCallback: () => {} });
+  if (/\\bzoneinfo\\b/.test(code)) await py.loadPackage('tzdata', { messageCallback: () => {} });   // time zone database
+  py.runPython("import os, warnings; os.environ['MPLBACKEND'] = 'AGG'; warnings.filterwarnings('ignore', message='.*non-interactive.*'); warnings.filterwarnings('ignore', message='.*as_object_map.*')");
+  $('status').textContent = 'Running...';
+  try {
+    await py.runPythonAsync(code, { filename: 'main.py' });
+  } catch (e) {
+    err += cleanTraceback(e.message) + '\\n';
+    if (/EOFError/.test(e.message)) err += '\\n(input() cannot read the keyboard in Try it: set the value in the code instead.)\\n';
+  }
+  const figs = py.runPython(${JSON.stringify(PY_FIGURES)}).toJs();
+  for (const b64 of figs) {
+    const img = document.createElement('img');
+    img.src = 'data:image/png;base64,' + b64;
+    $('figs').appendChild(img);
+  }
+  $('status').textContent = 'Output (Python ' + py.runPython('import sys; sys.version.split()[0]') + ')';
+  if (!out && !err && !figs.length) out = 'No output. Use print() to show something.';
+  flush();
+} catch (e) {
+  $('status').textContent = '';
+  $('err').textContent = 'Python could not load. Connect to the internet and run again.\\n' + (e && e.message ? e.message : e);
+}
+</script></body></html>`;
+
+// Git previews run the commands of a sample against a real Git implementation
+// (isomorphic-git) on a throw-away in-browser file system, printing terminal-style
+// output. The command engine lives in gitPlayground.js and is shared with the checker.
+const ISOGIT_URL = 'https://cdn.jsdelivr.net/npm/isomorphic-git@1.42.7/index.umd.min.js';
+const LIGHTNINGFS_URL = 'https://cdn.jsdelivr.net/npm/@isomorphic-git/lightning-fs@4.10.2/dist/lightning-fs.min.js';
+const BUFFER_URL = 'https://cdn.jsdelivr.net/npm/buffer@6.0.3/+esm';   // isomorphic-git needs Node's Buffer
+
+const toGitDocument = (code) => `<!DOCTYPE html><html><head>${HEAD}
+<style>
+body{margin:0;padding:10px;background:#0f172a;color:#e2e8f0;font-family:sans-serif}
+#status{color:#94a3b8;font-size:13px;margin-bottom:6px}
+#out{font:13px/1.5 monospace;white-space:pre-wrap;word-break:break-word;margin:0}
+.cmd{color:#67e8f9}.err{color:#f87171}.add{color:#4ade80}.del{color:#f87171}
+</style>
+<script src="${ISOGIT_URL}"></script>
+<script src="${LIGHTNINGFS_URL}"></script></head>
+<body><div id="status">Running Git...</div><pre id="out"></pre>
+<script>
+${GIT_PLAYGROUND_JS.replace(/<\//g, '<\\/')}
+</script>
+<script type="module">
+(async function () {
+  var out = document.getElementById('out'), status = document.getElementById('status');
+  try { window.Buffer = window.Buffer || (await import('${BUFFER_URL}')).Buffer; } catch (e) {}
+  if (!window.git || !window.LightningFS || !window.Buffer) {
+    status.textContent = '';
+    out.innerHTML = '<span class="err">Git could not load. Connect to the internet and run again.</span>';
+    return;
+  }
+  function print(text) {
+    String(text).split('\\n').forEach(function (line) {
+      var span = document.createElement('span');
+      if (/^\\$ /.test(line)) span.className = 'cmd';
+      else if (/^(error|fatal|playground|git:|hint|CONFLICT)/.test(line)) span.className = 'err';
+      else if (/^\\+(?!\\+\\+)/.test(line)) span.className = 'add';
+      else if (/^-(?!--)/.test(line)) span.className = 'del';
+      span.textContent = line + '\\n';
+      out.appendChild(span);
+    });
+  }
+  var fs = new LightningFS('codenest-try-' + Date.now(), { wipe: true });
+  try {
+    await runGitScript(${JSON.stringify(code).replace(/<\//g, '<\\/')}, window.git, fs, print);
+    status.textContent = 'Terminal (Git playground)';
+  } catch (e) {
+    status.textContent = '';
+    print('playground error: ' + (e && e.message ? e.message : e));
+  }
+})();
+</script></body></html>`;
+
 // Builds the preview page. JS snippets run inside a <script> on an empty page;
 // HTML snippets that are not full documents get a sensible base page.
 export const toDocument = (code, lang) => {
   if (lang === 'vue') return toVueDocument(code);
   if (lang === 'php') return toPhpDocument(code);
+  if (lang === 'python') return toPythonDocument(code);
+  if (lang === 'git') return toGitDocument(code);
   if (lang === 'jsx') {
     return `<!DOCTYPE html><html><head>${HEAD}${CONSOLE_SHIM}${REACT_SCRIPTS}</head>
 <body><div id="root"></div>

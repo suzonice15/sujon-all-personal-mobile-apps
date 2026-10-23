@@ -46,7 +46,7 @@ export default function TryItScreen({ route }) {
         <View style={s.resultBar}>
           <MaterialIcons name="visibility" size={16} color="#374151" />
           <Text style={s.resultLabel}>
-            {lang === 'js' ? 'Output' : lang === 'jsx' ? 'Result (needs internet for React)' : lang === 'vue' ? 'Result (needs internet for Vue)' : lang === 'php' ? 'Output (needs internet for PHP)' : 'Result'}
+            {lang === 'js' ? 'Output' : lang === 'jsx' ? 'Result (needs internet for React)' : lang === 'vue' ? 'Result (needs internet for Vue)' : lang === 'php' ? 'Output (needs internet for PHP)' : lang === 'python' ? 'Output (needs internet for Python)' : lang === 'git' ? 'Terminal (needs internet for Git)' : 'Result'}
           </Text>
         </View>
         <WebView

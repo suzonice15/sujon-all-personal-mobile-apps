@@ -6,9 +6,11 @@
 //   { type: 'text', value }                 paragraph
 //   { type: 'heading', value }              small sub-heading inside a lesson
 //   { type: 'list', items: [] }             bullet list
-//   { type: 'code', lang, value, tryIt }    code sample (lang: html | css | js | jsx | vue | php | text); tryIt opens the live editor
+//   { type: 'code', lang, value, tryIt }    code sample (lang: html | css | js | jsx | vue | php | python | git | text); tryIt opens the live editor
 //                                           (js runs as a script with a console panel; jsx renders with React;
-//                                           vue mounts a Single File Component; php runs on PHP 8.3 compiled to WebAssembly)
+//                                           vue mounts a Single File Component; php runs on PHP 8.3 and python on
+//                                           CPython 3.14, both compiled to WebAssembly; git runs
+//                                           commands in a Git playground, see gitPlayground.js)
 //   { type: 'note', value }                 highlighted tip
 //
 // Quiz questions: { chapterId, q, options: [4 strings], answer: <index>, explain }.
@@ -21,6 +23,8 @@ import javascript from './javascript';
 import react from './react';
 import vue from './vue';
 import php from './php';
+import python from './python';
+import git from './git';
 
 // Every course shown on the Home grid. Only add a course here once its
 // content is written: Play rejects apps with empty "coming soon" sections.
@@ -28,7 +32,8 @@ import php from './php';
 export const COURSE_GROUPS = [
   { title: 'Web Development', courses: [html, css, javascript] },
   { title: 'Frontend Frameworks', courses: [react, vue] },
-  { title: 'Backend Development', courses: [php] },
+  { title: 'Backend & Data', courses: [php, python] },
+  { title: 'Developer Tools', courses: [git] },
 ];
 
 export const COURSES = COURSE_GROUPS.flatMap(g => g.courses);

@@ -125,8 +125,35 @@ const highlightPhp = (code) => {
   return parts;
 };
 
-const HIGHLIGHTERS = { html: highlightHtml, vue: highlightHtml, css: highlightCss, js: highlightJs, jsx: highlightJsx, php: highlightPhp };
-const LANG_LABELS = { js: 'JAVASCRIPT', jsx: 'REACT (JSX)', vue: 'VUE', php: 'PHP', text: 'TEXT' };
+// Python: comments, strings (triple-quoted, f/r/b prefixes), decorators, keywords, numbers, calls.
+const PY_KEYWORDS = 'False|None|True|and|as|assert|async|await|break|case|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|match|nonlocal|not|or|pass|raise|return|try|type|while|with|yield|self|cls|print|len|range|int|str|float|bool|list|dict|set|tuple';
+const PY_TOKEN_RE = new RegExp(
+  '(#[^\\n]*)' +                                                                            // 1 comment
+  '|((?:[rRbBuUfF]{1,2})?(?:"""[\\s\\S]*?"""|\'\'\'[\\s\\S]*?\'\'\'|"(?:\\\\.|[^"\\\\\\n])*"|\'(?:\\\\.|[^\'\\\\\\n])*\'))' + // 2 string
+  '|(@[A-Za-z_][\\w.]*)' +                                                                  // 3 decorator
+  '|\\b(' + PY_KEYWORDS + ')\\b' +                                                         // 4 keyword
+  '|\\b(\\d[\\d_]*(?:\\.\\d+)?)\\b' +                                                        // 5 number
+  '|\\b([A-Za-z_]\\w*)(?=\\s*\\()',                                                         // 6 function call
+  'g'
+);
+
+const highlightPython = (code) => {
+  const parts = [];
+  let last = 0;
+  let m;
+  PY_TOKEN_RE.lastIndex = 0;
+  while ((m = PY_TOKEN_RE.exec(code))) {
+    if (m.index > last) parts.push({ text: code.slice(last, m.index), color: COLORS.text });
+    const color = m[1] ? COLORS.comment : m[2] ? COLORS.string : m[3] ? COLORS.attr : m[4] ? COLORS.tag : m[5] ? COLORS.attr : COLORS.fn;
+    parts.push({ text: m[0], color });
+    last = m.index + m[0].length;
+  }
+  if (last < code.length) parts.push({ text: code.slice(last), color: COLORS.text });
+  return parts;
+};
+
+const HIGHLIGHTERS = { html: highlightHtml, vue: highlightHtml, css: highlightCss, js: highlightJs, jsx: highlightJsx, php: highlightPhp, python: highlightPython };
+const LANG_LABELS = { js: 'JAVASCRIPT', jsx: 'REACT (JSX)', vue: 'VUE', php: 'PHP', python: 'PYTHON', git: 'TERMINAL', text: 'TEXT' };
 
 export default function CodeBlock({ code, lang = 'html', onTryIt }) {
   const [copied, setCopied] = useState(false);
