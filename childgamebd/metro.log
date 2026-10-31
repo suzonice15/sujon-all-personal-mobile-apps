@@ -1,0 +1,50 @@
+
+> childgamebd@0.0.1 start
+> react-native start
+
+[33m[1mwarn[22m[39m [0mPackage [1mreact-native-sqlite-storage[22m contains invalid configuration: [1m"dependency.platforms.ios.project" is not allowed[22m. Please verify it's properly linked using "npx react-native config" command and contact the package maintainers about this.[0m
+
+Welcome to React Native v0.85
+Starting dev server on http://localhost:8081
+
+
+                        ▒▒▓▓▓▓▒▒
+                     ▒▓▓▓▒▒░░▒▒▓▓▓▒
+                  ▒▓▓▓▓░░░▒▒▒▒░░░▓▓▓▓▒
+                 ▓▓▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓▒▒▒▓▓
+                 ▓▓░░░░░▒▓▓▓▓▓▓▒░░░░░▓▓
+                 ▓▓░░▓▓▒░░░▒▒░░░▒▓▒░░▓▓
+                 ▓▓░░▓▓▓▓▓▒▒▒▒▓▓▓▓▒░░▓▓
+                 ▓▓░░▓▓▓▓▓▓▓▓▓▓▓▓▓▒░░▓▓
+                 ▓▓▒░░▒▒▓▓▓▓▓▓▓▓▒░░░▒▓▓
+                  ▒▓▓▓▒░░░▒▓▓▒░░░▒▓▓▓▒
+                     ▒▓▓▓▒░░░░▒▓▓▓▒
+                        ▒▒▓▓▓▓▒▒
+
+
+                Welcome to Metro v0.84.4
+              Fast - Scalable - Integrated
+
+
+ WARN  Failed to download the latest version of React Native DevTools. Using a fallback version instead. Connect to the internet or check your network settings.
+ INFO  Dev server ready. Press Ctrl+C to exit.
+ INFO  Interactive mode is not supported in this environment
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js ▓▓░░░░░░░░░░░░░░ 16% (132/323)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 46% (707/1047)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72% (1099/1288)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 78% (1332/1520)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83% (1517/1660)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 93% (2329/2403)
+ BUNDLE  ./index.js 
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
+ ERROR  [timeout] connection terminated with Device for app='com.childgamebd' on device='moto g35 5G - 15 - API 35' after not responding for 60 seconds.
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
