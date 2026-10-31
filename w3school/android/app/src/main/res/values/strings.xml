@@ -1,0 +1,3 @@
+<resources>
+    <!-- app_name is set in android/app/build.gradle (defaultConfig resValue) -->
+</resources>

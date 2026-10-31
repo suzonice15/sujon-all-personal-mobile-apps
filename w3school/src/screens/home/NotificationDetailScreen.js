@@ -1,0 +1,102 @@
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useTheme } from 'react-native-paper';
+import { ADMOB_ENABLED } from '../../config/url';
+import AdBanner from '../../components/ads/AdBanner';
+import useAdInterstitial from '../../components/ads/AdInterstitial';
+import AdNative from '../../components/ads/AdNative';
+
+const bnMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const formatFull = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr.replace(' ', 'T') + 'Z');
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  return `${d.getDate()} ${bnMonths[d.getMonth()]} ${d.getFullYear()}, ${hours}:${minutes}`;
+};
+
+export default function NotificationDetailScreen({ route }) {
+  const { item } = route.params;
+  const { colors } = useTheme();
+  const s = styles(colors);
+  const entryShown = useRef(false);
+
+  const { showAd: showInterstitial, isLoaded } = useAdInterstitial();
+
+  useEffect(() => {
+    if (ADMOB_ENABLED && isLoaded && !entryShown.current) {
+      entryShown.current = true;
+      showInterstitial();
+    }
+  }, [isLoaded]);
+
+  return (
+    <SafeAreaView style={s.container}>
+      <View style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
+                                    <AdNative style={{ marginBottom: 5, marginTop: 10 }} />
+          
+          <View style={s.iconRow}>
+            <View style={s.iconCircle}>
+              <MaterialIcons name={item.type === 'bonus' ? 'emoji-events' : 'notifications'} size={32} color="#fff" />
+            </View>
+          </View>
+
+          <Text style={s.badge}>{item.type === 'bonus' ? 'Bonus' : 'General'}</Text>
+          <Text style={s.title}>{item.title}</Text>
+
+          {item.body ? (
+            <View style={s.bodyBox}>
+              <Text style={s.body}>{item.body}</Text>
+            </View>
+          ) : null}
+
+          <View style={s.dateRow}>
+            <MaterialIcons name="schedule" size={14} color={colors.muted} />
+            <Text style={s.date}>{formatFull(item.created_at)}</Text>
+          </View>
+        </ScrollView>
+        <AdBanner />
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  iconRow: { alignItems: 'center', marginTop: 10, marginBottom: 16 },
+  iconCircle: {
+    width: 64, height: 64, borderRadius: 32,
+    backgroundColor: colors.primary,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  badge: {
+    alignSelf: 'center',
+    backgroundColor: colors.primary + '20',
+    color: colors.primary,
+    fontSize: 11, fontWeight: '700',
+    paddingHorizontal: 12, paddingVertical: 3,
+    borderRadius: 10, overflow: 'hidden',
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 20, fontWeight: 'bold', color: colors.onSurface,
+    textAlign: 'center', marginBottom: 16,
+  },
+  bodyBox: {
+    backgroundColor: colors.surface,
+    borderRadius: 14, padding: 16,
+    marginBottom: 16,
+  },
+  body: {
+    fontSize: 15, color: colors.text,
+    lineHeight: 26,
+  },
+  dateRow: {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'center', gap: 6,
+  },
+  date: { fontSize: 12, color: colors.muted },
+});
