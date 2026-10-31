@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../../context/ThemeContext';
+import { useNotifications } from '../../context/NotificationsContext';
 
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
@@ -23,7 +24,7 @@ const SectionTitle = ({ title, isDark }) => (
 );
 
 export default function SettingsScreen({ navigation }) {
-  const [notifications, setNotifications] = useState(true);
+  const { enabled: notifications, setEnabled: setNotifications } = useNotifications();
   const [serverSettings, setServerSettings] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [syncing, setSyncing] = useState(false);

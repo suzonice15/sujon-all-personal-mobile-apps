@@ -1,50 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { getNotifications, markNotificationRead } from '../../api/notificationApi';
+import { useNotifications } from '../../context/NotificationsContext';
+import { getDeviceId } from '../../utils/device';
 
-const STATIC_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'general',
-    title: 'Welcome to JN Computer!',
-    body: 'Thank you for joining us. Stay tuned for exclusive offers and updates.',
-    created_at: '2026-07-28 10:30:00',
-    is_read: 0,
-  },
-  {
-    id: 2,
-    type: 'bonus',
-    title: 'Summer Sale is Live!',
-    body: 'Get up to 50% off on selected items. Hurry, limited time offer!',
-    created_at: '2026-07-27 14:15:00',
-    is_read: 0,
-  },
-  {
-    id: 3,
-    type: 'general',
-    title: 'New Arrivals',
-    body: 'Check out the latest products added to our store.',
-    created_at: '2026-07-26 09:00:00',
-    is_read: 1,
-  },
-  {
-    id: 4,
-    type: 'bonus',
-    title: 'Free Shipping Weekend',
-    body: 'Enjoy free shipping on all orders this weekend. No minimum purchase required.',
-    created_at: '2026-07-25 18:45:00',
-    is_read: 1,
-  },
-  {
-    id: 5,
-    type: 'general',
-    title: 'Payment Method Updated',
-    body: 'We now support additional payment methods for your convenience.',
-    created_at: '2026-07-24 11:20:00',
-    is_read: 1,
-  },
-];
+export const NOTIFICATION_ICONS = { offer: 'local-offer', order: 'local-shipping', product: 'shopping-bag', general: 'notifications' };
+
 
 const enMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -66,13 +29,70 @@ const formatTime = (dateStr) => {
 
 export default function NotificationsScreen() {
   const navigation = useNavigation();
-  const [list, setList] = useState(STATIC_NOTIFICATIONS);
+  const { deviceId, refresh: refreshUnread } = useNotifications();
+  const [list, setList] = useState([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const load = useCallback(async (p = 1) => {
+    try {
+      const id = deviceId || (await getDeviceId());
+      const res = await getNotifications(id, p);
+      const rows = Array.isArray(res) ? res : res?.data || [];
+      setList(prev => (p === 1 ? rows : [...prev, ...rows]));
+      setPage(p);
+      setLastPage(res?.last_page || 1);
+    } catch {
+      if (p === 1) setList([]);
+    }
+  }, [deviceId]);
+
+  // Screen e ashlei notun data
+  useFocusEffect(
+    useCallback(() => {
+      load(1).finally(() => setLoading(false));
+      refreshUnread();
+    }, [load, refreshUnread]),
+  );
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await load(1);
+    refreshUnread();
+    setRefreshing(false);
+  };
+
+  const onEndReached = async () => {
+    if (loadingMore || page >= lastPage) return;
+    setLoadingMore(true);
+    await load(page + 1);
+    setLoadingMore(false);
+  };
 
   const handlePress = (item) => {
     if (!item.is_read) {
       setList(prev =>
         prev.map(n => n.id === item.id ? { ...n, is_read: 1 } : n)
       );
+    }
+    // Product notification hole shoja product page
+    const productName = item.data?.product_name;
+    if (productName) {
+      if (!item.is_read) {
+        (async () => {
+          try {
+            await markNotificationRead(deviceId || (await getDeviceId()), item.id);
+            refreshUnread();
+          } catch {}
+        })();
+      }
+      navigation.navigate('ProductDetail', {
+        product: { product_id: item.data.product_id, product_name: productName, product_title: item.data.product_title },
+      });
+      return;
     }
     navigation.navigate('NotificationDetail', { item: { ...item, is_read: 1 } });
   };
@@ -85,7 +105,7 @@ export default function NotificationsScreen() {
     >
       <View style={[s.iconBox, !item.is_read && s.iconBoxActive]}>
         <MaterialIcons
-          name={item.type === 'bonus' ? 'emoji-events' : 'notifications'}
+          name={NOTIFICATION_ICONS[item.type] || 'notifications'}
           size={22}
           color={!item.is_read ? '#EB592C' : '#9CA3AF'}
         />
@@ -99,6 +119,14 @@ export default function NotificationsScreen() {
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView style={[s.container, s.center]}>
+        <ActivityIndicator color="#EB592C" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={s.container}>
       <FlatList
@@ -107,6 +135,10 @@ export default function NotificationsScreen() {
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#EB592C']} />}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={loadingMore ? <ActivityIndicator color="#EB592C" style={{ marginVertical: 12 }} /> : null}
         ListEmptyComponent={
           <View style={s.empty}>
             <MaterialIcons name="notifications-off" size={48} color="#9CA3AF" />
@@ -120,6 +152,7 @@ export default function NotificationsScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F9FAFB' },
+  center: { justifyContent: 'center', alignItems: 'center' },
   card: {
     flexDirection: 'row', alignItems: 'flex-start',
     backgroundColor: '#fff', borderRadius: 12,

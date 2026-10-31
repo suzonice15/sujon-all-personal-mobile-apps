@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { markNotificationRead } from '../../api/notificationApi';
+import { useNotifications } from '../../context/NotificationsContext';
+import { getDeviceId } from '../../utils/device';
+import { NOTIFICATION_ICONS } from './NotificationsScreen';
+
+const TYPE_LABELS = { offer: 'Offer', order: 'Order', product: 'Product', general: 'General' };
 
 const enMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -14,6 +20,17 @@ const formatFull = (dateStr) => {
 
 export default function NotificationDetailScreen({ route }) {
   const { item } = route.params;
+  const { deviceId, refresh } = useNotifications();
+
+  useEffect(() => {
+    if (!item?.id) return;
+    (async () => {
+      try {
+        await markNotificationRead(deviceId || (await getDeviceId()), item.id);
+        refresh();
+      } catch {}
+    })();
+  }, [item?.id, deviceId, refresh]);
 
   return (
     <SafeAreaView style={s.container}>
@@ -21,14 +38,14 @@ export default function NotificationDetailScreen({ route }) {
         <View style={s.iconRow}>
           <View style={s.iconCircle}>
             <MaterialIcons
-              name={item.type === 'bonus' ? 'emoji-events' : 'notifications'}
+              name={NOTIFICATION_ICONS[item.type] || 'notifications'}
               size={32}
               color="#fff"
             />
           </View>
         </View>
 
-        <Text style={s.badge}>{item.type === 'bonus' ? 'Bonus' : 'General'}</Text>
+        <Text style={s.badge}>{TYPE_LABELS[item.type] || 'General'}</Text>
         <Text style={s.title}>{item.title}</Text>
 
         {item.body ? (

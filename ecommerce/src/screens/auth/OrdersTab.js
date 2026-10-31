@@ -12,13 +12,13 @@ import {
 } from '../../api/orderApi';
 
 const STATUS_FILTERS = [
-  { key: 'all', label: 'All', countKey: 'all' },
   { key: 'Pending', label: 'Pending', countKey: 'Pending' },
   { key: 'Confirm', label: 'Confirm', countKey: 'Confirm' },
   { key: 'Processing', label: 'Processing', countKey: 'Processing' },
   { key: 'Shipped', label: 'Shipped', countKey: 'Shipped' },
   { key: 'Delivered', label: 'Delivered', countKey: 'Delivered' },
   { key: 'Cancel', label: 'Cancel', countKey: 'Cancel' },
+  { key: 'all', label: 'All', countKey: 'all' },
 ];
 
 
@@ -48,7 +48,7 @@ export default function OrdersTab() {
   const navigation = useNavigation();
   const userId = user?.id;
 
-  const [orderStatus, setOrderStatus] = useState('all');
+  const [orderStatus, setOrderStatus] = useState('Pending');
   const [searchValue, setSearchValue] = useState('');
   const [orders, setOrders] = useState([]);
   const [total, setTotal] = useState(0);
@@ -68,14 +68,16 @@ export default function OrdersTab() {
     if (!userId) return;
     setLoading(true);
     try {
-      const res = await getOrderByUserId(userId, 'all', page);
+      const res = orderStatus === 'all'
+        ? await getOrderByUserId(userId, 'all', page)
+        : await searchOrderByOrderStatus(userId, orderStatus, page);
       applyResult(res, page);
     } catch {
       setOrders([]);
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, orderStatus]);
 
   const fetchStatusCounts = useCallback(async () => {
     if (!userId) return;

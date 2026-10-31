@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "440907420566",
+    "project_id": "jn-computer-mobile-apps-latest",
+    "storage_bucket": "jn-computer-mobile-apps-latest.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:440907420566:android:ce59db6d3bfe7a8b9603b7",
+        "android_client_info": {
+          "package_name": "com.jncomputer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBv_V6pqZdiqRn08pjFiVtj6YKpdf6F184"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

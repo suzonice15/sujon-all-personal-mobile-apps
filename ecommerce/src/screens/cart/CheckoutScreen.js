@@ -21,7 +21,6 @@ const fmtPrice = (val) => {
 
 const PAYMENT_METHODS = [
   { key: 'cash_on_delevery', label: 'Cash On Delivery', icon: 'local-shipping' },
-  { key: 'online_payment', label: 'Online Payment', icon: 'credit-card' },
 ];
 
 export default function CheckoutScreen({ navigation }) {
@@ -131,7 +130,15 @@ export default function CheckoutScreen({ navigation }) {
       clearCart();
       if (paymentType === 'cash_on_delevery') {
         Alert.alert('Success', 'Thank you for your order!');
-        navigation.navigate('Account', { screen: 'Dashboard', params: { tab: 'orders' } });
+        navigation.navigate('Account', {
+          screen: 'OrderDetail',
+          initial: false,
+          params: {
+            order_id: res?.order_id,
+            invoice_id: res?.invoice_id,
+            customer_phone: user.phone,
+          },
+        });
       } else {
         navigation.navigate('PaymentWebView', {
           url: `https://adminpanel.jncomputerbd.com/pay/${res.order_id}?amount=${res.amount}`,

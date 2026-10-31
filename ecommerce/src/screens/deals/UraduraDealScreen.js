@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, FlatList, ActivityIndicator,
-  TouchableOpacity, Image, Dimensions, TextInput, ScrollView,
+  TouchableOpacity, Image, TextInput, ScrollView,
   Modal,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -19,8 +19,6 @@ import {
   getProductByBrand,
   filterOfferByPrice,
 } from '../../api/homeApi';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const toFullBannerUrl = (path) => {
   if (!path) return null;
@@ -43,6 +41,7 @@ export default function UraduraDealScreen({ navigation }) {
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [offerBanner, setOfferBanner] = useState(null);
+  const [bannerRatio, setBannerRatio] = useState(null);
   const [offerActive, setOfferActive] = useState(true);
   const [offerName, setOfferName] = useState('');
 
@@ -200,6 +199,15 @@ export default function UraduraDealScreen({ navigation }) {
 
   const hasMore = products.length < total;
 
+  useEffect(() => {
+    if (!offerBanner) return;
+    Image.getSize(
+      offerBanner,
+      (w, h) => { if (w && h) setBannerRatio(w / h); },
+      () => {},
+    );
+  }, [offerBanner]);
+
   if (loading && products.length === 0) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
@@ -211,7 +219,7 @@ export default function UraduraDealScreen({ navigation }) {
   const renderHeader = () => (
     <View>
       {offerBanner && (
-        <Image source={{ uri: offerBanner }} style={styles.bannerImg} resizeMode="cover" />
+        <Image source={{ uri: offerBanner }} style={[styles.bannerImg, bannerRatio ? { aspectRatio: bannerRatio } : { height: 100 }]} resizeMode="contain" />
       )}
       {!offerBanner && (
         <View style={styles.bannerFallback}>
@@ -523,8 +531,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
   bannerImg: {
-    width: SCREEN_WIDTH,
-    height: 210,
+    width: '100%',
   },
   bannerFallback: {
     height: 200,
