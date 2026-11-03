@@ -28,7 +28,7 @@ import { QUIZ_MODES } from '../../data/quizCatalog';
 
 
 export default function QuizStartScreen({ route, navigation }) {
-  const { title, type, fetch_data, category, mode = 'skill', modeTitle } = route.params || {};
+  const { title, type, fetch_data, category, mode = 'skill', modeTitle, limit = 0 } = route.params || {};
   const selectedMode = QUIZ_MODES.find((item) => item.id === mode) || QUIZ_MODES[1];
   const secondsPerQuestion = selectedMode.secondsPerQuestion;
   const { colors } = useTheme();
@@ -75,7 +75,7 @@ export default function QuizStartScreen({ route, navigation }) {
     setLoading(true);
     setLoadError(false);
     try {
-      const quizData = await getQuizeData(type, fetch_data, category);
+      const quizData = await getQuizeData(type, fetch_data, category, limit);
       setOriginalData(quizData);
       setData(quizData);
       resetAll();
@@ -87,7 +87,7 @@ export default function QuizStartScreen({ route, navigation }) {
     } finally {
       setLoading(false);
     }
-  }, [category, fetch_data, resetAll, type]);
+  }, [category, fetch_data, limit, resetAll, type]);
 
   useEffect(() => {
     loadData();

@@ -7,6 +7,8 @@ import { getQuizCategory } from '../../data/quizCatalog';
 import AdNative from '../../components/ads/AdNative';
 import AdBanner from '../../components/ads/AdBanner';
 
+const MIXED_SKILL_TEST_SIZE = 20;
+
 export default function QuizeData({ route, navigation }) {
   const { item, mode = 'study', modeTitle } = route.params || {};
   const categoryTitle = route.params?.category || item?.category || route.params?.title || '';
@@ -46,14 +48,30 @@ export default function QuizeData({ route, navigation }) {
       quiz_total: quizTotal,
     }));
 
+  const totalQuestions = Object.values(questionCounts).reduce((sum, count) => sum + count, 0);
+  const mixedCount = Math.min(MIXED_SKILL_TEST_SIZE, totalQuestions);
+
   const openSubcategory = (subcategory) => {
-    navigation.navigate('QuizStart', {
+    navigation.navigate(mode === 'study' ? 'QuizStudy' : 'QuizStart', {
       fetch_data: subcategory.sub_category,
       type: 'sub_category',
       title: subcategory.sub_category,
       category: categoryTitle,
       mode,
       modeTitle,
+    });
+  };
+
+  // Skill test across every subject of this category, random questions
+  const openMixedSkillTest = () => {
+    navigation.navigate('QuizStart', {
+      fetch_data: categoryTitle,
+      type: 'category',
+      title: `${categoryTitle} — মিশ্র`,
+      category: categoryTitle,
+      mode,
+      modeTitle,
+      limit: MIXED_SKILL_TEST_SIZE,
     });
   };
 
@@ -74,6 +92,23 @@ export default function QuizeData({ route, navigation }) {
             </View>
             {category?.metadataNote ? <Text style={s.note}>{category.metadataNote}</Text> : null}
             {category?.safetyNote ? <Text style={s.note}>{category.safetyNote}</Text> : null}
+            {mode === 'skill' && !loading && totalQuestions > 0 ? (
+              <TouchableOpacity
+                accessibilityRole="button"
+                style={[s.card, s.mixedCard, { backgroundColor: colors.primary }]}
+                activeOpacity={0.8}
+                onPress={openMixedSkillTest}
+              >
+                <View style={[s.iconBox, s.mixedIconBox]}>
+                  <MaterialIcons name="shuffle" size={22} color="#FFFFFF" />
+                </View>
+                <View style={s.textWrapper}>
+                  <Text style={[s.itemTitle, s.mixedTitle]}>সব বিষয় মিলিয়ে স্কিল টেস্ট</Text>
+                  <Text style={[s.itemSubtitle, s.mixedSubtitle]}>এলোমেলো {mixedCount}টি প্রশ্ন</Text>
+                </View>
+                <MaterialIcons name="chevron-right" size={22} color="#FFFFFF" />
+              </TouchableOpacity>
+            ) : null}
           </View>
         )}
         renderItem={({ item: subcategory, index }) => (
@@ -84,11 +119,13 @@ export default function QuizeData({ route, navigation }) {
             onPress={() => openSubcategory(subcategory)}
           >
             <View style={[s.iconBox, { backgroundColor: `${colors.primary}16` }]}>
-              <MaterialIcons name="quiz" size={22} color={colors.primary} />
+              <MaterialIcons name={mode === 'study' ? 'menu-book' : 'quiz'} size={22} color={colors.primary} />
             </View>
             <View style={s.textWrapper}>
               <Text style={s.itemTitle}>{subcategory.sub_category}</Text>
-              <Text style={s.itemSubtitle}>{subcategory.quiz_total}টি প্রশ্ন</Text>
+              <Text style={s.itemSubtitle}>
+                {subcategory.quiz_total}টি প্রশ্ন{mode === 'study' ? ' · উত্তরসহ পড়ুন' : ''}
+              </Text>
             </View>
             <Text style={s.index}>{String(index + 1).padStart(2, '0')}</Text>
             <MaterialIcons name="chevron-right" size={22} color={colors.onSurfaceVariant} />
@@ -133,6 +170,10 @@ const styles = (colors) => StyleSheet.create({
     justifyContent: 'center',
     marginRight: 11,
   },
+  mixedCard: { marginTop: 12, marginBottom: 0 },
+  mixedIconBox: { backgroundColor: '#FFFFFF26' },
+  mixedTitle: { color: '#FFFFFF' },
+  mixedSubtitle: { color: '#FFFFFFCC' },
   textWrapper: { flex: 1 },
   itemTitle: { color: colors.onSurface, fontSize: 14, fontWeight: '700' },
   itemSubtitle: { color: colors.onSurfaceVariant, fontSize: 11, marginTop: 4 },

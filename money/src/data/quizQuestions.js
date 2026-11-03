@@ -9,13 +9,76 @@ import { ASTRONOMY_EXTRA_QUESTIONS } from './quizAstronomyExtraQuestions';
 import { INVENTIONS_EXTRA_QUESTIONS } from './quizInventionsExtraQuestions';
 import { COMPUTER_EXTRA_QUESTIONS } from './quizComputerExtraQuestions';
 import { MOBILE_EXTRA_QUESTIONS } from './quizMobileExtraQuestions';
+import { AI_EXTRA_QUESTIONS } from './quizAIExtraQuestions';
+import { INTERNATIONAL_EXTRA_QUESTIONS } from './quizInternationalExtraQuestions';
+import { BANGLA_LITERATURE_EXTRA_QUESTIONS } from './quizBanglaLiteratureExtraQuestions';
+import { ENGLISH_EXTRA_QUESTIONS } from './quizEnglishExtraQuestions';
+import { MATH_EXTRA_QUESTIONS } from './quizMathExtraQuestions';
+import { HISTORY_EXTRA_QUESTIONS } from './quizHistoryExtraQuestions';
+import { GEOGRAPHY_EXTRA_QUESTIONS } from './quizGeographyExtraQuestions';
+import { COMPUTER_ICT_EXTRA_QUESTIONS } from './quizComputerIctExtraQuestions';
+import { RIDDLES_EXTRA_QUESTIONS } from './quizRiddlesExtraQuestions';
+import { HEALTH_EXTRA_QUESTIONS } from './quizHealthExtraQuestions';
+import { ENVIRONMENT_EXTRA_QUESTIONS } from './quizEnvironmentExtraQuestions';
+import { FILM_EXTRA_QUESTIONS } from './quizFilmExtraQuestions';
+import { MUSIC_EXTRA_QUESTIONS } from './quizMusicExtraQuestions';
+import { LITERATURE_BOOKS_EXTRA_QUESTIONS } from './quizLiteratureBooksExtraQuestions';
+import { BUSINESS_EXTRA_QUESTIONS } from './quizBusinessExtraQuestions';
+import { AGRICULTURE_EXTRA_QUESTIONS } from './quizAgricultureExtraQuestions';
+import { FOOD_EXTRA_QUESTIONS } from './quizFoodExtraQuestions';
+import { TRANSPORT_EXTRA_QUESTIONS } from './quizTransportExtraQuestions';
+import { CULTURE_EXTRA_QUESTIONS } from './quizCultureExtraQuestions';
+import { LEADERSHIP_EXTRA_QUESTIONS } from './quizLeadershipExtraQuestions';
+import { CAREER_EXTRA_QUESTIONS } from './quizCareerExtraQuestions';
+import { JOB_PREP_EXTRA_QUESTIONS } from './quizJobPrepExtraQuestions';
+import { CURRENT_AFFAIRS_EXTRA_QUESTIONS } from './quizCurrentAffairsExtraQuestions';
+
+// category id -> { subcategory: [extra questions] }
+const EXTRA_QUESTIONS_BY_CATEGORY = {
+  'international-knowledge': INTERNATIONAL_EXTRA_QUESTIONS,
+  'bangla-language-literature': BANGLA_LITERATURE_EXTRA_QUESTIONS,
+  'english-language': ENGLISH_EXTRA_QUESTIONS,
+  math: MATH_EXTRA_QUESTIONS,
+  history: HISTORY_EXTRA_QUESTIONS,
+  geography: GEOGRAPHY_EXTRA_QUESTIONS,
+  'computer-ict': COMPUTER_ICT_EXTRA_QUESTIONS,
+  'riddles-brain-games': RIDDLES_EXTRA_QUESTIONS,
+  'health-nutrition': HEALTH_EXTRA_QUESTIONS,
+  'environment-nature': ENVIRONMENT_EXTRA_QUESTIONS,
+  'film-entertainment': FILM_EXTRA_QUESTIONS,
+  music: MUSIC_EXTRA_QUESTIONS,
+  'literature-books': LITERATURE_BOOKS_EXTRA_QUESTIONS,
+  'business-economics': BUSINESS_EXTRA_QUESTIONS,
+  'agriculture-rural-life': AGRICULTURE_EXTRA_QUESTIONS,
+  'food-cooking': FOOD_EXTRA_QUESTIONS,
+  transport: TRANSPORT_EXTRA_QUESTIONS,
+  'bangladesh-culture': CULTURE_EXTRA_QUESTIONS,
+  'leadership-management': LEADERSHIP_EXTRA_QUESTIONS,
+  'career-skills': CAREER_EXTRA_QUESTIONS,
+  'job-preparation': JOB_PREP_EXTRA_QUESTIONS,
+  'current-affairs': CURRENT_AFFAIRS_EXTRA_QUESTIONS,
+};
+
+// য়/ড়/ঢ় can be typed as one code point or as base letter + nukta; treat both the same
+const normalizeBangla = (text) => text
+  .replace(/য়/g, 'য়')
+  .replace(/ড়/g, 'ড়')
+  .replace(/ঢ়/g, 'ঢ়');
+
+const getExtraQuestions = (categoryId, subcategory) => {
+  const extras = EXTRA_QUESTIONS_BY_CATEGORY[categoryId];
+  if (!extras) return [];
+  const target = normalizeBangla(subcategory);
+  const key = Object.keys(extras).find((item) => normalizeBangla(item) === target);
+  return key ? extras[key] : [];
+};
 
 const questionsByCategory = {
   'islamic-quiz': {
     'কুরআন': ['পবিত্র কুরআনের দীর্ঘতম সূরার নাম কী?', ['সূরা আল-বাকারা', 'সূরা আল-ইখলাস', 'সূরা আল-কাওসার', 'সূরা আন-নাস'], 0],
     'হাদিস': ['হাদিস বলতে প্রধানত কী বোঝায়?', ['নবী মুহাম্মদ (সা.)-এর কথা, কাজ ও অনুমোদনের বর্ণনা', 'কেবল আরবি ব্যাকরণের নিয়ম', 'ইসলামের ইতিহাসের মানচিত্র', 'কেবল কুরআনের সূরার নাম'], 0],
     'নামাজ': ['ফজরের ফরজ নামাজ কত রাকাত?', ['২', '৩', '৪', '৫'], 0],
-    'রোজা': ['রমজান মাসে মুসলিমরা কোন ইবাদতটি পালন করেন?', ['সিয়াম বা রোজা', 'হজ', 'কুরবানি', 'জাকাতুল ফিতর בלבד'], 0],
+    'রোজা': ['রমজান মাসে মুসলিমরা কোন ইবাদতটি পালন করেন?', ['সিয়াম বা রোজা', 'হজ', 'কুরবানি', 'আকিকা'], 0],
     'দোয়া ও যিকির': ['কোন বাক্যটি আল্লাহর প্রশংসা প্রকাশ করে?', ['আলহামদুলিল্লাহ', 'আসসালামু আলাইকুম', 'ইনশাআল্লাহ', 'জাযাকাল্লাহু খাইরান'], 0],
     'নবী-রাসূল': ['ইসলামী বিশ্বাস অনুযায়ী প্রথম নবী কে?', ['আদম (আ.)', 'নূহ (আ.)', 'ইবরাহিম (আ.)', 'মুসা (আ.)'], 0],
     'সাহাবিদের জীবন': ['প্রথম খলিফা কে ছিলেন?', ['আবু বকর (রা.)', 'উমর (রা.)', 'উসমান (রা.)', 'আলী (রা.)'], 0],
@@ -99,7 +162,7 @@ const questionsByCategory = {
     বাংলাদেশ: ['দ্বাদশ জাতীয় সংসদ নির্বাচন কবে অনুষ্ঠিত হয়?', ['৭ জানুয়ারি ২০২৪', '১৬ ডিসেম্বর ২০২৩', '২৬ মার্চ ২০২৪', '২১ ফেব্রুয়ারি ২০২৪'], 0, { published_at: '2024-01-07', source_name: 'বাংলাদেশ নির্বাচন কমিশন', source_url: 'https://ecs.gov.bd/' }],
     আন্তর্জাতিক: ['২০২৪ সালের গ্রীষ্মকালীন অলিম্পিকের আয়োজক শহর কোনটি?', ['প্যারিস', 'টোকিও', 'লস অ্যাঞ্জেলেস', 'রিও ডি জেনেইরো'], 0, { published_at: '2024-07-26', source_name: 'Olympics.com', source_url: 'https://olympics.com/en/olympic-games/paris-2024' }],
     অর্থনীতি: ['মূল্যস্ফীতি বলতে সাধারণত কী বোঝায়?', ['সময়ের সঙ্গে পণ্য ও সেবার সাধারণ মূল্যস্তর বৃদ্ধি', 'সব পণ্যের দাম স্থায়ীভাবে শূন্য হওয়া', 'শুধু মুদ্রার নকশা বদল', 'ব্যাংকের শাখা কমে যাওয়া'], 0],
-    'বিজ্ঞান ও প্রযুক্তি': ['চাঁদের দক্ষিণ মেরু অঞ্চলে ২০২৩ সালে অবতরণকারী ভারতের অভিযানের নাম কী?', ['চন্দ্রযান-৩', 'মঙ্গলযান', 'আদিত্য-L1', 'চন্দ্রযান-১'], 0, { published_at: '২০২৩-০৮-২৩', source_name: 'ISRO', source_url: 'https://www.isro.gov.in/Chandrayaan3.html' }],
+    'বিজ্ঞান ও প্রযুক্তি': ['চাঁদের দক্ষিণ মেরু অঞ্চলে ২০২৩ সালে অবতরণকারী ভারতের অভিযানের নাম কী?', ['চন্দ্রযান-৩', 'মঙ্গলযান', 'আদিত্য-L1', 'চন্দ্রযান-১'], 0, { published_at: '2023-08-23', source_name: 'ISRO', source_url: 'https://www.isro.gov.in/Chandrayaan3.html' }],
   },
   'computer-ict': {
     Hardware: ['কম্পিউটারের কোন অংশটি একটি হার্ডওয়্যার?', ['কীবোর্ড', 'ওয়েব ব্রাউজার', 'অপারেটিং সিস্টেম', 'স্প্রেডশিট'], 0],
@@ -233,6 +296,10 @@ export const QUIZ_QUESTIONS = QUIZ_CATEGORIES.flatMap((category) =>
       ...(category.id === 'science-technology' && subcategory === 'মোবাইল'
         ? MOBILE_EXTRA_QUESTIONS
         : []),
+      ...(category.id === 'science-technology' && subcategory === 'কৃত্রিম বুদ্ধিমত্তা'
+        ? AI_EXTRA_QUESTIONS
+        : []),
+      ...getExtraQuestions(category.id, subcategory),
     ];
 
     return questions.map(([name, options, answerIndex, metadata = {}], questionIndex) => {

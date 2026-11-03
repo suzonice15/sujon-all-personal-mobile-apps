@@ -1,6 +1,6 @@
 export const QUIZ_MODES = [
-  { id: 'study', title: 'পড়াশোনা', subtitle: 'সময় ছাড়া অনুশীলন', icon: 'menu-book', secondsPerQuestion: 0 },
-  { id: 'skill', title: 'স্কিল টেস্ট', subtitle: 'প্রতি প্রশ্নে ১০ সেকেন্ড', icon: 'psychology', secondsPerQuestion: 10 },
+  { id: 'study', title: 'পড়াশোনা', subtitle: 'প্রশ্ন ও সঠিক উত্তর একসাথে পড়ুন', icon: 'menu-book', secondsPerQuestion: 0 },
+  { id: 'skill', title: 'স্কিল টেস্ট', subtitle: 'পছন্দের বিষয় বেছে টেস্ট · প্রতি প্রশ্নে ১০ সেকেন্ড', icon: 'psychology', secondsPerQuestion: 10 },
   { id: 'exam', title: 'পরীক্ষা', subtitle: 'প্রতি প্রশ্নে ৩০ সেকেন্ড', icon: 'assignment', secondsPerQuestion: 30 },
 ];
 

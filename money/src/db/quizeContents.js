@@ -23,22 +23,34 @@ export const getQuizeSubCategory = async (category) => {
     }));
 };
 
-export const getQuizeData = async (type, data, category) => {
-    const questions = QUIZ_QUESTIONS.filter((question) => {
-        if (type === 'category') return question.category === data;
-        return question.sub_category === data && (!category || question.category === category);
-    });
+const shuffle = (items) => {
+    const list = [...items];
+    for (let index = list.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [list[index], list[randomIndex]] = [list[randomIndex], list[index]];
+    }
+    return list;
+};
+
+const filterQuestions = (type, data, category) => QUIZ_QUESTIONS.filter((question) => {
+    if (type === 'category') return question.category === data;
+    return question.sub_category === data && (!category || question.category === category);
+});
+
+// Study mode: questions in their original order with the correct answer, no shuffling
+export const getQuizeStudyData = async (type, data, category) => filterQuestions(type, data, category);
+
+// limit > 0 picks that many random questions (used by the mixed skill test)
+export const getQuizeData = async (type, data, category, limit = 0) => {
+    let questions = filterQuestions(type, data, category);
+    if (limit > 0) questions = shuffle(questions).slice(0, limit);
     return questions.map((question) => {
-        const options = [
+        const options = shuffle([
             question.option_a,
             question.option_b,
             question.option_c,
             question.option_d,
-        ];
-        for (let index = options.length - 1; index > 0; index -= 1) {
-            const randomIndex = Math.floor(Math.random() * (index + 1));
-            [options[index], options[randomIndex]] = [options[randomIndex], options[index]];
-        }
+        ]);
         return {
             ...question,
             option_a: options[0],
