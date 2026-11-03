@@ -161,7 +161,7 @@ export default function RegisterScreen({ navigation }) {
 
         <View style={s.logoWrap}>
           <View style={s.logoCircle}>
-            <MaterialIcons name="person-add" size={36} color="#27C34B" />
+            <MaterialIcons name="person-add" size={36} color="#EB592C" />
           </View>
         </View>
 
@@ -330,8 +330,8 @@ const s = StyleSheet.create({
   logoWrap: { alignItems: 'center', marginBottom: 16 },
   logoCircle: {
     width: 72, height: 72, borderRadius: 36,
-    backgroundColor: '#ECFDF5', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: '#D1FAE5',
+    backgroundColor: '#FFF1EB', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: '#FED7C3',
   },
   headTitle: { fontSize: 26, fontWeight: '800', color: '#111827', textAlign: 'center' },
   headSub: { fontSize: 14, color: '#6B7280', textAlign: 'center', marginTop: 6, marginBottom: 24 },
@@ -347,14 +347,14 @@ const s = StyleSheet.create({
   disabledBlock: { opacity: 0.5 },
   submitBtn: {
     height: 54, borderRadius: 14,
-    backgroundColor: '#27C34B',
+    backgroundColor: '#EB592C',
     alignItems: 'center', justifyContent: 'center',
-    marginTop: 6, elevation: 2, shadowColor: '#27C34B',
+    marginTop: 6, elevation: 2, shadowColor: '#EB592C',
     shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8,
   },
   submitBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
-  editText: { fontSize: 13, color: '#27C34B', textAlign: 'center', fontWeight: '600' },
+  editText: { fontSize: 13, color: '#EB592C', textAlign: 'center', fontWeight: '600' },
   loginRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   loginText: { fontSize: 14, color: '#6B7280' },
-  loginLink: { fontSize: 14, color: '#27C34B', fontWeight: '700' },
+  loginLink: { fontSize: 14, color: '#EB592C', fontWeight: '700' },
 });

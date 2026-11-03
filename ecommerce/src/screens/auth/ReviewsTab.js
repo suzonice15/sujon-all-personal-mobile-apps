@@ -143,7 +143,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, overflow: 'hidden',
   },
   pagerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 12 },
-  pagerBtn: { backgroundColor: '#27C34B', borderRadius: 8, padding: 6 },
+  pagerBtn: { backgroundColor: '#EB592C', borderRadius: 8, padding: 6 },
   pagerBtnDisabled: { backgroundColor: '#9CA3AF' },
   pagerText: { fontSize: 13, fontWeight: '600' },
   emptyState: { alignItems: 'center', paddingVertical: 30, gap: 8 },

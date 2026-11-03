@@ -143,7 +143,7 @@ export default function OrdersTab() {
             key={f.key}
             style={[
               s.filterChip,
-              { backgroundColor: orderStatus === f.key ? '#EF4444' : '#27C34B' },
+              { backgroundColor: orderStatus === f.key ? '#EB592C' : '#111827' },
             ]}
             onPress={() => handleStatusFilter(f.key)}
           >
@@ -253,7 +253,7 @@ const s = StyleSheet.create({
   payBadgePaid: { backgroundColor: '#22C55E' },
   payBadgeUnpaid: { backgroundColor: '#EF4444' },
   pagerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 8 },
-  pagerBtn: { backgroundColor: '#27C34B', borderRadius: 8, padding: 6 },
+  pagerBtn: { backgroundColor: '#EB592C', borderRadius: 8, padding: 6 },
   pagerBtnDisabled: { backgroundColor: '#9CA3AF' },
   pagerText: { fontSize: 13, fontWeight: '600' },
   emptyState: { alignItems: 'center', paddingVertical: 30, gap: 8 },

@@ -5,6 +5,7 @@ import {
   Modal, StatusBar, Platform,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useTheme as usePaperTheme, Snackbar } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import YoutubePlayer from 'react-native-youtube-iframe';
@@ -58,6 +59,12 @@ function StarRating({ rating, size = 14, interactive = false, onChange }) {
   return <View style={{ flexDirection: 'row' }}>{stars}</View>;
 }
 
+const SHOW_LONG_DESCRIPTION = false;
+const WHATSAPP_NUMBER = '8801837441061';
+
+// "brand" -> "Brand"
+const specLabel = (key = '') => key.charAt(0).toUpperCase() + key.slice(1);
+
 function CollapsibleSection({ title, icon, defaultOpen = true, children, colors }) {
   const [open, setOpen] = useState(defaultOpen);
   const rotation = useRef(new Animated.Value(defaultOpen ? 1 : 0)).current;
@@ -77,7 +84,7 @@ function CollapsibleSection({ title, icon, defaultOpen = true, children, colors 
     <View style={[acc.section, { backgroundColor: colors.surface || '#fff' }]}>
       <TouchableOpacity style={acc.header} onPress={toggle} activeOpacity={0.7}>
         <View style={acc.headerLeft}>
-          <MaterialIcons name={icon} size={20} color={colors.primary || '#4F46E5'} />
+          <MaterialIcons name={icon} size={20} color={colors.primary || '#EB592C'} />
           <Text style={[acc.title, { color: colors.text }]}>{title}</Text>
         </View>
         <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
@@ -347,7 +354,18 @@ export default function ProductDetailScreen({ route, navigation }) {
     navigation.navigate('Cart');
   };
 
-  const handleCall = () => Linking.openURL('tel:+8801837441061');
+  // WhatsApp e direct call er official link nei; chat khule, sekhan theke call kora jay
+  const handleWhatsApp = () => {
+    const link = p.product_name ? `https://jncomputerbd.com/product/${p.product_name}/` : '';
+    const orderInfo = [
+      '📦 অর্ডার কনফার্ম করার জন্য অনুগ্রহ করে নিচের তথ্যগুলো পাঠিয়ে দিন—',
+      ' • নাম—',
+      ' • সম্পূর্ণ ঠিকানা—',
+      ' • মোবাইল নাম্বার—',
+    ].join('\n');
+    const text = link ? `${link}\n\n${orderInfo}` : orderInfo;
+    Linking.openURL(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`).catch(() => {});
+  };
 
   const scrollToReviews = () => {
     reviewRef.current?.measureLayout(scrollRef.current, (x, y) => {
@@ -499,13 +517,21 @@ export default function ProductDetailScreen({ route, navigation }) {
               )}
             </View>
             <View style={styles.priceCardFooter}>
-              <TouchableOpacity style={styles.paymentMethodBtn}>
-                <Text style={styles.priceDescriptionText}>Check available payment method</Text>
-              </TouchableOpacity>
-              <View style={styles.bulkRow}>
-                <Text style={styles.bulkQuantityText}>
-                  Contact for bulk quantity: <Text style={styles.contactNumberText} onPress={handleCall}>01837-441061</Text>
-                </Text>
+              <View style={styles.codWhatsappRow}>
+                <View style={styles.codBox}>
+                  <View style={styles.codIconCircle}>
+                    <MaterialIcons name="local-shipping" size={16} color="#fff" />
+                  </View>
+                  {/* Choto screen e font nije komiye ek line e rakhe */}
+                  <Text style={styles.codTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+                    Cash on Delivery
+                  </Text>
+                </View>
+
+                <TouchableOpacity style={styles.whatsappBtn} onPress={handleWhatsApp} activeOpacity={0.85}>
+                  <FontAwesome name="whatsapp" size={26} color="#fff" />
+                  <Text style={styles.whatsappTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>WhatsApp</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -523,9 +549,16 @@ export default function ProductDetailScreen({ route, navigation }) {
             {specifications.length > 0 ? (
               <View style={styles.specTable}>
                 {specifications.map((spec, i) => (
-                  <View key={i} style={[styles.specRow, i % 2 === 0 && { backgroundColor: '#F9FAFB' }]}>
-                    <Text style={styles.specKey}>{spec.key}</Text>
-                    <Text style={styles.specValue}>{spec.value}</Text>
+                  <View
+                    key={spec.specification_id || i}
+                    style={[
+                      styles.specRow,
+                      i % 2 === 0 ? styles.specRowEven : styles.specRowOdd,
+                      i === specifications.length - 1 && { borderBottomWidth: 0 },
+                    ]}
+                  >
+                    <Text style={[styles.specKey, styles.specKeyCol]}>{specLabel(spec.key)}</Text>
+                    <Text style={[styles.specValue, styles.specValueCol]}>{spec.value}</Text>
                   </View>
                 ))}
               </View>
@@ -534,18 +567,20 @@ export default function ProductDetailScreen({ route, navigation }) {
             )}
           </CollapsibleSection>
 
-          {/* Description */}
-          <CollapsibleSection title="Description" icon="description" defaultOpen colors={colors}>
-            {p.product_description ? (
-              <RenderHtml contentWidth={SCREEN_WIDTH - 48} source={{ html: p.product_description }} tagsStyles={tagsStyles} baseStyle={{ color: colors.text }} />
-            ) : (
-              <Text style={[styles.noData, { color: colors.muted || '#6B7280' }]}>No description available</Text>
-            )}
-          </CollapsibleSection>
+          {/* Description (long) - ekhon hide; dekhate chaile SHOW_LONG_DESCRIPTION = true */}
+          {SHOW_LONG_DESCRIPTION && (
+            <CollapsibleSection title="Description" icon="description" defaultOpen colors={colors}>
+              {p.product_description ? (
+                <RenderHtml contentWidth={SCREEN_WIDTH - 48} source={{ html: p.product_description }} tagsStyles={tagsStyles} baseStyle={{ color: colors.text }} />
+              ) : (
+                <Text style={[styles.noData, { color: colors.muted || '#6B7280' }]}>No description available</Text>
+              )}
+            </CollapsibleSection>
+          )}
 
-          {/* Video */}
-          <CollapsibleSection title="Video" icon="play-circle-outline" colors={colors}>
-            {p.product_video ? (
+          {/* Video: shudhu video thakle */}
+          {p.product_video ? (
+            <CollapsibleSection title="Video" icon="play-circle-outline" colors={colors}>
               <View style={styles.videoContainer}>
                 <YoutubePlayer
                   height={220}
@@ -554,10 +589,8 @@ export default function ProductDetailScreen({ route, navigation }) {
                   webViewProps={{ androidLayerType: 'hardware' }}
                 />
               </View>
-            ) : (
-              <Text style={[styles.noData, { color: colors.muted || '#6B7280' }]}>No video available</Text>
-            )}
-          </CollapsibleSection>
+            </CollapsibleSection>
+          ) : null}
 
           {/* Reviews */}
           <View ref={reviewRef}>
@@ -774,28 +807,41 @@ const styles = StyleSheet.create({
   savingBadge: { backgroundColor: '#DCFCE7', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
   savingBadgeText: { color: '#111', fontSize: 11, fontWeight: '700' },
   savingAmountText: { fontSize: 12, color: '#111', fontWeight: '600', marginTop: 4 },
-  priceCardFooter: { paddingHorizontal: 14, paddingBottom: 12, gap: 8 },
-  paymentMethodBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  priceDescriptionText: { fontSize: 12, color: '#111', fontWeight: '600' },
-  bulkRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  bulkQuantityText: { fontSize: 12, color: '#111', flex: 1 },
-  contactNumberText: { fontWeight: '800', color: '#111' },
+  priceCardFooter: { paddingHorizontal: 12, paddingBottom: 12, gap: 10 },
+  codWhatsappRow: { flexDirection: 'row', gap: 10 },
+  codBox: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#fff', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 8,
+    borderWidth: 1, borderColor: '#86EFAC', borderStyle: 'dashed',
+  },
+  codIconCircle: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center' },
+  codTitle: { flex: 1, fontSize: 13, fontWeight: '800', color: '#15803D' },
+  whatsappBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#25D366', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12,
+    elevation: 3, shadowColor: '#25D366', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 6,
+  },
+  whatsappTitle: { flex: 1, fontSize: 14, fontWeight: '800', color: '#fff' },
   emiRequiredBadge: { backgroundColor: '#EA580C', borderRadius: 8, width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
   emiRequiredText: { color: '#fff', fontSize: 11, fontWeight: '700' },
   emiMonthlyText: { fontSize: 13, color: '#6B7280', marginTop: 4 },
   emiMonthlyBold: { fontSize: 13, fontWeight: '700', color: '#111' },
   emiPlanBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  emiPlanLinkText: { fontSize: 12, color: '#4F46E5', fontWeight: '600', textDecorationLine: 'underline' },
+  emiPlanLinkText: { fontSize: 12, color: '#EB592C', fontWeight: '600', textDecorationLine: 'underline' },
 
   /* Accordion */
   accordionWrap: { marginTop: 4 },
   noData: { fontSize: 13, textAlign: 'center', paddingVertical: 16 },
 
   /* Specifications Table */
-  specTable: { borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8, overflow: 'hidden' },
-  specRow: { flexDirection: 'row', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#E5E7EB' },
-  specKey: { width: '35%', fontSize: 12, fontWeight: '700', color: '#374151', paddingVertical: 8, paddingHorizontal: 10, backgroundColor: '#F9FAFB' },
-  specValue: { flex: 1, fontSize: 12, color: '#6B7280', paddingVertical: 8, paddingHorizontal: 10 },
+  specTable: { borderWidth: 1, borderColor: '#FED7AA', borderRadius: 12, overflow: 'hidden', backgroundColor: '#fff' },
+  specKeyCol: { width: '38%', paddingHorizontal: 12, borderRightWidth: 1, borderRightColor: '#FDE7DC' },
+  specValueCol: { flex: 1, paddingHorizontal: 12 },
+  specRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#FDE7DC' },
+  specRowEven: { backgroundColor: '#FFFFFF' },
+  specRowOdd: { backgroundColor: '#FFF4EE' },
+  specKey: { fontSize: 13, fontWeight: '700', color: '#9A3412', lineHeight: 18, paddingVertical: 11 },
+  specValue: { fontSize: 13, color: '#1F2937', lineHeight: 19, paddingVertical: 11 },
 
   /* Video */
   videoContainer: { width: '100%', borderRadius: 8, overflow: 'hidden', backgroundColor: '#000' },

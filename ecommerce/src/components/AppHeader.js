@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import NotificationBell from './NotificationBell';
 
 export default function AppHeader({ navigation, colors, showMenu, title }) {
   const insets = useSafeAreaInsets();
@@ -43,7 +42,6 @@ export default function AppHeader({ navigation, colors, showMenu, title }) {
           >
             <MaterialIcons name="search" size={30} color={colors.headerColor} />
           </TouchableOpacity>
-          <NotificationBell color={colors.headerColor} />
         </View>
       </View>
     </View>

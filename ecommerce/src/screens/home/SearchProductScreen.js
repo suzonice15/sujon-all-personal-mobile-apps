@@ -7,7 +7,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import NotificationBell from '../../components/NotificationBell';
 import ProductCard from '../../components/ProductCard';
 import { searchProducts } from '../../api/homeApi';
 
@@ -128,8 +127,6 @@ export default function SearchProductScreen({ navigation }) {
               </TouchableOpacity>
             )}
           </View>
-
-          <NotificationBell color={colors.headerColor} />
         </View>
       </View>
 

@@ -72,7 +72,7 @@ export default function AddressTab() {
               {[row.upazilas_name, row.district_name, row.division_name].filter(Boolean).join(', ')}
             </Text>
             <TouchableOpacity style={s.editBtn} onPress={() => openEditForm(row.address_id)}>
-              <MaterialIcons name="edit" size={16} color="#27C34B" />
+              <MaterialIcons name="edit" size={16} color="#EB592C" />
               <Text style={s.editBtnText}>Edit</Text>
             </TouchableOpacity>
           </View>
@@ -111,5 +111,5 @@ const s = StyleSheet.create({
   },
   addressText: { fontSize: 12, marginTop: 2 },
   editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 10, alignSelf: 'flex-start' },
-  editBtnText: { fontSize: 12, fontWeight: '600', color: '#27C34B' },
+  editBtnText: { fontSize: 12, fontWeight: '600', color: '#EB592C' },
 });

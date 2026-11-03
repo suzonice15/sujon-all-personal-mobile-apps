@@ -4,11 +4,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import HomeStack from './HomeStack';
-import DealStack from './DealStack';
+// import DealStack from './DealStack'; // Deals tab ekhon hide
+import NotificationStack from './NotificationStack';
 import CartStack from './CartStack';
 import AccountStack from './AccountStack';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationsContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -52,6 +54,7 @@ export default function BottomTabNavigator() {
             Deals: 'local-fire-department',
             Cart: 'shopping-cart',
             Account: 'person',
+            Notifications: 'notifications',
           };
           return <MaterialIcons name={icons[route.name] || 'home'} size={size} color={color} />;
         },
@@ -62,11 +65,13 @@ export default function BottomTabNavigator() {
         component={HomeStack}
         options={{ tabBarLabel: 'Home' }}
       />
+      {/* Deals tab ekhon hide; dekhate chaile ei block ar upore DealStack import uncomment korun
       <Tab.Screen
         name="Deals"
         component={DealStack}
         options={{ tabBarLabel: 'উরাধুরা ডিল' }}
       />
+      */}
       <Tab.Screen
         name="Cart"
         component={CartStack}
@@ -91,8 +96,26 @@ export default function BottomTabNavigator() {
           },
         })}
       />
+      <Tab.Screen
+        name="Notifications"
+        component={NotificationStack}
+        options={{
+          tabBarLabel: 'Notification',
+          tabBarIcon: ({ color, size }) => (
+            <View>
+              <MaterialIcons name="notifications" size={size} color={color} />
+              <NotificationContent />
+            </View>
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
+}
+
+function NotificationContent() {
+  const { unread } = useNotifications();
+  return <CartBadge count={unread} />;
 }
 
 function CartContent() {

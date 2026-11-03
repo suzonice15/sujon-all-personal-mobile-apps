@@ -18,6 +18,9 @@ import FeedbackScreen from '../screens/settings/FeedbackScreen';
 import TermsScreen from '../screens/settings/TermsScreen';
 import CmsPageScreen from '../screens/settings/CmsPageScreen';
 import EmiInfoScreen from '../screens/product/EmiInfoScreen';
+import SearchProductScreen from '../screens/home/SearchProductScreen';
+import ProductDetailScreen from '../screens/product/ProductDetailScreen';
+import ProductDetailHeader from '../components/ProductDetailHeader';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,6 +44,16 @@ export default function AccountStack() {
       <Stack.Screen name="Feedback" component={FeedbackScreen} options={{ title: 'Feedback' }} />
       <Stack.Screen name="Terms" component={TermsScreen} options={{ title: 'Terms' }} />
       <Stack.Screen name="EmiInfo" component={EmiInfoScreen} options={{ title: 'EMI Information' }} />
+      <Stack.Screen name="SearchProduct" component={SearchProductScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+        options={({ route }) => ({
+          header: ({ navigation: nav }) => (
+            <ProductDetailHeader navigation={nav} title={route.params?.product?.product_title} />
+          ),
+        })}
+      />
       <Stack.Screen
         name="CmsPage"
         component={CmsPageScreen}

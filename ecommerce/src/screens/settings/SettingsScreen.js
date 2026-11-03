@@ -11,7 +11,7 @@ const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
     <View style={styles(isDark).itemLeft}>
       <View style={styles(isDark).iconBox}>
-        <MaterialIcons name={icon} size={20} color="#4F46E5" />
+        <MaterialIcons name={icon} size={20} color="#EB592C" />
       </View>
       <Text style={styles(isDark).itemLabel}>{label}</Text>
     </View>
@@ -57,7 +57,7 @@ export default function SettingsScreen({ navigation }) {
             <Switch
               value={notifications}
               onValueChange={setNotifications}
-              trackColor={{ false: '#ddd', true: '#4F46E5' }}
+              trackColor={{ false: '#ddd', true: '#EB592C' }}
               thumbColor="#fff"
             />
           }
@@ -170,7 +170,7 @@ const styles = (isDark) => StyleSheet.create({
   iconBox: {
     width: 36, height: 36,
     borderRadius: 10,
-    backgroundColor: isDark ? '#312e81' : '#EEF2FF',
+    backgroundColor: isDark ? '#431407' : '#FFF1EB',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -199,7 +199,7 @@ const styles = (isDark) => StyleSheet.create({
   modalKey: { fontSize: 14, color: isDark ? '#94a3b8' : '#666', flex: 1 },
   modalValue: { fontSize: 14, color: isDark ? '#f1f5f9' : '#1a1a1a', flex: 1, textAlign: 'right' },
   modalClose: {
-    marginTop: 16, backgroundColor: '#4F46E5',
+    marginTop: 16, backgroundColor: '#EB592C',
     padding: 12, borderRadius: 10, alignItems: 'center',
   },
   modalCloseText: { color: '#fff', fontWeight: '600', fontSize: 15 },

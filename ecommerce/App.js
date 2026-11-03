@@ -28,7 +28,7 @@ const openFromNotification = (msg) => {
       getDeviceId().then((id) => markNotificationRead(id, data.notification_id)).catch(() => {});
     }
     navigationRef.navigate('Home', {
-      screen: 'Home',
+      screen: 'Notifications',
       params: {
         screen: 'ProductDetail',
         initial: false,
@@ -47,7 +47,7 @@ const openFromNotification = (msg) => {
     return;
   }
   navigationRef.navigate('Home', {
-    screen: 'Home',
+    screen: 'Notifications',
     params: {
       screen: 'NotificationDetail',
       initial: false,

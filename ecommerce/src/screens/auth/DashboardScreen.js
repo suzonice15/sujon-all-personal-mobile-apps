@@ -199,7 +199,7 @@ export default function DashboardScreen({ navigation, route }) {
           <Text style={[s.sectionTitle, { color: colors.text }]}>Basic Information</Text>
           {!profileEdit && (
             <TouchableOpacity onPress={() => setProfileEdit(true)} style={s.editBtn}>
-              <MaterialIcons name="edit" size={16} color="#27C34B" />
+              <MaterialIcons name="edit" size={16} color="#EB592C" />
               <Text style={s.editBtnText}>Edit</Text>
             </TouchableOpacity>
           )}
@@ -391,8 +391,8 @@ const s = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   sectionTitle: { fontSize: 18, fontWeight: '700' },
   sectionSub: { fontSize: 12, marginTop: 4, marginBottom: 16, lineHeight: 18 },
-  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#27C34B' },
-  editBtnText: { fontSize: 13, fontWeight: '600', color: '#27C34B' },
+  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#EB592C' },
+  editBtnText: { fontSize: 13, fontWeight: '600', color: '#EB592C' },
   infoTable: { borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: '#E5E7EB' },
   infoRow: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 14 },
   infoLabel: { flex: 0.45, fontSize: 13, fontWeight: '600' },
@@ -403,13 +403,13 @@ const s = StyleSheet.create({
   editInput: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, height: 44, fontSize: 14 },
   genderRow: { flexDirection: 'row', gap: 10 },
   genderBtn: { paddingHorizontal: 24, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: '#E5E7EB' },
-  genderBtnActive: { backgroundColor: '#27C34B', borderColor: '#27C34B' },
+  genderBtnActive: { backgroundColor: '#EB592C', borderColor: '#EB592C' },
   genderBtnText: { fontSize: 14, color: '#6B7280' },
   genderBtnTextActive: { color: '#fff', fontWeight: '600' },
   btnRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 8 },
   closeBtn: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: '#EF4444' },
   closeBtnText: { color: '#EF4444', fontSize: 14, fontWeight: '600' },
-  updateBtn: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, backgroundColor: '#27C34B', minWidth: 90, alignItems: 'center' },
+  updateBtn: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, backgroundColor: '#EB592C', minWidth: 90, alignItems: 'center' },
   updateBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   field: { marginBottom: 14 },
   label: { fontSize: 13, fontWeight: '600', marginBottom: 6 },

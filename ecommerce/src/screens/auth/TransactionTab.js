@@ -66,7 +66,7 @@ export default function TransactionTab() {
               style={[s.row, i < transactions.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.onSurface + '10' }]}
             >
               <View style={s.iconWrap}>
-                <MaterialIcons name="account-balance-wallet" size={20} color="#27C34B" />
+                <MaterialIcons name="account-balance-wallet" size={20} color="#EB592C" />
               </View>
               <View style={s.rowInfo}>
                 <Text style={[s.txnId, { color: colors.text }]} numberOfLines={2}>{row.transaction_id}</Text>
@@ -111,7 +111,7 @@ const s = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, gap: 12 },
   iconWrap: {
-    width: 40, height: 40, borderRadius: 20, backgroundColor: '#27C34B15',
+    width: 40, height: 40, borderRadius: 20, backgroundColor: '#EB592C15',
     alignItems: 'center', justifyContent: 'center',
   },
   rowInfo: { flex: 1 },
@@ -119,7 +119,7 @@ const s = StyleSheet.create({
   txnDate: { fontSize: 11, marginTop: 3 },
   amount: { fontSize: 15, fontWeight: '800' },
   pagerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 12 },
-  pagerBtn: { backgroundColor: '#27C34B', borderRadius: 8, padding: 6 },
+  pagerBtn: { backgroundColor: '#EB592C', borderRadius: 8, padding: 6 },
   pagerBtnDisabled: { backgroundColor: '#9CA3AF' },
   pagerText: { fontSize: 13, fontWeight: '600' },
   emptyState: { alignItems: 'center', paddingVertical: 30, gap: 8 },

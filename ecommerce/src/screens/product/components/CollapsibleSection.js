@@ -21,7 +21,7 @@ export default function CollapsibleSection({ title, icon, defaultOpen = true, ch
     <View style={[styles.section, { backgroundColor: colors?.surface || '#fff' }]}>
       <TouchableOpacity style={styles.header} onPress={toggle} activeOpacity={0.7}>
         <View style={styles.headerLeft}>
-          <MaterialIcons name={icon} size={20} color={colors?.primary || '#4F46E5'} />
+          <MaterialIcons name={icon} size={20} color={colors?.primary || '#EB592C'} />
           <Text style={[styles.title, { color: colors?.text }]}>{title}</Text>
         </View>
         <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
