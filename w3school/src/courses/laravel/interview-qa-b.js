@@ -1,0 +1,61 @@
+// Laravel interview questions, grouped by chapter id (see src/courses/index.js).
+
+export default {
+  'migrations-seeding': [
+    { level: 'basic', q: 'What is a migration and why not change the database by hand?', a: 'A migration is versioned PHP code that applies one schema change, such as creating a table or adding a column. Because it lives in the repository, every environment can rebuild the same schema in the same order. Hand edits are invisible to teammates and to production, so environments drift apart.' },
+    { level: 'intermediate', q: 'How does Laravel decide the order of migrations and track which ones have run?', a: 'Each filename starts with a timestamp, and Laravel runs pending files in ascending filename order. Applied migrations are recorded in the migrations table with a batch number. That table is how migrate:status knows what is pending and how rollback knows which set to reverse.' },
+    { level: 'intermediate', q: 'Compare migrate:rollback, migrate:refresh and migrate:fresh.', a: 'rollback reverses the last batch, or one migration with --step=1. refresh rolls back every migration and then re-runs them all. fresh drops every table without calling down() and re-runs all migrations, so it is fast but destroys data and must never be used in production.' },
+    { level: 'advanced', q: 'How would you safely rename or change a column on a large production table?', a: 'Add a new migration instead of editing history, and deploy in stages. Create the new nullable column, backfill it in chunks, write to both columns while old code still runs, switch reads, then remove the old column in a later release. Use --pretend to review SQL, take a backup and test on a production-sized copy; online schema change tools help when a table rebuild would lock writes.' },
+    { level: 'advanced', q: 'How do you write seeders that are safe to run repeatedly in production and useful locally?', a: 'Keep reference-data seeders idempotent with updateOrCreate or firstOrCreate, and call them explicitly from DatabaseSeeder in a defined order. Use model factories only in local and test environments, never for production rows. Run them with db:seed --force in deploys, and make destructive demo seeders refuse to run outside the intended environment.', code: String.raw`foreach (['admin', 'editor', 'viewer'] as $name) {
+    Role::updateOrCreate(
+        ['name' => $name],
+        ['description' => ucfirst($name) . ' role'],
+    );
+}`, lang: 'php' },
+  ],
+  'eloquent-basics': [
+    { level: 'basic', q: 'When should you use Eloquent instead of the query builder?', a: 'Use Eloquent when you need models, relationships, casts, accessors, events or route model binding. Use the query builder for reports, bulk imports or simple reads where model behaviour adds cost without value. Eloquent is convenient, but it is still SQL underneath, so the same performance rules apply.' },
+    { level: 'basic', q: 'What is the difference between $fillable and $guarded?', a: '$fillable is a whitelist of attributes that fill() and create() may assign, which is the safer default. $guarded is a blacklist of blocked attributes, and setting it to an empty array disables mass assignment protection completely. In most applications a tight $fillable list plus validated input is the best combination.' },
+    { level: 'intermediate', q: 'What are casts and why are they important?', a: 'Casts convert database values into real PHP types when reading and back into storable values when writing. Examples include boolean, array, datetime, decimal, enum and encrypted casts. They keep application code typed, make JSON output consistent and prevent invalid enum values from being saved.' },
+    { level: 'intermediate', q: 'How do accessors and mutators work in Laravel 11 and 12?', a: 'They are defined in one method that returns an Attribute object with get and set callbacks. The getter transforms a value when it is read, and the setter returns the value or an array of attributes to store. Legacy getXAttribute and setXAttribute methods still work, but the Attribute form is the modern convention.', code: String.raw`protected function email(): Attribute
+{
+    return Attribute::make(
+        get: fn (string $value) => strtolower($value),
+        set: fn (string $value) => strtolower(trim($value)),
+    );
+}`, lang: 'php' },
+    { level: 'advanced', q: 'What are the pitfalls of soft deletes?', a: 'Soft deleted rows still exist, so unique indexes such as a unique email continue to block reuse after deletion. Ordinary queries exclude trashed rows, which can confuse counts and joins unless you call withTrashed deliberately. Soft deletes are not an archive policy, so define retention rules and hard-delete old records when required.' },
+    { level: 'advanced', q: 'How do you prevent mass assignment and privilege escalation at the same time?', a: 'Never pass request input wholesale into create() or update(). Validate through a FormRequest and pass only validated() data, and keep sensitive fields such as role, is_admin or balance out of $fillable. Authorization checks decide whether the user may perform the action at all, while fillable and validation decide which values may be written.' },
+  ],
+  'eloquent-relationships': [
+    { level: 'basic', q: 'In a one-to-one relationship, what is the difference between hasOne and belongsTo?', a: 'belongsTo is declared on the model whose table stores the foreign key, and hasOne is declared on the related parent model. For a user and profile, profiles.user_id holds the key, so Profile belongsTo User and User hasOne Profile. Add a unique index on the foreign key to enforce one-to-one at the database level.' },
+    { level: 'intermediate', q: 'How does belongsToMany work, and what do attach, detach and sync do?', a: 'belongsToMany connects two models through a pivot table whose name follows the alphabetical singular convention, such as post_tag. attach inserts pivot rows, detach removes them and sync makes the pivot match an exact list of ids. Extra pivot columns are exposed with withPivot and written with updateExistingPivot.' },
+    { level: 'intermediate', q: 'How do with, withCount and load differ when fixing N+1?', a: 'with eager loads full related models in one extra query, withCount adds an aggregate count without loading rows, and load eager loads on a model or collection you already have. loadMissing skips relations that are already loaded. Choose based on whether you need the related data or only a total.' },
+    { level: 'advanced', q: 'How do polymorphic relationships work and why register a morph map?', a: 'The child declares morphTo, and each parent declares morphOne, morphMany or morphToMany with a shared type column and id column. morphs() creates those columns plus an index. A morph map stores short aliases such as post instead of fully qualified class names, so renaming or moving a class does not break existing rows.' },
+    { level: 'advanced', q: 'When would you choose hasManyThrough over a manual join?', a: 'Use hasManyThrough when the schema genuinely has an intermediate model, such as country posts through users, and you want eager loading and withCount to work naturally. A join is clearer when you need custom selection, multiple intermediate tables or aggregates that the relationship cannot express. hasManyThrough is read-oriented and does not give you create helpers for the far model.' },
+  ],
+  'eloquent-advanced': [
+    { level: 'basic', q: 'What is a local query scope and why use one?', a: 'A local scope packages a reusable query constraint on a model, such as published or recent, so controllers and jobs filter data consistently. Laravel 11 uses the scopeX naming convention, while Laravel 12 also supports the Scope attribute. Scopes should modify or return the builder and avoid hidden side effects.' },
+    { level: 'intermediate', q: 'When should you use whereHas instead of withCount?', a: 'whereHas filters the result to parents that have at least one matching related row, which is what you want when existence is the condition. withCount only adds a count and does not filter; combine it with having when you need a threshold such as at least five comments. Loading full related models with with is unnecessary when only existence or a number is needed.' },
+    { level: 'intermediate', q: 'Compare chunk, chunkById, lazy and cursor.', a: 'chunk pages with LIMIT and OFFSET, which can skip or repeat rows if you change the data being filtered. chunkById pages by primary key and stays stable during updates, and lazy and lazyById wrap the same paging as a LazyCollection. cursor reads one row at a time with the smallest memory use but does not eager load relationships.' },
+    { level: 'advanced', q: 'How do transactions, row locks and deadlock retries work together?', a: 'DB::transaction commits when the closure returns and rolls back when it throws. Inside it, lockForUpdate prevents competing transactions from changing selected rows until the commit, which protects read-modify-write logic. Pass attempts to retry the whole closure on deadlock, and keep the closure idempotent and free of external calls so a retry is safe.', code: String.raw`DB::transaction(function () {
+    $product = Product::whereKey(1)->lockForUpdate()->firstOrFail();
+
+    if ($product->stock < 1) {
+        throw new RuntimeException('Out of stock');
+    }
+
+    $product->decrement('stock');
+}, attempts: 3);`, lang: 'php' },
+    { level: 'advanced', q: 'Why can model events surprise you during bulk operations?', a: 'Query builder updates, inserts and upserts bypass model events, casts and observers entirely. Increment and decrement also go straight to SQL. If a slug, cache invalidation or audit entry depends on an event, bulk paths must handle it explicitly or you silently produce inconsistent data.' },
+  ],
+  'query-builder': [
+    { level: 'basic', q: 'How does parameter binding prevent SQL injection?', a: 'The SQL structure and the values travel separately: the statement is parsed with placeholders first, then values are sent as data. Because a bound value can never become SQL syntax, input such as a quote or OR clause cannot change the query. Fluent query builder methods bind automatically, but string concatenation in raw expressions removes that protection.' },
+    { level: 'intermediate', q: 'When would you use a subquery instead of a join?', a: 'Use a subquery when you need an existence check, an aggregate per parent or a derived table that would multiply rows in a join. whereExists and joinSub express those cases without raw SQL. Joins are usually better when you need columns from several tables and the relation has a simple one-to-one match.' },
+    { level: 'intermediate', q: 'How do groupBy and having work together in a report?', a: 'groupBy collapses rows into one row per group, and aggregate functions such as SUM and COUNT then operate on each group. where filters rows before grouping, while having filters groups after aggregation. Every selected column must either be aggregated or included in groupBy, or strict SQL modes reject the query.' },
+    { level: 'advanced', q: 'How do you design an index for a query that filters and sorts?', a: 'Read the query plan with EXPLAIN and build a composite index that follows the query shape, usually equality columns first and the sort column last. For WHERE user_id = ? AND status = ? ORDER BY created_at DESC, an index on user_id, status, created_at can serve both the filter and the order. Every additional index slows writes, so verify with real data instead of guessing.', code: String.raw`Schema::table('orders', function (Blueprint $table) {
+    $table->index(['user_id', 'status', 'created_at']);
+});`, lang: 'php' },
+    { level: 'advanced', q: 'Why is offset pagination slow at high page numbers, and what replaces it?', a: 'OFFSET still makes the database read and discard all skipped rows, so page 1000 costs far more than page 1. Keyset pagination remembers the last seen sort key and asks for rows after it, which keeps the query fast with a suitable index. Laravel exposes this through cursorPaginate, which is ideal for feeds and infinite scroll but does not support jumping to an arbitrary page.' },
+  ],
+};

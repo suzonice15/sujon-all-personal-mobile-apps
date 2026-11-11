@@ -357,9 +357,157 @@ ${GIT_PLAYGROUND_JS.replace(/<\//g, '<\\/')}
 })();
 </script></body></html>`;
 
+// SQL previews run on sql.js (SQLite compiled to WebAssembly) loaded from a
+// CDN. A small school database is created fresh for every run, so INSERT,
+// UPDATE and DELETE lessons always start from the same rows.
+export const SQL_SEED = `
+CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT, age INTEGER, city TEXT);
+CREATE TABLE courses (id INTEGER PRIMARY KEY, title TEXT, price INTEGER);
+CREATE TABLE enrollments (id INTEGER PRIMARY KEY, student_id INTEGER, course_id INTEGER, score INTEGER);
+INSERT INTO students VALUES
+  (1,'Ayesha',21,'Dhaka'),
+  (2,'Rahim',22,'Chattogram'),
+  (3,'Nusrat',20,'Dhaka'),
+  (4,'Tanvir',23,'Sylhet'),
+  (5,'Mitu',19,'Khulna'),
+  (6,'Sajid',21,'Dhaka');
+INSERT INTO courses VALUES
+  (1,'HTML',3000),
+  (2,'CSS',3500),
+  (3,'JavaScript',6000),
+  (4,'React',7000),
+  (5,'SQL',5000);
+INSERT INTO enrollments VALUES
+  (1,1,1,85),
+  (2,1,3,92),
+  (3,2,1,70),
+  (4,2,2,65),
+  (5,3,3,88),
+  (6,3,4,95),
+  (7,4,2,80),
+  (8,5,1,90),
+  (9,5,3,78),
+  (10,6,4,60);
+`;
+
+const SQL_STYLE = `body{font-family:system-ui,sans-serif;padding:10px;background:#f8fafc;color:#0f172a}
+h3{font-size:14px;margin:16px 0 6px;color:#475569}
+table{border-collapse:collapse;width:100%;margin-bottom:14px;font-size:13px;background:#fff}
+th,td{border:1px solid #cbd5e1;padding:6px 8px;text-align:left}
+th{background:#e2e8f0;font-weight:700}
+tr:nth-child(even) td{background:#f8fafc}
+.ok{color:#15803d;font-weight:600}
+.err{color:#b91c1c;font-weight:600;white-space:pre-wrap}
+.null{color:#94a3b8;font-style:italic}
+.muted{color:#64748b;font-size:12px}`;
+
+export const toSqlDocument = (code) => `<!DOCTYPE html>
+<html><head>${HEAD}<style>${SQL_STYLE}</style></head>
+<body>
+<div id="out"><p class="muted">Loading SQL engine...</p></div>
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+<script>
+(function () {
+  var code = ${JSON.stringify(code).replace(/<\//g, '<\\/')};
+  var seed = ${JSON.stringify(SQL_SEED)};
+  var out = document.getElementById('out');
+  function esc(value) {
+    return String(value).replace(/[&<>"]/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch];
+    });
+  }
+  function renderResult(res, index) {
+    var html = '<h3>Result ' + (index + 1) + ' - ' + res.values.length + ' row' + (res.values.length === 1 ? '' : 's') + '</h3>';
+    html += '<table><thead><tr>';
+    res.columns.forEach(function (col) { html += '<th>' + esc(col) + '</th>'; });
+    html += '</tr></thead><tbody>';
+    res.values.slice(0, 100).forEach(function (row) {
+      html += '<tr>';
+      row.forEach(function (cell) {
+        html += '<td>' + (cell === null ? '<span class="null">NULL</span>' : esc(cell)) + '</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    if (res.values.length > 100) html += '<p class="muted">Showing the first 100 rows.</p>';
+    return html;
+  }
+  if (!window.initSqlJs) {
+    out.innerHTML = '<p class="err">SQL engine could not load. Connect to the internet and run again.</p>';
+    return;
+  }
+  initSqlJs({ locateFile: function (file) { return 'https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/' + file; } })
+    .then(function (SQL) {
+      var db = new SQL.Database();
+      db.run(seed);
+      var results;
+      try {
+        results = db.exec(code);
+      } catch (error) {
+        out.innerHTML = '<p class="err">SQL error: ' + esc(error.message) + '</p>';
+        return;
+      }
+      if (!results.length) {
+        out.innerHTML = '<p class="ok">Statement executed successfully.</p>';
+        return;
+      }
+      out.innerHTML = results.map(renderResult).join('');
+    })
+    .catch(function (error) {
+      out.innerHTML = '<p class="err">Could not start the SQL engine: ' + esc(error && error.message ? error.message : error) + '</p>';
+    });
+})();
+</script></body></html>`;
+
+// TypeScript previews compile the snippet with Babel's TypeScript preset in
+// the page, then run the resulting JavaScript. Babel strips types; it does not
+// perform a full type-check, so the preview focuses on runtime behaviour.
+const TS_STYLE = `.ts-status{font:13px/1.5 system-ui,sans-serif;padding:8px 10px;color:#475569}
+.ts-status .err{color:#b91c1c;font-weight:600;white-space:pre-wrap}`;
+
+export const toTypeScriptDocument = (code) => `<!DOCTYPE html>
+<html><head>${HEAD}<style>${TS_STYLE}</style>
+<script>window.__JS_ONLY__=true;</script>${CONSOLE_SHIM}
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+</head>
+<body>
+<div id="ts-status" class="ts-status"></div>
+<script>
+(function () {
+  var code = ${JSON.stringify(code).replace(/<\//g, '<\\/')};
+  var status = document.getElementById('ts-status');
+  function esc(value) {
+    return String(value).replace(/[&<>"]/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch];
+    });
+  }
+  if (!window.Babel) {
+    status.innerHTML = '<span class="err">TypeScript compiler could not load. Connect to the internet and run again.</span>';
+    return;
+  }
+  var js;
+  try {
+    js = Babel.transform(code, {
+      filename: 'lesson.ts',
+      presets: [['typescript', { allowDeclareFields: true }]],
+    }).code;
+  } catch (error) {
+    status.innerHTML = '<span class="err">TypeScript error: ' + esc(error.message) + '</span>';
+    return;
+  }
+  try {
+    (0, eval)(js);
+  } catch (error) {
+    status.innerHTML = '<span class="err">Runtime error: ' + esc(error.message) + '</span>';
+  }
+})();
+</script></body></html>`;
+
 // Builds the preview page. JS snippets run inside a <script> on an empty page;
 // HTML snippets that are not full documents get a sensible base page.
 export const toDocument = (code, lang) => {
+  if (lang === 'ts') return toTypeScriptDocument(code);
+  if (lang === 'sql') return toSqlDocument(code);
   if (lang === 'vue') return toVueDocument(code);
   if (lang === 'php') return toPhpDocument(code);
   if (lang === 'python') return toPythonDocument(code);

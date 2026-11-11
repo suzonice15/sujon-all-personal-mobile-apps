@@ -7,6 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getCategoryProducts } from '../../api/homeApi';
 import { useTheme as usePaperTheme } from 'react-native-paper';
 import ProductCard from '../../components/ProductCard';
+import { getProductPrice } from '../../utils/helper';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SLIDER_PADDING = 20;
@@ -20,10 +21,8 @@ const sortOptions = [
   { label: 'Name (Z-A)', value: 'name_desc' },
 ];
 
-function getEffectivePrice(item) {
-  if (item.offerActive === 1 && item.offer_price > 0) return Number(item.offer_price);
-  return Number(item.product_price || 0);
-}
+// Product page er moto same price logic (sort/filter er jonno)
+const getEffectivePrice = getProductPrice;
 
 function RangeSlider({ min, max, low, high, onLowChange, onHighChange }) {
   const trackRef = useRef(null);

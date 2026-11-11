@@ -10,7 +10,7 @@ export default function ProductDetailHeader({ navigation, title }) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <StatusBar backgroundColor="#000" barStyle="light-content" />
+      <StatusBar backgroundColor="#EB592C" barStyle="light-content" />
       <View style={styles.row}>
         {/* Left - Back */}
         <TouchableOpacity
@@ -58,10 +58,10 @@ export default function ProductDetailHeader({ navigation, title }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#000',
+    backgroundColor: '#EB592C',
     paddingBottom: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#333',
+    borderBottomColor: '#C2410C',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 4,
     right: 2,
-    backgroundColor: '#EF4444',
+    backgroundColor: '#111827',
     borderRadius: 10,
     minWidth: 18,
     height: 18,

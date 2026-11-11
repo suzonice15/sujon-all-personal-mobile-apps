@@ -9,6 +9,7 @@ import { useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ProductCard from '../../components/ProductCard';
 import { searchProducts } from '../../api/homeApi';
+import { getProductPrice } from '../../utils/helper';
 
 const HISTORY_KEY = '@search_history';
 const MAX_HISTORY = 10;
@@ -220,8 +221,7 @@ export default function SearchProductScreen({ navigation }) {
                 </View>
               );
             }
-            const hasOffer = item.offerActive === 1 && item.offer_price > 0;
-            const price = hasOffer ? item.offer_price : item.product_price;
+            const price = getProductPrice(item);
             const imgUrl = item.main_image
               ? `https://www.adminpanel.jncomputerbd.com/products/${item.folder || ''}/${item.main_image}`
               : null;
@@ -239,7 +239,6 @@ export default function SearchProductScreen({ navigation }) {
                 <View style={s.itemCardBody}>
                   <Text style={[s.itemCardTitle, { color: colors.text }]} numberOfLines={2}>{item.product_title}</Text>
                   <Text style={[s.itemCardPrice, { color: '#EA580C' }]}>৳{price}</Text>
-                  {hasOffer && <Text style={s.itemCardOldPrice}>৳{item.product_price}</Text>}
                 </View>
                 <MaterialIcons name="chevron-right" size={20} color={colors.onSurface + '30'} />
               </TouchableOpacity>

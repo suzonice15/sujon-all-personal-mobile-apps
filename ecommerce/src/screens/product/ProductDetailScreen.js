@@ -14,6 +14,7 @@ import { useCart } from '../../context/CartContext';
 import RenderHtml from 'react-native-render-html';
 import ProductCard from '../../components/ProductCard';
 import { api } from '../../api/client';
+import { getProductPrice } from '../../utils/helper';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -188,7 +189,7 @@ export default function ProductDetailScreen({ route, navigation }) {
   }, [navigation]);
 
   const p = fullProduct;
-  const price = p.discount_price || p.product_price;
+  const price = getProductPrice(p);
   const oldPrice = p.product_price;
   const discount = oldPrice > price ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
   const hasOffer = discount > 0;

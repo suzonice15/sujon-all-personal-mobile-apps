@@ -25,3 +25,6 @@ export const isOnline = async () => {
     return false;
   }
 };
+
+// Product er dekhano price: product page o sob list e same logic
+export const getProductPrice = (item = {}) => Number(item.discount_price || item.product_price || 0);

@@ -3,6 +3,7 @@ import { View, Image, Text, TouchableOpacity, StyleSheet, Animated } from 'react
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { api_image } from '../config/url';
 import { useCart } from '../context/CartContext';
+import { getProductPrice } from '../utils/helper';
 
 const toFullUrl = (path, subdir = '') => {
   if (!path) return null;
@@ -46,8 +47,7 @@ function ToastAlert({ visible, message }) {
 
 export default function ProductCard({ item, colors, onPress }) {
   const { addItem } = useCart();
-  const hasOffer = item.offerActive === 1 && item.offer_price > 0;
-  const price = hasOffer ? item.offer_price : item.product_price;
+  const price = getProductPrice(item);
   const [loading, setLoading] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const timerRef = useRef(null);
@@ -80,7 +80,7 @@ export default function ProductCard({ item, colors, onPress }) {
           <Text style={[s.title, { color: '#111827' }]} numberOfLines={2}>
             {item.product_title}
           </Text>
-          {item.product_price > 0 && (
+          {price > 0 && (
             <View style={s.priceRow}>
               <Text style={[s.price]}>৳{price}</Text>
             </View>

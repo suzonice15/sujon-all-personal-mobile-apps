@@ -6,7 +6,7 @@
 //   { type: 'text', value }                 paragraph
 //   { type: 'heading', value }              small sub-heading inside a lesson
 //   { type: 'list', items: [] }             bullet list
-//   { type: 'code', lang, value, tryIt }    code sample (lang: html | css | js | jsx | vue | php | python | git | text); tryIt opens the live editor
+//   { type: 'code', lang, value, tryIt }    code sample (lang: html | css | js | jsx | ts | tsx | vue | php | python | sql | java | c | cpp | bash | dockerfile | yaml | rn | mongosh | git | text); tryIt opens the live editor
 //                                           (js runs as a script with a console panel; jsx renders with React;
 //                                           vue mounts a Single File Component; php runs on PHP 8.3 and python on
 //                                           CPython 3.14, both compiled to WebAssembly; git runs
@@ -24,15 +24,34 @@ import react from './react';
 import vue from './vue';
 import php from './php';
 import python from './python';
+import laravel from './laravel';
 import git from './git';
+import sql from './sql';
+import typescript from './typescript';
+import dsa from './dsa';
+import nodejs from './nodejs';
+import java from './java';
+import cLang from './c';
+import cpp from './cpp';
+import linux from './linux';
+import docker from './docker';
+import reactNative from './react-native';
+import networks from './networks';
+import mongodb from './mongodb';
+import systemDesign from './system-design';
 
 // Every course shown on the Home grid. Only add a course here once its
 // content is written: Play rejects apps with empty "coming soon" sections.
 // To add one: create its folder (copy the shape of ./html) and list it here.
 export const COURSE_GROUPS = [
-  { title: 'Web Development', courses: [html, css, javascript] },
+  { title: 'Web Development', courses: [html, css, javascript, typescript] },
   { title: 'Frontend Frameworks', courses: [react, vue] },
-  { title: 'Backend & Data', courses: [php, python] },
+  { title: 'Mobile Development', courses: [reactNative] },
+  { title: 'Backend & Data', courses: [php, python, sql, nodejs, mongodb] },
+  { title: 'Backend Frameworks', courses: [laravel] },
+  { title: 'OS & DevOps', courses: [linux, docker] },
+  { title: 'Computer Science', courses: [dsa, networks, systemDesign] },
+  { title: 'Languages', courses: [java, cLang, cpp] },
   { title: 'Developer Tools', courses: [git] },
 ];
 

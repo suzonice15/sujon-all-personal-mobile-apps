@@ -50,6 +50,7 @@ const s = StyleSheet.create({
   card: {
     width: '30%', flexGrow: 1, flexBasis: '30%',
     borderRadius: 12, paddingVertical: 14, paddingHorizontal: 6,
+    borderWidth: 1, borderColor: '#EB592C',
     alignItems: 'center',
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06, shadowRadius: 4, elevation: 2,
