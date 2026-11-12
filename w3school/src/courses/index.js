@@ -38,20 +38,42 @@ import docker from './docker';
 import reactNative from './react-native';
 import networks from './networks';
 import mongodb from './mongodb';
+import postgresql from './postgresql';
+import redis from './redis';
 import systemDesign from './system-design';
+import csharp from './csharp';
+import ai from './ai';
+import flutter from './flutter';
+import go from './go';
+import cybersecurity from './cybersecurity';
+import kotlin from './kotlin';
+import swift from './swift';
+import cloud from './cloud';
+import kubernetes from './kubernetes';
+import os from './os';
+import compiler from './compiler';
+import architecture from './architecture';
+import dotnet from './dotnet';
+import nextjs from './nextjs';
+import ml from './ml';
+import mathMl from './math-ml';
+import springBoot from './spring-boot';
+import rust from './rust';
 
 // Every course shown on the Home grid. Only add a course here once its
 // content is written: Play rejects apps with empty "coming soon" sections.
 // To add one: create its folder (copy the shape of ./html) and list it here.
 export const COURSE_GROUPS = [
   { title: 'Web Development', courses: [html, css, javascript, typescript] },
-  { title: 'Frontend Frameworks', courses: [react, vue] },
-  { title: 'Mobile Development', courses: [reactNative] },
-  { title: 'Backend & Data', courses: [php, python, sql, nodejs, mongodb] },
-  { title: 'Backend Frameworks', courses: [laravel] },
-  { title: 'OS & DevOps', courses: [linux, docker] },
-  { title: 'Computer Science', courses: [dsa, networks, systemDesign] },
-  { title: 'Languages', courses: [java, cLang, cpp] },
+  { title: 'Frontend Frameworks', courses: [react, vue, nextjs] },
+  { title: 'Mobile Development', courses: [reactNative, flutter, kotlin, swift] },
+  { title: 'Backend & Data', courses: [php, python, sql, nodejs, mongodb, postgresql, redis] },
+  { title: 'AI & Future Skills', courses: [ai, mathMl, ml] },
+  { title: 'Security', courses: [cybersecurity] },
+  { title: 'Backend Frameworks', courses: [laravel, dotnet, springBoot] },
+  { title: 'OS & DevOps', courses: [linux, docker, cloud, kubernetes] },
+  { title: 'Computer Science', courses: [dsa, networks, systemDesign, os, compiler, architecture] },
+  { title: 'Languages', courses: [java, cLang, cpp, csharp, go, rust] },
   { title: 'Developer Tools', courses: [git] },
 ];
 

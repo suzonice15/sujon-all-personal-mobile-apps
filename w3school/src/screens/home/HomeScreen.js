@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AdBanner from '../../components/ads/AdBanner';
 import { COURSES, COURSE_GROUPS, countLessons, findLesson } from '../../courses';
+import { LEARNING_PATHS, pathProgress } from '../../courses/learningPaths';
 import { getAllCourseProgress, getQuizScores } from '../../db/courseProgress';
 import { useUI, cardShadow, tint, ProgressBar, CourseLogo, HeroDecor, Pill, SectionTitle, RADIUS, SPACE } from '../../components/course/ui';
 
@@ -130,6 +131,34 @@ export default function HomeScreen({ navigation }) {
           </>
         )}
 
+        {!q && (
+          <>
+            <SectionTitle
+              title="Learning paths"
+              ui={ui}
+              right={<TouchableOpacity onPress={() => navigation.navigate('LearningPaths')} hitSlop={8}><Text style={s.seeAll}>See all</Text></TouchableOpacity>}
+            />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.pathRow}>
+              {LEARNING_PATHS.map(path => {
+                const info = pathProgress(path, progress);
+                return (
+                  <TouchableOpacity
+                    key={path.id}
+                    style={s.pathCard}
+                    activeOpacity={0.85}
+                    onPress={() => navigation.navigate('LearningPath', { pathId: path.id, headerTitle: path.title })}
+                  >
+                    <View style={[s.pathBar, { backgroundColor: path.color }]} />
+                    <Text style={s.pathTitle} numberOfLines={1}>{path.title}</Text>
+                    <Text style={s.pathMeta}>{info.completedSteps}/{info.totalSteps} courses done</Text>
+                    <ProgressBar value={info.pct} color={path.color} track={ui.track} height={4} style={{ marginTop: SPACE.sm }} />
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </>
+        )}
+
         {groups.map(group => (
           <View key={group.title}>
             <SectionTitle title={group.title} ui={ui} right={<Text style={s.count}>{group.courses.length} courses</Text>} />
@@ -177,6 +206,12 @@ const styles = (ui) => StyleSheet.create({
   playBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
 
   count: { color: ui.sub, fontSize: 13, fontWeight: '600' },
+  seeAll: { color: ui.brand, fontSize: 13, fontWeight: '800' },
+  pathRow: { paddingRight: SPACE.lg },
+  pathCard: { width: 190, backgroundColor: ui.card, borderRadius: RADIUS.md, padding: 14, marginRight: 12, overflow: 'hidden', ...cardShadow(ui) },
+  pathBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 4 },
+  pathTitle: { fontSize: 15, fontWeight: '800', color: ui.text, marginTop: 6 },
+  pathMeta: { fontSize: 11, color: ui.sub, fontWeight: '700', marginTop: 4 },
   empty: { color: ui.sub },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   card: { width: '48.5%', backgroundColor: ui.card, borderRadius: RADIUS.md, padding: 14, marginBottom: 12, ...cardShadow(ui) },

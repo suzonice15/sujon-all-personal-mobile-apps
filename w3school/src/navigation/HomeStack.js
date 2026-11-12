@@ -8,6 +8,8 @@ import HomeScreen from '../screens/home/HomeScreen';
 import CourseScreen from '../screens/course/CourseScreen';
 import ChapterScreen from '../screens/course/ChapterScreen';
 import LessonScreen from '../screens/course/LessonScreen';
+import LearningPathsScreen from '../screens/home/LearningPathsScreen';
+import LearningPathScreen from '../screens/home/LearningPathScreen';
 import TryItScreen from '../screens/course/TryItScreen';
 import DataScreen from '../screens/home/DataScreen';
 import StoryDetail from '../screens/home/StoryDetail';
@@ -34,6 +36,8 @@ export default function HomeStack() {
       {/* headerLeft: undefined drops the drawer menu so these show a back arrow */}
       <Stack.Screen name="Course" component={CourseScreen} options={({ route }) => ({ title: route.params?.headerTitle, headerLeft: undefined })} />
       <Stack.Screen name="Chapter" component={ChapterScreen} options={({ route }) => ({ title: route.params?.headerTitle, headerLeft: undefined })} />
+      <Stack.Screen name="LearningPaths" component={LearningPathsScreen} options={{ title: 'Learning Paths', headerLeft: undefined }} />
+      <Stack.Screen name="LearningPath" component={LearningPathScreen} options={({ route }) => ({ title: route.params?.headerTitle, headerLeft: undefined })} />
       {/* The lesson title is shown large in the screen itself, so the header names the course */}
       <Stack.Screen name="Lesson" component={LessonScreen} options={({ route }) => ({ title: getCourse(route.params?.courseId)?.title, headerLeft: undefined })} />
       <Stack.Screen name="TryIt" component={TryItScreen} options={{ title: 'Try it yourself', headerLeft: undefined }} />

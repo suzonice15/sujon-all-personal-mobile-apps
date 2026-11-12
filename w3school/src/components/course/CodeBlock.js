@@ -384,8 +384,115 @@ const highlightYaml = (code) => {
   return parts;
 };
 
-const HIGHLIGHTERS = { html: highlightHtml, vue: highlightHtml, css: highlightCss, js: highlightJs, jsx: highlightJsx, ts: highlightTs, tsx: highlightTsx, php: highlightPhp, python: highlightPython, sql: highlightSql, java: highlightJava, c: highlightC, cpp: highlightCpp, bash: highlightBash, dockerfile: highlightDockerfile, yaml: highlightYaml, rn: highlightJsx, mongosh: highlightJs };
-const LANG_LABELS = { js: 'JAVASCRIPT', jsx: 'REACT (JSX)', ts: 'TYPESCRIPT', tsx: 'REACT + TS', vue: 'VUE', php: 'PHP', python: 'PYTHON', sql: 'SQL', java: 'JAVA', c: 'C', cpp: 'C++', bash: 'SHELL', dockerfile: 'DOCKERFILE', yaml: 'YAML', rn: 'REACT NATIVE', mongosh: 'MONGODB', git: 'TERMINAL', text: 'TEXT' };
+// C#: comments, strings, attributes, keywords, numbers, calls.
+const CSHARP_KEYWORDS = 'abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|record|ref|required|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|var|virtual|void|volatile|while|async|await|yield|nameof|when|get|set|init|value|partial|global|with';
+const CSHARP_TOKEN_RE = new RegExp(
+  '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)' +                     // 1 comment
+  '|(@?"(?:""|[^"])*"|\\$?"(?:\\\\.|[^"\\\\\\n])*")' +          // 2 string
+  '|(@[A-Za-z_][\\w.]*)' +                                      // 3 attribute
+  '|\\b(' + CSHARP_KEYWORDS + ')\\b' +                          // 4 keyword
+  '|\\b(\\d[\\d_]*(?:\\.\\d+)?[fFdDmMlLuU]*)\\b' +               // 5 number
+  '|\\b([A-Za-z_][\\w]*)(?=\\s*[<(])',                          // 6 call or generic
+  'g'
+);
+
+const highlightCsharp = (code) => {
+  const parts = [];
+  let last = 0;
+  let m;
+  CSHARP_TOKEN_RE.lastIndex = 0;
+  while ((m = CSHARP_TOKEN_RE.exec(code))) {
+    if (m.index > last) parts.push({ text: code.slice(last, m.index), color: COLORS.text });
+    const color = m[1] ? COLORS.comment : m[2] ? COLORS.string : m[3] ? COLORS.attr : m[4] ? COLORS.tag : m[5] ? COLORS.attr : COLORS.fn;
+    parts.push({ text: m[0], color });
+    last = m.index + m[0].length;
+  }
+  if (last < code.length) parts.push({ text: code.slice(last), color: COLORS.text });
+  return parts;
+};
+
+// Dart: comments, strings, annotations, keywords, numbers, calls.
+const DART_KEYWORDS = 'abstract|as|assert|async|await|base|break|case|catch|class|const|continue|covariant|default|deferred|do|dynamic|else|enum|export|extends|extension|external|factory|false|final|finally|for|Function|get|hide|if|implements|import|in|interface|is|late|library|mixin|new|null|on|operator|part|required|rethrow|return|sealed|set|show|static|super|switch|sync|this|throw|true|try|typedef|var|void|when|while|with|yield|int|double|String|bool|List|Map|Set|Future|Stream';
+const DART_TOKEN_RE = new RegExp(
+  '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)' +          // 1 comment
+  '|("(?:\\\\.|[^"\\\\\\n])*"|\'(?:\\\\.|[^\'\\\\\\n])*\')' + // 2 string
+  '|(@[A-Za-z_][\\w.]*)' +                          // 3 annotation
+  '|\\b(' + DART_KEYWORDS + ')\\b' +                // 4 keyword
+  '|\\b(\\d[\\d_]*(?:\\.\\d+)?)\\b' +                 // 5 number
+  '|\\b([A-Za-z_][\\w]*)(?=\\s*[<(])',               // 6 call or generic
+  'g'
+);
+
+const highlightDart = (code) => {
+  const parts = [];
+  let last = 0;
+  let m;
+  DART_TOKEN_RE.lastIndex = 0;
+  while ((m = DART_TOKEN_RE.exec(code))) {
+    if (m.index > last) parts.push({ text: code.slice(last, m.index), color: COLORS.text });
+    const color = m[1] ? COLORS.comment : m[2] ? COLORS.string : m[3] ? COLORS.attr : m[4] ? COLORS.tag : m[5] ? COLORS.attr : COLORS.fn;
+    parts.push({ text: m[0], color });
+    last = m.index + m[0].length;
+  }
+  if (last < code.length) parts.push({ text: code.slice(last), color: COLORS.text });
+  return parts;
+};
+
+// Go: comments, strings, keywords, numbers, calls.
+const GO_KEYWORDS = 'break|case|chan|const|continue|default|defer|else|fallthrough|for|func|go|goto|if|import|interface|map|package|range|return|select|struct|switch|type|var|true|false|nil|string|int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64|float32|float64|complex64|complex128|bool|byte|rune|error|any|make|new|len|cap|append|copy|delete|close|panic|recover';
+const GO_TOKEN_RE = new RegExp(
+  '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)' +          // 1 comment
+  '|("(?:\\\\.|[^"\\\\\\n])*"|`[^`]*`)' +              // 2 string
+  '|\\b(' + GO_KEYWORDS + ')\\b' +                    // 3 keyword
+  '|\\b(\\d[\\d_]*(?:\\.\\d+)?)\\b' +                  // 4 number
+  '|\\b([A-Za-z_][\\w]*)(?=\\s*\\()',                  // 5 call
+  'g'
+);
+
+const highlightGo = (code) => {
+  const parts = [];
+  let last = 0;
+  let m;
+  GO_TOKEN_RE.lastIndex = 0;
+  while ((m = GO_TOKEN_RE.exec(code))) {
+    if (m.index > last) parts.push({ text: code.slice(last, m.index), color: COLORS.text });
+    const color = m[1] ? COLORS.comment : m[2] ? COLORS.string : m[3] ? COLORS.tag : m[4] ? COLORS.attr : COLORS.fn;
+    parts.push({ text: m[0], color });
+    last = m.index + m[0].length;
+  }
+  if (last < code.length) parts.push({ text: code.slice(last), color: COLORS.text });
+  return parts;
+};
+
+// Kotlin: comments, strings, annotations, keywords, numbers, calls.
+const KOTLIN_KEYWORDS = 'as|break|class|continue|do|else|false|for|fun|if|in|interface|is|null|object|package|return|super|this|throw|true|try|typealias|val|var|when|while|by|catch|constructor|delegate|field|file|finally|get|import|init|param|property|receiver|set|where|actual|abstract|annotation|companion|const|crossinline|data|enum|expect|external|final|infix|inline|inner|internal|lateinit|noinline|open|operator|out|override|private|protected|public|reified|sealed|suspend|tailrec|vararg|it|Unit|Any|Nothing|String|Int|Long|Double|Float|Boolean|List|Map|Set|Pair|Triple';
+const KOTLIN_TOKEN_RE = new RegExp(
+  '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)' +                     // 1 comment
+  '|("(?:\\\\.|[^"\\\\\\n])*"|\'(?:\\\\.|[^\'\\\\\\n])*\')' +      // 2 string
+  '|(@[A-Za-z_][\\w.]*)' +                                      // 3 annotation
+  '|\\b(' + KOTLIN_KEYWORDS + ')\\b' +                          // 4 keyword
+  '|\\b(\\d[\\d_]*(?:\\.\\d+)?[fFdDlL]?)\\b' +                   // 5 number
+  '|\\b([A-Za-z_][\\w]*)(?=\\s*[<(])',                          // 6 call or generic
+  'g'
+);
+
+const highlightKotlin = (code) => {
+  const parts = [];
+  let last = 0;
+  let m;
+  KOTLIN_TOKEN_RE.lastIndex = 0;
+  while ((m = KOTLIN_TOKEN_RE.exec(code))) {
+    if (m.index > last) parts.push({ text: code.slice(last, m.index), color: COLORS.text });
+    const color = m[1] ? COLORS.comment : m[2] ? COLORS.string : m[3] ? COLORS.attr : m[4] ? COLORS.tag : m[5] ? COLORS.attr : COLORS.fn;
+    parts.push({ text: m[0], color });
+    last = m.index + m[0].length;
+  }
+  if (last < code.length) parts.push({ text: code.slice(last), color: COLORS.text });
+  return parts;
+};
+
+const HIGHLIGHTERS = { html: highlightHtml, vue: highlightHtml, css: highlightCss, js: highlightJs, jsx: highlightJsx, ts: highlightTs, tsx: highlightTsx, php: highlightPhp, python: highlightPython, sql: highlightSql, java: highlightJava, c: highlightC, cpp: highlightCpp, bash: highlightBash, dockerfile: highlightDockerfile, yaml: highlightYaml, json: highlightYaml, rn: highlightJsx, mongosh: highlightJs, csharp: highlightCsharp, dart: highlightDart, go: highlightGo, kotlin: highlightKotlin, rust: highlightC, swift: highlightC };
+const LANG_LABELS = { js: 'JAVASCRIPT', jsx: 'REACT (JSX)', ts: 'TYPESCRIPT', tsx: 'REACT + TS', vue: 'VUE', php: 'PHP', python: 'PYTHON', sql: 'SQL', java: 'JAVA', c: 'C', cpp: 'C++', bash: 'SHELL', dockerfile: 'DOCKERFILE', yaml: 'YAML', json: 'JSON', rn: 'REACT NATIVE', mongosh: 'MONGODB', csharp: 'C#', dart: 'DART', go: 'GO', kotlin: 'KOTLIN', rust: 'RUST', swift: 'SWIFT', git: 'TERMINAL', text: 'TEXT' };
 
 export default function CodeBlock({ code, lang = 'html', onTryIt }) {
   const [copied, setCopied] = useState(false);
