@@ -13,6 +13,7 @@ import networking from './networking';
 import storage from './storage';
 import nativeFeatures from './native-features';
 import performance from './performance';
+import animationsPublishing from './animations-publishing';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -28,6 +29,7 @@ const chapters = [
   storage,
   nativeFeatures,
   performance,
+  animationsPublishing,
   projectsInterview,
 ];
 

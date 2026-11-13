@@ -58,4 +58,71 @@ export default {
 });`, lang: 'php' },
     { level: 'advanced', q: 'Why is offset pagination slow at high page numbers, and what replaces it?', a: 'OFFSET still makes the database read and discard all skipped rows, so page 1000 costs far more than page 1. Keyset pagination remembers the last seen sort key and asks for rows after it, which keeps the query fast with a suitable index. Laravel exposes this through cursorPaginate, which is ideal for feeds and infinite scroll but does not support jumping to an arbitrary page.' },
   ],
-};
+  authentication: [
+    { level: 'basic', q: 'How should passwords be stored in Laravel?', a: 'Hash them with Hash::make, which uses bcrypt or argon2 depending on config, and verify with Hash::check or Auth::attempt. Never store or log the plain password, and rehash automatically when the algorithm cost changes.' },
+    { level: 'intermediate', q: 'Session authentication versus API tokens?', a: 'Session cookies suit a same-site web app and give CSRF protection and server-side revocation. Sanctum tokens suit mobile and third-party clients. Do not mix both on one endpoint without a clear rule.' },
+  ],
+  authorization: [
+    { level: 'basic', q: 'Policy versus gate?', a: 'A policy groups rules for one model, such as update and delete on a Course. A gate is a closure for an action that is not tied to a model, such as viewing an admin dashboard. Both are checked with authorize, can or @can.' },
+    { level: 'intermediate', q: 'Why is hiding a button not authorization?', a: 'The request can be sent without the UI. Every state-changing endpoint must authorize on the server, usually in the controller or a form request.' },
+  ],
+  'service-container': [
+    { level: 'basic', q: 'What does the service container do?', a: 'It resolves classes and injects their dependencies, so a controller can ask for a repository or service without constructing it manually.' },
+    { level: 'intermediate', q: 'bind versus singleton?', a: 'bind creates a new instance each time it is resolved. singleton resolves once per request lifecycle and returns the same instance.' },
+  ],
+  security: [
+    { level: 'basic', q: 'How do you prevent mass assignment?', a: 'Define fillable or guarded on the model and never pass request()->all() straight into create or update. Validate first, then pass only known keys.' },
+    { level: 'intermediate', q: 'How does Blade prevent XSS?', a: 'The double-brace syntax escapes output. Raw output with the unescaped syntax is only for HTML you generated and trust, never for user input.' },
+  ],
+  'laravel-api': [
+    { level: 'basic', q: 'Which status code means created?', a: '201 Created, usually returned with the new resource in the body and a Location header.' },
+    { level: 'intermediate', q: 'How do you version a public API?', a: 'Prefix the route such as /api/v1 or use a version header. Keep the old version working while clients migrate, and document deprecation dates.' },
+  ],
+  'queues-jobs': [
+    { level: 'basic', q: 'Why move work to a queue?', a: 'Slow or unreliable work such as email, image processing or external calls should not block the request. A queued job also gets retries, backoff and failure handling.' },
+    { level: 'advanced', q: 'How do you make a queued job safe to retry?', a: 'Make it idempotent: check whether the effect already happened, use unique keys, and wrap writes in a transaction. A retry after a partial failure must not duplicate the work.' },
+  ],
+  'events-listeners': [
+    { level: 'basic', q: 'Event versus job?', a: 'An event says something happened. A listener reacts to it and can be queued. A job is a unit of work dispatched directly, without an event in between.' },
+    { level: 'intermediate', q: 'Why queue a listener?', a: 'It keeps the request fast and isolates a failure in a side effect, such as sending mail, from the main transaction.' },
+  ],
+  'artisan-scheduling': [
+    { level: 'basic', q: 'How does the Laravel scheduler run?', a: 'One cron entry calls php artisan schedule:run every minute, and the scheduler decides which tasks are due.' },
+    { level: 'intermediate', q: 'How do you stop overlapping runs?', a: 'Use withoutOverlapping, and onOneServer when several servers share the schedule. Set an expiry so a stuck lock does not block forever.' },
+  ],
+  'caching-performance': [
+    { level: 'basic', q: 'What is worth caching?', a: 'Expensive, read-heavy data that can tolerate slight staleness, such as a course list or a settings payload. Never cache per-user secrets without a key that includes the user.' },
+    { level: 'intermediate', q: 'How do you invalidate a cache?', a: 'Use a TTL plus explicit forget on writes, and version keys when the shape changes. Redis supports tags for group invalidation.' },
+  ],
+  deployment: [
+    { level: 'basic', q: 'What runs during a Laravel deploy?', a: 'Install production dependencies, run migrations with force, cache config, routes and views, then restart queue workers and clear opcache if needed.' },
+    { level: 'intermediate', q: 'Why cache the config?', a: 'It compiles configuration into one file for speed. After that, env() outside config files returns null, so all environment reads must live in config.' },
+  ],
+  'packages-ecosystem': [
+    { level: 'basic', q: 'How do you evaluate a package?', a: 'Check recent releases, supported Laravel versions, open issues, tests, license and the cost of removing it. Commit the lockfile and audit dependencies.' },
+    { level: 'intermediate', q: 'Livewire versus Inertia?', a: 'Livewire keeps rendering on the server with PHP components. Inertia renders a Vue, React or Svelte page and passes props from the controller.' },
+  ],
+  'laravel-projects': [
+    { level: 'basic', q: 'What makes a Laravel project convincing?', a: 'One complete flow with auth, validation, tests, CI and a working deploy, plus a README that explains the trade-offs.' },
+    { level: 'intermediate', q: 'How do you scope the first version?', a: 'Pick one core user journey and finish it end to end. Add secondary features only after the main path is tested and deployed.' },
+  ],
+  'laravel-eloquent-expert': [
+    { level: 'basic', q: 'How do you avoid N+1 queries?', a: 'Eager load with with() or load(), and enable preventLazyLoading in development so a missing eager load fails loudly.' },
+    { level: 'intermediate', q: 'When is a global scope appropriate?', a: 'For a constraint that must always apply, such as tenancy or soft deletes. Use withoutGlobalScope deliberately and test those paths.' },
+  ],
+  'laravel-realtime': [
+    { level: 'basic', q: 'How does a broadcast reach the browser?', a: 'The event is broadcast through the configured driver, the client subscribes to a channel, and the server pushes the payload over the WebSocket connection.' },
+    { level: 'intermediate', q: 'How do you authorize a private channel?', a: 'Register a callback in channels.php that checks the authenticated user against the channel, and return false otherwise.' },
+  ],
+  'laravel-livewire-filament': [
+    { level: 'basic', q: 'How does Livewire update the page?', a: 'The component sends state to the server, re-renders there, and the returned HTML is diffed into the DOM.' },
+    { level: 'intermediate', q: 'When is Filament a poor fit?', a: 'For a highly custom customer-facing interface. Filament is optimized for internal admin panels and CRUD workflows.' },
+  ],
+  'laravel-architecture-expert': [
+    { level: 'intermediate', q: 'Modular monolith versus microservices?', a: 'Start with a modular monolith: one deployable with clear module boundaries. Split a service out only when a real scaling, ownership or failure-isolation need appears.' },
+    { level: 'advanced', q: 'How do you keep a large Laravel app maintainable?', a: 'Thin controllers, action or service classes for business logic, policies for authorization, tests around behaviour, and consistent naming and module boundaries.' },
+  ],
+  'laravel-capstone': [
+    { level: 'basic', q: 'What proves production readiness?', a: 'Tests, CI, monitoring, backups, a rollback path and a documented deploy. A working feature is not the same as an operable system.' },
+    { level: 'intermediate', q: 'What should the capstone README include?', a: 'Setup steps, architecture overview, key trade-offs, environment variables and how to run the tests and migrations.' },
+  ],};

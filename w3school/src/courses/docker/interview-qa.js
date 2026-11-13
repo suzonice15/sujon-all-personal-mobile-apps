@@ -156,4 +156,26 @@ export default {
       level: 'basic',
     },
   ],
+  'security-registries': [
+    {
+      q: 'Why run a container as non-root?',
+      a: 'If the process is compromised, it has fewer permissions inside the container and on a mounted volume.',
+      level: 'basic',
+    },
+    {
+      q: 'What does a multi-stage build give you?',
+      a: 'A small final image with only runtime files; compilers and dev dependencies stay in the build stage.',
+      level: 'basic',
+    },
+    {
+      q: 'Why deploy by digest?',
+      a: 'A digest is immutable, so the exact bytes you tested are the bytes that run. A tag can be overwritten.',
+      level: 'intermediate',
+    },
+    {
+      q: 'How do you secure the image supply chain?',
+      a: 'Pin base images, scan for critical CVEs, generate an SBOM, sign the image and verify the signature before deploy.',
+      level: 'advanced',
+    },
+  ],
 };

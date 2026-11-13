@@ -9,6 +9,7 @@ import dockerfile from './dockerfile';
 import imagesVolumes from './images-volumes';
 import networking from './networking';
 import compose from './compose';
+import securityRegistries from './security-registries';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -19,6 +20,7 @@ const chapters = [
   imagesVolumes,
   networking,
   compose,
+  securityRegistries,
   projectsInterview,
 ];
 

@@ -244,4 +244,26 @@ export default {
       level: 'advanced',
     },
   ],
+  'state-management': [
+    {
+      q: 'When do you need a state library?',
+      a: 'When state is shared across screens or must survive navigation. Local widget state can stay with setState.',
+      level: 'basic',
+    },
+    {
+      q: 'What does FutureProvider give you?',
+      a: 'A loading, data and error state for async work, rendered with when().',
+      level: 'intermediate',
+    },
+    {
+      q: 'How does Bloc separate concerns?',
+      a: 'The UI sends events, the bloc holds logic and emits states, and widgets render state.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What should a widget test avoid?',
+      a: 'Real network calls and timers. Inject fakes and pump the widget explicitly.',
+      level: 'advanced',
+    },
+  ],
 };

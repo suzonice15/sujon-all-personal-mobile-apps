@@ -178,4 +178,26 @@ export default {
       level: 'basic',
     },
   ],
+  'tailwind-v4': [
+    {
+      q: 'How does v4 configuration work?',
+      a: 'CSS-first: @import "tailwindcss" and declare tokens in @theme. A JavaScript config is optional.',
+      level: 'basic',
+    },
+    {
+      q: 'What does a @theme token generate?',
+      a: 'Utilities for that token, such as colour, font or breakpoint classes.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What is @utility for?',
+      a: 'Defining a custom utility class in CSS that behaves like a built-in utility.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What should you check after migrating?',
+      a: 'Custom plugins, dark mode strategy, content detection and the CSS bundle size.',
+      level: 'advanced',
+    },
+  ],
 };

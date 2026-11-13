@@ -47,5 +47,7 @@ RateLimiter::for('api', fn (Request $r) => Limit::perMinute(60)->by($r->user()?-
   ],
   quiz: [
     { chapterId: 'laravel-api', q: 'API Resource transforms?', options: ['Model to JSON', 'DB schema', 'Route to controller', 'View to HTML'], answer: 0, explain: 'Resources shape JSON output.' },
+    { chapterId: 'laravel-api', q: 'Which status code means a resource was created?', options: ['201', '200', '204', '302'], answer: 0, explain: '201 Created is the correct response.' },
+    { chapterId: 'laravel-api', q: 'How should a public API be versioned?', options: ['URL or header versioning', 'Rename the models', 'Delete old routes', 'Cache only'], answer: 0, explain: 'Version the route or a header so clients can migrate.' },
   ],
 };

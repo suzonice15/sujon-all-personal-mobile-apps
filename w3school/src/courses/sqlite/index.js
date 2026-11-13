@@ -6,6 +6,7 @@ import queries from './queries';
 import indexes from './indexes';
 import transactions from './transactions';
 import embeddedMobile from './embedded-mobile';
+import ftsJson from './fts-json';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -16,6 +17,7 @@ const chapters = [
   indexes,
   transactions,
   embeddedMobile,
+  ftsJson,
   projectsInterview,
 ];
 

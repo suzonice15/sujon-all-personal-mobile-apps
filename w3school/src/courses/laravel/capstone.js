@@ -25,5 +25,7 @@ export default {
   ],
   quiz: [
     { chapterId: 'laravel-capstone', q: 'Best final project to prove expertise?', options: ['Production SaaS', 'Hello world', 'Single page', 'Static site'], answer: 0, explain: 'SaaS covers all skills.' },
+    { chapterId: 'laravel-capstone', q: 'What proves production readiness?', options: ['Tests, CI, monitoring and rollback', 'A logo', 'More colours', 'A landing page'], answer: 0, explain: 'Operability matters more than visuals.' },
+    { chapterId: 'laravel-capstone', q: 'What should the capstone README cover?', options: ['Setup, architecture and trade-offs', 'Only screenshots', 'A slogan', 'Nothing'], answer: 0, explain: 'A reviewer needs to run and understand it.' },
   ],
 };

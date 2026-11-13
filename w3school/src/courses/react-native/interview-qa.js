@@ -266,4 +266,26 @@ export default {
       level: 'advanced',
     },
   ],
+  'animations-publishing': [
+    {
+      q: 'Why use Reanimated?',
+      a: 'It runs animations on the UI thread with shared values, so they stay smooth even when JavaScript is busy.',
+      level: 'basic',
+    },
+    {
+      q: 'Which properties are cheap to animate?',
+      a: 'Transform and opacity. Animating width or height forces layout on every frame.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What must change on every store upload?',
+      a: 'The versionCode. A repeated value is rejected by the store.',
+      level: 'basic',
+    },
+    {
+      q: 'Why test a signed release build?',
+      a: 'Minification, signing and release-only configuration can break code that worked in debug.',
+      level: 'advanced',
+    },
+  ],
 };

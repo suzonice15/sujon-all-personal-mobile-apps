@@ -177,4 +177,26 @@ export default {
       level: 'basic',
     },
   ],
+  'security-rbac': [
+    {
+      q: 'Role versus ClusterRole?',
+      a: 'A Role is namespaced. A ClusterRole applies cluster-wide or can be bound inside a namespace.',
+      level: 'basic',
+    },
+    {
+      q: 'How do you check permissions?',
+      a: 'kubectl auth can-i with --as to impersonate a user or service account.',
+      level: 'intermediate',
+    },
+    {
+      q: 'Are Secrets encrypted?',
+      a: 'They are base64 by default. Enable encryption at rest and restrict who can read them.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What does a restricted security context include?',
+      a: 'runAsNonRoot, no privilege escalation, a read-only root filesystem and all capabilities dropped.',
+      level: 'advanced',
+    },
+  ],
 };

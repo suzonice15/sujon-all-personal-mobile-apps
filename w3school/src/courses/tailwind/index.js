@@ -8,6 +8,7 @@ import responsive from './responsive';
 import componentsPatterns from './components-patterns';
 import darkMode from './dark-mode';
 import configCustomization from './config-customization';
+import tailwindV4 from './tailwind-v4';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -19,6 +20,7 @@ const chapters = [
   componentsPatterns,
   darkMode,
   configCustomization,
+  tailwindV4,
   projectsInterview,
 ];
 

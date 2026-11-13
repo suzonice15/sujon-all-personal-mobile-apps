@@ -11,6 +11,7 @@ import protocolsExtensions from './protocols-extensions';
 import optionalsCollections from './optionals-collections';
 import concurrency from './concurrency';
 import swiftui from './swiftui';
+import networkingPersistence from './networking-persistence';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -24,6 +25,7 @@ const chapters = [
   optionalsCollections,
   concurrency,
   swiftui,
+  networkingPersistence,
   projectsInterview,
 ];
 

@@ -266,4 +266,48 @@ export default {
       level: 'advanced',
     },
   ],
+  'streams-lambdas': [
+    {
+      q: 'What is a functional interface?',
+      a: 'An interface with exactly one abstract method, which a lambda can implement. Function, Predicate, Supplier and Consumer are the common ones.',
+      level: 'basic',
+    },
+    {
+      q: 'When does a stream run?',
+      a: 'Nothing runs until the terminal operation. Intermediate steps are lazy and can be fused.',
+      level: 'intermediate',
+    },
+    {
+      q: 'map versus flatMap?',
+      a: 'map transforms one element into one element. flatMap transforms one element into a stream and flattens the results.',
+      level: 'intermediate',
+    },
+    {
+      q: 'When not to use a stream?',
+      a: 'For a simple loop with side effects or complex control flow, a loop is clearer and often faster. Streams suit transformations and aggregations.',
+      level: 'advanced',
+    },
+  ],
+  'concurrency-testing': [
+    {
+      q: 'Why use ExecutorService instead of new Thread?',
+      a: 'A pool bounds concurrency, reuses threads and returns Future results. Spawning a thread per task does not scale.',
+      level: 'basic',
+    },
+    {
+      q: 'Why is count++ not thread-safe?',
+      a: 'It is a read, add and write. Two threads can interleave and lose an update. Use AtomicInteger or a lock.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What is a deadlock?',
+      a: 'Two threads each hold a lock the other needs. Prevent it by taking locks in a consistent order and using timeouts.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What is a good JUnit test?',
+      a: 'One behaviour, a clear assertion, no shared state and no sleeps. Use assertThrows for error paths and inject a clock instead of waiting.',
+      level: 'advanced',
+    },
+  ],
 };

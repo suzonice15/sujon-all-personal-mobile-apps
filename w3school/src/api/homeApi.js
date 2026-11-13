@@ -1,5 +1,5 @@
 import { api } from './client';
-import { apps_slug,quize_slug } from '../config/url';
+import { apps_slug } from '../config/url';
 
 export const getHomeData = () => {
   return api.post('/v1/mobile_app_content', {
@@ -7,11 +7,7 @@ export const getHomeData = () => {
   });
 };
 
-export const getQuizeData = () => {
-  return api.post('/v1/mobile_app_quize', {
-    category_slug: quize_slug,
-  });
-};
+ 
 
 export const getAppInfo = () => {
   return api.post('/v1/app_info', { slug: apps_slug });

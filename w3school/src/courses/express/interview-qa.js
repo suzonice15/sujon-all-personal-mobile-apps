@@ -200,4 +200,26 @@ export default {
       level: 'basic',
     },
   ],
+  'production-testing': [
+    {
+      q: 'Which middleware hardens an Express app?',
+      a: 'helmet for headers, a JSON body limit, rate limiting, strict CORS and a central error handler.',
+      level: 'basic',
+    },
+    {
+      q: 'Why test with supertest?',
+      a: 'It calls the app in-process, so tests are fast, need no port and can run in parallel.',
+      level: 'basic',
+    },
+    {
+      q: 'What should an error handler hide?',
+      a: 'Stack traces and internal messages. Log the detail and return a safe message with the right status.',
+      level: 'intermediate',
+    },
+    {
+      q: 'How do you shut down safely?',
+      a: 'Stop the server from accepting connections, finish in-flight requests, close the pool, then exit with a timeout.',
+      level: 'advanced',
+    },
+  ],
 };

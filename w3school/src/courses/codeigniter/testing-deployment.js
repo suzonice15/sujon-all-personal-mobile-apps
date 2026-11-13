@@ -74,7 +74,7 @@ database.default.password = secret` },
     },
     {
       chapterId: 'testing-deployment',
-      q: 'Which folder is the web root?',
+      q: 'Which folder must the web server serve?',
       options: ['app/', 'public/', 'writable/', 'vendor/'],
       answer: 1,
       explain: 'Only public/ should be served.',

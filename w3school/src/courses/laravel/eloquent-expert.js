@@ -62,5 +62,7 @@ Product::where('active', true)->chunk(500, function ($rows) {
   ],
   quiz: [
     { chapterId: 'laravel-eloquent-expert', q: 'Global scope is?', options: ['Applied to all queries automatically', 'Manual filter', 'Cache', 'Middleware'], answer: 0, explain: 'Global scopes apply automatically.' },
+    { chapterId: 'laravel-eloquent-expert', q: 'How do you fix an N+1 query?', options: ['Eager load the relation', 'Add more indexes', 'Cache the view', 'Raise the timeout'], answer: 0, explain: 'with() loads relations in one query.' },
+    { chapterId: 'laravel-eloquent-expert', q: 'What is a local scope for?', options: ['Reusing a common query constraint', 'Encrypting columns', 'Queueing jobs', 'Routing requests'], answer: 0, explain: 'Scopes keep query intent readable.' },
   ],
 };

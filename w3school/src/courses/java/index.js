@@ -13,6 +13,8 @@ import interfaces from './interfaces';
 import collections from './collections';
 import exceptions from './exceptions';
 import genericsFiles from './generics-files';
+import streamsLambdas from './streams-lambdas';
+import concurrencyTesting from './concurrency-testing';
 import projectInterview from './project-interview';
 import interviewQuestions from './interview-qa';
 
@@ -28,6 +30,8 @@ const chapters = [
   collections,
   exceptions,
   genericsFiles,
+  streamsLambdas,
+  concurrencyTesting,
   projectInterview,
 ];
 

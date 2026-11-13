@@ -78,21 +78,29 @@ import ml from './ml';
 import mathMl from './math-ml';
 import springBoot from './spring-boot';
 import rust from './rust';
+import codeigniter from './codeigniter';
+import bootstrap from './bootstrap';
+import tailwind from './tailwind';
+import jquery from './jquery';
+import sqlserver from './sqlserver';
+import sqlite from './sqlite';
+import githubActions from './github-actions';
+import cicd from './cicd';
 
 // Every course shown on the Home grid. Only add a course here once its
 // content is written: Play rejects apps with empty "coming soon" sections.
 // To add one: create its folder (copy the shape of ./html) and list it here.
 export const COURSE_GROUPS = [
-  { title: 'Web Development', courses: [html, css, javascript, typescript, wordpress, pwa] },
+  { title: 'Web Development', courses: [html, css, javascript, typescript, bootstrap, tailwind, jquery, wordpress, pwa] },
   { title: 'Frontend Frameworks', courses: [react, vue, nextjs, angular] },
   { title: 'Mobile Development', courses: [reactNative, flutter, kotlin, swift] },
-  { title: 'Backend & Data', courses: [php, python, sql, nodejs, mongodb, postgresql, redis, mysql, payments, realtime] },
+  { title: 'Backend & Data', courses: [php, python, sql, nodejs, mongodb, postgresql, redis, mysql, sqlserver, sqlite, payments, realtime] },
   { title: 'AI & Future Skills', courses: [ai, mathMl, ml] },
   { title: 'Security', courses: [cybersecurity, auth] },
   { title: 'Career & Business', courses: [freelancing, designPatterns, englishDev, interviewPrep, agile] },
   { title: 'Design', courses: [uiUx] },
-  { title: 'Backend Frameworks', courses: [laravel, dotnet, springBoot, graphql, express, django, flask] },
-  { title: 'OS & DevOps', courses: [linux, docker, devops, cloud, kubernetes] },
+  { title: 'Backend Frameworks', courses: [laravel, codeigniter, dotnet, springBoot, graphql, express, django, flask] },
+  { title: 'OS & DevOps', courses: [linux, docker, devops, githubActions, cicd, cloud, kubernetes] },
   { title: 'Computer Science', courses: [dsa, networks, systemDesign, os, compiler, architecture, microservices] },
   { title: 'Languages', courses: [java, cLang, cpp, csharp, go, rust] },
   { title: 'Developer Tools', courses: [git] },

@@ -491,8 +491,8 @@ const highlightKotlin = (code) => {
   return parts;
 };
 
-const HIGHLIGHTERS = { html: highlightHtml, vue: highlightHtml, css: highlightCss, js: highlightJs, jsx: highlightJsx, ts: highlightTs, tsx: highlightTsx, php: highlightPhp, python: highlightPython, sql: highlightSql, java: highlightJava, c: highlightC, cpp: highlightCpp, bash: highlightBash, dockerfile: highlightDockerfile, yaml: highlightYaml, json: highlightYaml, rn: highlightJsx, mongosh: highlightJs, csharp: highlightCsharp, dart: highlightDart, go: highlightGo, kotlin: highlightKotlin, rust: highlightC, swift: highlightC };
-const LANG_LABELS = { js: 'JAVASCRIPT', jsx: 'REACT (JSX)', ts: 'TYPESCRIPT', tsx: 'REACT + TS', vue: 'VUE', php: 'PHP', python: 'PYTHON', sql: 'SQL', java: 'JAVA', c: 'C', cpp: 'C++', bash: 'SHELL', dockerfile: 'DOCKERFILE', yaml: 'YAML', json: 'JSON', rn: 'REACT NATIVE', mongosh: 'MONGODB', csharp: 'C#', dart: 'DART', go: 'GO', kotlin: 'KOTLIN', rust: 'RUST', swift: 'SWIFT', git: 'TERMINAL', text: 'TEXT' };
+const HIGHLIGHTERS = { html: highlightHtml, vue: highlightHtml, css: highlightCss, js: highlightJs, jsx: highlightJsx, ts: highlightTs, tsx: highlightTsx, php: highlightPhp, python: highlightPython, sql: highlightSql, java: highlightJava, c: highlightC, cpp: highlightCpp, bash: highlightBash, dockerfile: highlightDockerfile, yaml: highlightYaml, json: highlightYaml, rn: highlightJsx, mongosh: highlightJs, csharp: highlightCsharp, dart: highlightDart, go: highlightGo, kotlin: highlightKotlin, rust: highlightC, swift: highlightC, lua: highlightJs };
+const LANG_LABELS = { js: 'JAVASCRIPT', jsx: 'REACT (JSX)', ts: 'TYPESCRIPT', tsx: 'REACT + TS', vue: 'VUE', php: 'PHP', python: 'PYTHON', sql: 'SQL', java: 'JAVA', c: 'C', cpp: 'C++', bash: 'SHELL', dockerfile: 'DOCKERFILE', yaml: 'YAML', json: 'JSON', rn: 'REACT NATIVE', mongosh: 'MONGODB', csharp: 'C#', dart: 'DART', go: 'GO', kotlin: 'KOTLIN', rust: 'RUST', swift: 'SWIFT', lua: 'LUA', git: 'TERMINAL', text: 'TEXT' };
 
 export default function CodeBlock({ code, lang = 'html', onTryIt }) {
   const [copied, setCopied] = useState(false);

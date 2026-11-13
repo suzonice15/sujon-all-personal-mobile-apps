@@ -9,6 +9,7 @@ import inheritanceInterfaces from './inheritance-interfaces';
 import collections from './collections';
 import coroutines from './coroutines';
 import androidIntro from './android-intro';
+import androidCompose from './android-compose';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -22,6 +23,7 @@ const chapters = [
   collections,
   coroutines,
   androidIntro,
+  androidCompose,
   projectsInterview,
 ];
 

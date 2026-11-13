@@ -7,7 +7,7 @@ export default {
   icon: 'wifi-tethering',
   lessons: [
     {
-      id: 'laravel-events',
+      id: 'laravel-realtime-events',
       title: 'Events & Listeners',
       blocks: [
         { type: 'code', lang: 'php', value: String.raw`<?php
@@ -23,7 +23,7 @@ class SendShipmentNotification implements ShouldQueue
       ],
     },
     {
-      id: 'laravel-broadcasting',
+      id: 'laravel-realtime-broadcasting',
       title: 'Broadcasting',
       blocks: [
         { type: 'code', lang: 'php', value: String.raw`<?php
@@ -44,5 +44,7 @@ $ php artisan reverb:start` },
   ],
   quiz: [
     { chapterId: 'laravel-realtime', q: 'ShouldBroadcast makes event?', options: ['Broadcast to WebSocket clients', 'Queue only', 'Cache', 'Log'], answer: 0, explain: 'Broadcasts to channels.' },
+    { chapterId: 'laravel-realtime', q: 'Which driver scales broadcasts across servers?', options: ['Redis', 'File', 'Array', 'Sync'], answer: 0, explain: 'Redis pub/sub shares events between nodes.' },
+    { chapterId: 'laravel-realtime', q: 'Private channels require?', options: ['An authorization callback', 'A public URL', 'CORS only', 'A response cache'], answer: 0, explain: 'The channel must authorize the user.' },
   ],
 };

@@ -131,5 +131,6 @@ xxxxxxx Money helpers` },
   quiz: [
     { chapterId: 'challenges', q: 'In Challenge 3, why create the branch BEFORE resetting main?', options: ['It is faster', 'The new branch keeps a name on the commit, so reset does not lose it', 'Git requires branches first', 'To trigger CI'], answer: 1, explain: 'Then reset only moves main.' },
     { chapterId: 'challenges', q: 'In Challenge 5, which command copies a single commit to another branch?', options: ['git merge', 'git cherry-pick', 'git rebase -i', 'git stash'], answer: 1, explain: 'merge would bring dark mode too.' },
+    { chapterId: 'challenges', q: 'What should you check before a rebase of a shared branch?', options: ['That nobody else is based on the rewritten commits', 'Only the file size', 'The remote name', 'The commit message length'], answer: 0, explain: 'Rebasing rewrites history other people may have pulled.' },
   ],
 };

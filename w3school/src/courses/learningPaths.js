@@ -16,6 +16,14 @@ export const LEARNING_PATHS = [
     steps: ['html', 'css', 'javascript', 'typescript', 'react', 'nextjs', 'pwa'],
   },
   {
+    id: 'web-foundations',
+    title: 'Web Foundations',
+    tagline: 'HTML, CSS and the CSS frameworks teams ship with',
+    color: '#0891B2',
+    icon: 'layers',
+    steps: ['html', 'css', 'bootstrap', 'tailwind', 'jquery', 'wordpress'],
+  },
+  {
     id: 'backend-node',
     title: 'Backend with Node.js',
     tagline: 'APIs, databases and deployment in JavaScript',
@@ -53,7 +61,7 @@ export const LEARNING_PATHS = [
     tagline: 'Build web APIs with C# and ASP.NET Core',
     color: '#512BD4',
     icon: 'dns',
-    steps: ['csharp', 'dotnet', 'sql', 'docker'],
+    steps: ['csharp', 'dotnet', 'sqlserver', 'sql', 'docker'],
   },
   {
     id: 'mobile',
@@ -61,7 +69,7 @@ export const LEARNING_PATHS = [
     tagline: 'Build apps for Android and iOS',
     color: '#0EA5E9',
     icon: 'phone-android',
-    steps: ['javascript', 'react-native', 'kotlin', 'flutter'],
+    steps: ['javascript', 'react-native', 'sqlite', 'kotlin', 'flutter'],
   },
   {
     id: 'data-ai',
@@ -77,7 +85,7 @@ export const LEARNING_PATHS = [
     tagline: 'Run and ship software reliably',
     color: '#0F766E',
     icon: 'cloud',
-    steps: ['linux', 'git', 'docker', 'devops', 'cloud', 'kubernetes'],
+    steps: ['linux', 'git', 'docker', 'devops', 'github-actions', 'cicd', 'cloud', 'kubernetes'],
   },
   {
     id: 'computer-science',

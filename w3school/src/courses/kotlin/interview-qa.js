@@ -172,4 +172,26 @@ export default {
       level: 'basic',
     },
   ],
+  'android-compose': [
+    {
+      q: 'What is a composable?',
+      a: 'A function annotated @Composable that describes part of the UI. Compose re-invokes it when its inputs change.',
+      level: 'basic',
+    },
+    {
+      q: 'Why keep I/O out of a composable?',
+      a: 'A composable can run many times. Fetching there repeats work and makes the UI unpredictable.',
+      level: 'intermediate',
+    },
+    {
+      q: 'Why use a ViewModel for screen state?',
+      a: 'It survives recomposition and configuration changes, and it keeps logic testable outside the UI.',
+      level: 'intermediate',
+    },
+    {
+      q: 'How do you test a Compose screen?',
+      a: 'Use createComposeRule, set the content with fake data, then assert nodes by text or semantics.',
+      level: 'advanced',
+    },
+  ],
 };

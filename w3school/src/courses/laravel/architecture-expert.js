@@ -49,5 +49,7 @@ class CreateOrderAction
   ],
   quiz: [
     { chapterId: 'laravel-architecture-expert', q: 'Multi-tenant isolation option?', options: ['Database per tenant', 'Shared cache only', 'Single route', 'One user'], answer: 0, explain: 'DB per tenant gives isolation.' },
+    { chapterId: 'laravel-architecture-expert', q: 'What is a modular monolith?', options: ['One deployable with clear module boundaries', 'Many databases', 'A frontend only', 'A message queue'], answer: 0, explain: 'Modules are separated in code, not infrastructure.' },
+    { chapterId: 'laravel-architecture-expert', q: 'Why use an action or service class?', options: ['To isolate and test business logic', 'To slow requests', 'To avoid namespaces', 'To replace PHP'], answer: 0, explain: 'Small classes with one job are easy to test.' },
   ],
 };

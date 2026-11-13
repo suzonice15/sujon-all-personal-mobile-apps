@@ -42,5 +42,7 @@ $ php artisan make:filament-resource Product` },
   ],
   quiz: [
     { chapterId: 'laravel-livewire-filament', q: 'Livewire allows?', options: ['Server-driven interactive UI', 'Only static pages', 'Database only', 'Queue only'], answer: 0, explain: 'Livewire handles reactivity server-side.' },
+    { chapterId: 'laravel-livewire-filament', q: 'How does Livewire update the page?', options: ['Server round trips with DOM diffing', 'Full page reloads', 'Only CSS changes', 'A database trigger'], answer: 0, explain: 'Components re-render on the server and patch the DOM.' },
+    { chapterId: 'laravel-livewire-filament', q: 'Filament is mainly for?', options: ['Admin panels and forms', 'CSS resets', 'Queue workers', 'Cron jobs'], answer: 0, explain: 'Filament builds admin UIs quickly.' },
   ],
 };

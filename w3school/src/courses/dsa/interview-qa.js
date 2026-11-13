@@ -288,4 +288,26 @@ export default {
       level: 'basic',
     },
   ],
+  'advanced-structures': [
+    {
+      q: 'When is a trie better than a hash map?',
+      a: 'When you need prefix queries or ordered traversal. A hash map only answers exact keys.',
+      level: 'basic',
+    },
+    {
+      q: 'What does Union-Find optimize?',
+      a: 'Connectivity queries and merging sets, near constant time with path compression and union by size.',
+      level: 'intermediate',
+    },
+    {
+      q: 'How does n & (n - 1) help?',
+      a: 'It clears the lowest set bit, which counts bits and tests powers of two without a loop over all bits.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What is the limit of bit tricks in JavaScript?',
+      a: 'Operators work on 32-bit signed integers. Use BigInt for larger values.',
+      level: 'advanced',
+    },
+  ],
 };

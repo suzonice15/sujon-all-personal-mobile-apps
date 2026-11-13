@@ -156,4 +156,26 @@ export default {
       level: 'basic',
     },
   ],
+  'backup-security': [
+    {
+      q: 'How do you know a backup works?',
+      a: 'You restored it successfully. Run a restore drill regularly and record how long it took.',
+      level: 'basic',
+    },
+    {
+      q: 'What is the difference between a login and a user?',
+      a: 'A login authenticates at the server. A user maps that login into a specific database.',
+      level: 'basic',
+    },
+    {
+      q: 'Why grant permissions to roles?',
+      a: 'Roles keep permissions consistent and auditable. Granting to individuals drifts and is hard to review.',
+      level: 'intermediate',
+    },
+    {
+      q: 'How does row-level security help multi-tenancy?',
+      a: 'It filters rows in the engine based on the session context, so even a direct query cannot read another tenant’s data.',
+      level: 'advanced',
+    },
+  ],
 };

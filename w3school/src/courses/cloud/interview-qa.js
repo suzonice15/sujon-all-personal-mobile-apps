@@ -170,4 +170,26 @@ export default {
       level: 'advanced',
     },
   ],
+  security: [
+    {
+      q: 'What is the shared responsibility model?',
+      a: 'The provider secures the physical layer, network and managed service internals. You secure identity, configuration, data, access and the code you deploy.',
+      level: 'basic',
+    },
+    {
+      q: 'What is least privilege in practice?',
+      a: 'Grant each role only the actions it needs on the specific resources it needs, prefer temporary credentials, and review permissions regularly.',
+      level: 'intermediate',
+    },
+    {
+      q: 'Why is a public storage bucket dangerous?',
+      a: 'It exposes every object to the internet. Block public access by default, use signed URLs for sharing, and audit bucket policies.',
+      level: 'intermediate',
+    },
+    {
+      q: 'How do you detect a compromised key?',
+      a: 'Use CloudTrail or equivalent audit logs, alert on unusual regions, spikes and denied calls, and rotate or revoke the credential immediately.',
+      level: 'advanced',
+    },
+  ],
 };

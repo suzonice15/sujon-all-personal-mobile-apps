@@ -156,4 +156,26 @@ export default {
       level: 'basic',
     },
   ],
+  'fts-json': [
+    {
+      q: 'Why is FTS5 faster than LIKE?',
+      a: 'FTS5 maintains an inverted index of terms, so a search looks up the term instead of scanning every row.',
+      level: 'basic',
+    },
+    {
+      q: 'How do you search a JSON field efficiently?',
+      a: 'Extract it into a generated column and index that column.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What does ANALYZE do?',
+      a: 'It gathers statistics so the query planner can choose better indexes.',
+      level: 'intermediate',
+    },
+    {
+      q: 'Why should VACUUM be scheduled?',
+      a: 'It rewrites the file to reclaim free pages after deletes. It needs temporary free disk space and should not run constantly.',
+      level: 'advanced',
+    },
+  ],
 };

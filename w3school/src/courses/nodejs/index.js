@@ -11,6 +11,9 @@ import fsPath from './fs-path';
 import httpServer from './http-server';
 import streamsBuffers from './streams-buffers';
 import workersPerformance from './workers-performance';
+import testingSecurity from './testing-security';
+import databases from './databases';
+import deploymentScaling from './deployment-scaling';
 import projectInterview from './project-interview';
 import interviewQuestions from './interview-qa';
 
@@ -22,6 +25,9 @@ const chapters = [
   httpServer,
   streamsBuffers,
   workersPerformance,
+  testingSecurity,
+  databases,
+  deploymentScaling,
   projectInterview,
 ];
 

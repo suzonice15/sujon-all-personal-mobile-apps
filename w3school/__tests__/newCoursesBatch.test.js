@@ -12,6 +12,14 @@ import interviewPrep from '../src/courses/interview-prep';
 import agile from '../src/courses/agile';
 import pwa from '../src/courses/pwa';
 import realtime from '../src/courses/realtime';
+import codeigniter from '../src/courses/codeigniter';
+import bootstrap from '../src/courses/bootstrap';
+import tailwind from '../src/courses/tailwind';
+import jquery from '../src/courses/jquery';
+import sqlserver from '../src/courses/sqlserver';
+import sqlite from '../src/courses/sqlite';
+import githubActions from '../src/courses/github-actions';
+import cicd from '../src/courses/cicd';
 
 const ALLOWED_BLOCKS = ['text', 'heading', 'list', 'code', 'note'];
 const ALLOWED_LEVELS = ['basic', 'intermediate', 'advanced'];
@@ -26,6 +34,14 @@ const COURSES = [
   { course: agile, id: 'agile', title: 'Agile & Scrum', short: 'Agile', minChapters: 8, minQuiz: 32, langs: ['text'] },
   { course: pwa, id: 'pwa', title: 'Progressive Web Apps', short: 'PWA', minChapters: 9, minQuiz: 36, langs: ['js', 'json', 'html', 'bash', 'text'] },
   { course: realtime, id: 'realtime', title: 'WebSockets & Realtime', short: 'Realtime', minChapters: 9, minQuiz: 36, langs: ['js', 'bash', 'text', 'yaml'] },
+  { course: codeigniter, id: 'codeigniter', title: 'CodeIgniter', short: 'CodeIgniter', minChapters: 8, minQuiz: 32, langs: ['php', 'bash', 'html', 'text'] },
+  { course: bootstrap, id: 'bootstrap', title: 'Bootstrap 5', short: 'Bootstrap', minChapters: 8, minQuiz: 32, langs: ['html', 'js', 'css', 'text'] },
+  { course: tailwind, id: 'tailwind', title: 'Tailwind CSS', short: 'Tailwind', minChapters: 8, minQuiz: 32, langs: ['bash', 'css', 'html', 'js', 'text'] },
+  { course: jquery, id: 'jquery', title: 'jQuery', short: 'jQuery', minChapters: 7, minQuiz: 28, langs: ['js', 'html', 'css', 'text'] },
+  { course: sqlserver, id: 'sqlserver', title: 'SQL Server', short: 'SQL Server', minChapters: 7, minQuiz: 28, langs: ['sql', 'bash', 'text'] },
+  { course: sqlite, id: 'sqlite', title: 'SQLite', short: 'SQLite', minChapters: 7, minQuiz: 28, langs: ['sql', 'bash', 'js', 'text'] },
+  { course: githubActions, id: 'github-actions', title: 'GitHub Actions', short: 'Actions', minChapters: 7, minQuiz: 28, langs: ['yaml', 'text'] },
+  { course: cicd, id: 'cicd', title: 'CI/CD', short: 'CI/CD', minChapters: 7, minQuiz: 28, langs: ['yaml', 'bash', 'js', 'text'] },
 ];
 
 describe.each(COURSES)('$title course', ({ course, id, title, short, minChapters, minQuiz, langs }) => {

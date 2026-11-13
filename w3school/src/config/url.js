@@ -2,12 +2,11 @@ export const api_url='https://education.tablighshop.com/api';
 // export const api_url='http:// 192.168.0.122:7070/api';
 
 // start prophet apps configuaration 
-export const apps_slug='profet';
-export const published_app_slug='com.prophetlife';
-export const quize_slug='islamic-quize';
+export const apps_slug='codenest';
+export const published_app_slug='com.codenest';
 export const app_version='1.0.0';
 export const lastUpdate = '3 July 2026'; 
-export const apps_title='CodeNest'; 
+export const apps_title='CodeNest: Learn Coding Offline'; 
 const REAL_BANNER_ID = 'ca-app-pub-4817870874747259/8444849224';
 const REAL_INTERSTITIAL_ID = 'ca-app-pub-4817870874747259/3002619155';
 const REAL_REWARDED_ID = 'ca-app-pub-4817870874747259/1845414760';

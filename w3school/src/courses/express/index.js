@@ -11,6 +11,7 @@ import validationErrors from './validation-errors';
 import auth from './auth';
 import database from './database';
 import deployment from './deployment';
+import productionTesting from './production-testing';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -23,6 +24,7 @@ const chapters = [
   auth,
   database,
   deployment,
+  productionTesting,
   projectsInterview,
 ];
 

@@ -178,4 +178,70 @@ export default {
       level: 'basic',
     },
   ],
+  'testing-security': [
+    {
+      q: 'How do you test without a dependency?',
+      a: 'Use node:test with node:assert. Run it with node --test, and coverage with --experimental-test-coverage.',
+      level: 'basic',
+    },
+    {
+      q: 'How do you stop path traversal?',
+      a: 'Resolve the requested path against a fixed root and reject anything that escapes it with .. or an absolute path.',
+      level: 'intermediate',
+    },
+    {
+      q: 'Why is exec dangerous?',
+      a: 'It runs through a shell, so user input can inject commands. execFile or spawn with an argument array avoids the shell.',
+      level: 'intermediate',
+    },
+    {
+      q: 'How do you manage dependency risk?',
+      a: 'Commit the lockfile, use npm ci, audit on every build, update regularly and run the process with least privilege.',
+      level: 'advanced',
+    },
+  ],
+  databases: [
+    {
+      q: 'Why use a connection pool?',
+      a: 'Opening a connection per request is slow and exhausts the database. A small pool reuses connections and bounds concurrency.',
+      level: 'basic',
+    },
+    {
+      q: 'How do you prevent SQL injection in Node?',
+      a: 'Pass values as query parameters. Never concatenate user input into SQL.',
+      level: 'basic',
+    },
+    {
+      q: 'Why must a transaction use one client?',
+      a: 'BEGIN, the statements and COMMIT must run on the same connection, or they are separate transactions.',
+      level: 'intermediate',
+    },
+    {
+      q: 'What happens if you forget release()?',
+      a: 'The pool runs out of clients and later requests hang until the process restarts.',
+      level: 'advanced',
+    },
+  ],
+  'deployment-scaling': [
+    {
+      q: 'Why handle SIGTERM?',
+      a: 'The platform stops the process with SIGTERM. Handling it lets in-flight requests finish and the pool close before exit.',
+      level: 'basic',
+    },
+    {
+      q: 'How do you use more than one CPU core?',
+      a: 'Run several processes behind a load balancer, or use the cluster module. Keep the processes stateless.',
+      level: 'intermediate',
+    },
+    {
+      q: 'Liveness versus readiness?',
+      a: 'Liveness only proves the process is alive. Readiness proves it can serve traffic, including its dependencies.',
+      level: 'intermediate',
+    },
+    {
+      q: 'Where does shared state go with many workers?',
+      a: 'An external store such as Redis. In-memory state is not shared between processes.',
+      level: 'advanced',
+    },
+  ],
 };

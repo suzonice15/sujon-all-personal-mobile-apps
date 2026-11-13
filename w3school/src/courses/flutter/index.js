@@ -11,6 +11,7 @@ import navigation from './navigation';
 import forms from './forms';
 import networking from './networking';
 import storage from './storage';
+import stateManagement from './state-management';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -25,6 +26,7 @@ const chapters = [
   forms,
   networking,
   storage,
+  stateManagement,
   projectsInterview,
 ];
 

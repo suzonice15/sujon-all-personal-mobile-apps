@@ -9,6 +9,7 @@ import configSecrets from './config-secrets';
 import storage from './storage';
 import scaling from './scaling';
 import observability from './observability';
+import securityRbac from './security-rbac';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -22,6 +23,7 @@ const chapters = [
   storage,
   scaling,
   observability,
+  securityRbac,
   projectsInterview,
 ];
 

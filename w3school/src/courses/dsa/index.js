@@ -16,6 +16,7 @@ import trees from './trees';
 import heaps from './heaps';
 import graphs from './graphs';
 import dynamicProgramming from './dynamic-programming';
+import advancedStructures from './advanced-structures';
 import patternsInterview from './patterns-interview';
 import interviewQuestions from './interview-qa';
 
@@ -32,6 +33,7 @@ const chapters = [
   heaps,
   graphs,
   dynamicProgramming,
+  advancedStructures,
   patternsInterview,
 ];
 

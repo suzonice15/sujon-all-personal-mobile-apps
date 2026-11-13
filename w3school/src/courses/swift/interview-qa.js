@@ -222,4 +222,26 @@ export default {
       level: 'basic',
     },
   ],
+  'networking-persistence': [
+    {
+      q: 'How do you fetch JSON in Swift?',
+      a: 'URLSession with async/await, check the HTTP status, then decode with JSONDecoder and a Codable model.',
+      level: 'basic',
+    },
+    {
+      q: 'UserDefaults versus Keychain?',
+      a: 'UserDefaults is a plain plist for preferences. The Keychain is encrypted storage for tokens and secrets.',
+      level: 'basic',
+    },
+    {
+      q: 'What does SwiftData do?',
+      a: 'It models classes with @Model and persists them, with queries in the view via @Query.',
+      level: 'intermediate',
+    },
+    {
+      q: 'Why inject a service into a view model?',
+      a: 'So tests can substitute a fake and the view model does not depend on the network or a global singleton.',
+      level: 'advanced',
+    },
+  ],
 };

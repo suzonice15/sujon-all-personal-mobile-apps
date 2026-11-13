@@ -6,6 +6,7 @@ import queries from './queries';
 import indexes from './indexes';
 import transactions from './transactions';
 import performance from './performance';
+import backupSecurity from './backup-security';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -16,6 +17,7 @@ const chapters = [
   indexes,
   transactions,
   performance,
+  backupSecurity,
   projectsInterview,
 ];
 
