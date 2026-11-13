@@ -34,7 +34,7 @@ export default function BottomTabNavigator() {
     checkAuth();
     const unsub = navigation.addListener('state', checkAuth);
     return unsub;
-  }, []);
+  }, [navigation]);
 
   return (
     // backBehavior="history": Android back from History/Shop returns to the Dashboard, not to Learn

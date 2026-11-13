@@ -136,22 +136,28 @@ export default function HomeScreen({ navigation }) {
             <SectionTitle
               title="Learning paths"
               ui={ui}
-              right={<TouchableOpacity onPress={() => navigation.navigate('LearningPaths')} hitSlop={8}><Text style={s.seeAll}>See all</Text></TouchableOpacity>}
+              right={<TouchableOpacity onPress={() => navigation.navigate('LearningPaths')} hitSlop={8}><Text style={s.seeAll}>See all →</Text></TouchableOpacity>}
             />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.pathRow}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.pathRow} style={s.pathScroll}>
               {LEARNING_PATHS.map(path => {
                 const info = pathProgress(path, progress);
+                const percent = Math.round(info.pct * 100);
                 return (
                   <TouchableOpacity
                     key={path.id}
-                    style={s.pathCard}
+                    style={[s.pathCard, { backgroundColor: tint(path.color, ui.dark ? 0.2 : 0.09) }]}
                     activeOpacity={0.85}
                     onPress={() => navigation.navigate('LearningPath', { pathId: path.id, headerTitle: path.title })}
                   >
-                    <View style={[s.pathBar, { backgroundColor: path.color }]} />
+                    <View style={s.pathHeader}>
+                      <View style={[s.pathIcon, { backgroundColor: path.color }]}>
+                        <MaterialIcons name={path.icon} size={20} color="#fff" />
+                      </View>
+                      <Text style={s.pathPercent}>{percent}%</Text>
+                    </View>
                     <Text style={s.pathTitle} numberOfLines={1}>{path.title}</Text>
-                    <Text style={s.pathMeta}>{info.completedSteps}/{info.totalSteps} courses done</Text>
-                    <ProgressBar value={info.pct} color={path.color} track={ui.track} height={4} style={{ marginTop: SPACE.sm }} />
+                    <Text style={s.pathMeta} numberOfLines={1}>{info.completedSteps}/{info.totalSteps} courses · {path.steps.length} steps</Text>
+                    <ProgressBar value={info.pct} color={path.color} track={ui.dark ? 'rgba(255,255,255,0.16)' : 'rgba(15,23,42,0.08)'} height={4} style={s.pathProgress} />
                   </TouchableOpacity>
                 );
               })}
@@ -175,13 +181,13 @@ export default function HomeScreen({ navigation }) {
 
 const styles = (ui) => StyleSheet.create({
   container: { flex: 1, backgroundColor: ui.bg },
-  content: { padding: SPACE.lg, paddingBottom: SPACE.xl },
+  content: { paddingHorizontal: SPACE.lg, paddingTop: SPACE.sm, paddingBottom: SPACE.md },
 
   hero: { backgroundColor: ui.dark ? '#115E59' : ui.brand, borderRadius: RADIUS.lg, padding: 20, overflow: 'hidden' },
   heroKicker: { color: '#CCFBF1', fontSize: 13, fontWeight: '700' },
   heroTitle: { color: '#fff', fontSize: 24, fontWeight: '800', marginTop: 4, lineHeight: 30 },
   stats: {
-    flexDirection: 'row', alignItems: 'center', marginTop: 18,
+    flexDirection: 'row', alignItems: 'center', marginTop: 14,
     backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: RADIUS.md, paddingVertical: 12,
   },
   stat: { flex: 1, alignItems: 'center' },
@@ -192,7 +198,7 @@ const styles = (ui) => StyleSheet.create({
 
   search: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: ui.card, borderRadius: RADIUS.md,
-    paddingHorizontal: 14, marginTop: SPACE.lg, height: 50, ...cardShadow(ui),
+    paddingHorizontal: 14, marginTop: SPACE.md, height: 50, ...cardShadow(ui),
   },
   searchInput: { flex: 1, marginLeft: 8, color: ui.text, fontSize: 15, paddingVertical: 0 },
 
@@ -207,14 +213,18 @@ const styles = (ui) => StyleSheet.create({
 
   count: { color: ui.sub, fontSize: 13, fontWeight: '600' },
   seeAll: { color: ui.brand, fontSize: 13, fontWeight: '800' },
-  pathRow: { paddingRight: SPACE.lg },
-  pathCard: { width: 190, backgroundColor: ui.card, borderRadius: RADIUS.md, padding: 14, marginRight: 12, overflow: 'hidden', ...cardShadow(ui) },
-  pathBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 4 },
-  pathTitle: { fontSize: 15, fontWeight: '800', color: ui.text, marginTop: 6 },
-  pathMeta: { fontSize: 11, color: ui.sub, fontWeight: '700', marginTop: 4 },
+  pathScroll: { marginHorizontal: -SPACE.lg, paddingHorizontal: SPACE.lg },
+  pathRow: { paddingRight: SPACE.lg, paddingBottom: SPACE.xs },
+  pathCard: { width: 170, borderRadius: RADIUS.md, padding: 14, marginRight: 12, overflow: 'hidden' },
+  pathHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  pathIcon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  pathPercent: { fontSize: 12, fontWeight: '800', color: ui.sub },
+  pathTitle: { fontSize: 15, fontWeight: '800', color: ui.text, marginTop: 10 },
+  pathMeta: { fontSize: 11, color: ui.sub, fontWeight: '600', marginTop: 2 },
+  pathProgress: { marginTop: SPACE.sm },
   empty: { color: ui.sub },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  card: { width: '48.5%', backgroundColor: ui.card, borderRadius: RADIUS.md, padding: 14, marginBottom: 12, ...cardShadow(ui) },
+  card: { width: '48.5%', backgroundColor: ui.card, borderRadius: RADIUS.md, padding: 14, marginBottom: 10, ...cardShadow(ui) },
   cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   cardTitle: { fontSize: 17, fontWeight: '800', color: ui.text, marginTop: 12 },
   cardSub: { fontSize: 12, color: ui.sub, marginTop: 2, minHeight: 32, lineHeight: 16 },

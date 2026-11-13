@@ -13,7 +13,7 @@ export const LEARNING_PATHS = [
     tagline: 'Build websites and modern web apps',
     color: '#E44D26',
     icon: 'web',
-    steps: ['html', 'css', 'javascript', 'typescript', 'react', 'nextjs'],
+    steps: ['html', 'css', 'javascript', 'typescript', 'react', 'nextjs', 'pwa'],
   },
   {
     id: 'backend-node',
@@ -21,7 +21,23 @@ export const LEARNING_PATHS = [
     tagline: 'APIs, databases and deployment in JavaScript',
     color: '#339933',
     icon: 'storage',
-    steps: ['javascript', 'nodejs', 'sql', 'git', 'docker'],
+    steps: ['javascript', 'nodejs', 'express', 'realtime', 'sql', 'git', 'docker', 'payments'],
+  },
+  {
+    id: 'backend-python',
+    title: 'Backend with Python',
+    tagline: 'Web APIs with Django and Flask',
+    color: '#3776AB',
+    icon: 'terminal',
+    steps: ['python', 'sql', 'django', 'flask', 'docker'],
+  },
+  {
+    id: 'career-starter',
+    title: 'Career Starter',
+    tagline: 'English, interviews, freelancing and team process',
+    color: '#7C3AED',
+    icon: 'work',
+    steps: ['git', 'english-dev', 'interview-prep', 'freelancing', 'agile'],
   },
   {
     id: 'backend-java',
@@ -61,7 +77,7 @@ export const LEARNING_PATHS = [
     tagline: 'Run and ship software reliably',
     color: '#0F766E',
     icon: 'cloud',
-    steps: ['linux', 'git', 'docker', 'cloud', 'kubernetes'],
+    steps: ['linux', 'git', 'docker', 'devops', 'cloud', 'kubernetes'],
   },
   {
     id: 'computer-science',
@@ -69,7 +85,7 @@ export const LEARNING_PATHS = [
     tagline: 'The ideas behind every program',
     color: '#475569',
     icon: 'computer',
-    steps: ['dsa', 'networks', 'os', 'compiler', 'architecture'],
+    steps: ['dsa', 'networks', 'os', 'compiler', 'architecture', 'design-patterns', 'microservices'],
   },
   {
     id: 'security',
@@ -77,7 +93,7 @@ export const LEARNING_PATHS = [
     tagline: 'Defend systems and understand attacks',
     color: '#DC2626',
     icon: 'security',
-    steps: ['linux', 'networks', 'cybersecurity'],
+    steps: ['linux', 'networks', 'cybersecurity', 'auth'],
   },
 ];
 

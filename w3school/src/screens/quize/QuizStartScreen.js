@@ -11,7 +11,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 
 import { getQuizeData } from '../../db/quizeContents';
-import SoundPlayer from 'react-native-sound-player';
+import { playQuizSound } from '../../utils/quizSound';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from 'react-native-paper';
 import AdBanner from '../../components/ads/AdBanner';
@@ -54,6 +54,8 @@ export default function QuizStartScreen({ route, navigation }) {
 
   useEffect(() => {
     loadData();
+    // loadData is intentionally keyed only by fetch_data
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetch_data]);
 
   const loadData = async () => {
@@ -105,6 +107,8 @@ export default function QuizStartScreen({ route, navigation }) {
     }, 1000);
 
     return () => clearTimeout(timer);
+    // autoNext is intentionally not a dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft, index, finished, question]);
 
   useEffect(() => {
@@ -113,11 +117,7 @@ export default function QuizStartScreen({ route, navigation }) {
 
   // ================= SOUND =================
   const playSound = (file) => {
-    try {
-      SoundPlayer.playSoundFile(file, 'mp3');
-    } catch (e) {
-      console.log('Sound error:', e);
-    }
+    playQuizSound(file);
   };
 
   // ================= ANSWER =================

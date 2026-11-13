@@ -50,13 +50,13 @@ function runJs(code) {
 describe('Node.js course structure', () => {
   test('has the metadata the app needs', () => {
     expect(nodejs.id).toBe('nodejs');
-    expect(nodejs.title).toBe('Node.js & Express');
+    expect(nodejs.title).toBe('Node.js');
     expect(nodejs.short).toBe('Node');
     expect(nodejs.tagline).toBeTruthy();
     expect(nodejs.color).toMatch(/^#[0-9A-Fa-f]{6}$/);
     expect(nodejs.icon).toBeTruthy();
-    expect(nodejs.chapters.length).toBeGreaterThanOrEqual(10);
-    expect(nodejs.quiz.length).toBeGreaterThanOrEqual(45);
+    expect(nodejs.chapters.length).toBeGreaterThanOrEqual(8);
+    expect(nodejs.quiz.length).toBeGreaterThanOrEqual(30);
   });
 
   test('every chapter has an id, title and at least one lesson', () => {

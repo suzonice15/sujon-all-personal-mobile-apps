@@ -29,8 +29,10 @@ export default function InterviewHomeScreen({ navigation }) {
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <View style={s.hero}>
           <HeroDecor />
-          <MaterialIcons name="record-voice-over" size={34} color="#FDE68A" />
-          <Text style={s.heroTitle}>Interview Prep</Text>
+          <View style={s.heroRow}>
+            <MaterialIcons name="record-voice-over" size={34} color="#FDE68A" />
+            <Text style={s.heroTitle}>Interview Preparation</Text>
+          </View>
           <Text style={s.heroSub}>
             {total} real interview questions with answers, chapter by chapter. Read, answer out loud, then mark as practiced.
           </Text>
@@ -78,7 +80,8 @@ const styles = (ui) => StyleSheet.create({
   container: { flex: 1, backgroundColor: ui.bg },
   content: { padding: SPACE.lg, paddingBottom: SPACE.xl },
   hero: { backgroundColor: ui.dark ? '#7C2D12' : '#C2410C', borderRadius: RADIUS.lg, padding: 20, overflow: 'hidden' },
-  heroTitle: { color: '#fff', fontSize: 26, fontWeight: '900', marginTop: 8 },
+  heroTitle: { color: '#fff', fontSize: 22, fontWeight: '900', marginLeft: 10, flexShrink: 1 },
+  heroRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
   heroSub: { color: 'rgba(255,255,255,0.9)', fontSize: 14, marginTop: 4, lineHeight: 20 },
   heroProgress: { flexDirection: 'row', alignItems: 'center', marginTop: 16 },
   heroCount: { color: '#fff', fontWeight: '800', marginLeft: 10 },

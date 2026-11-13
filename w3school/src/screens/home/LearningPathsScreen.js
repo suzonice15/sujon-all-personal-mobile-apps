@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AdBanner from '../../components/ads/AdBanner';
 import { LEARNING_PATHS, pathProgress } from '../../courses/learningPaths';
 import { getAllCourseProgress } from '../../db/courseProgress';
-import { useUI, cardShadow, ProgressBar, RADIUS, SPACE } from '../../components/course/ui';
+import { useUI, tint, ProgressBar, RADIUS, SPACE } from '../../components/course/ui';
 
 export default function LearningPathsScreen({ navigation }) {
   const [progress, setProgress] = useState({});
@@ -32,7 +32,7 @@ export default function LearningPathsScreen({ navigation }) {
           return (
             <TouchableOpacity
               key={path.id}
-              style={s.card}
+              style={[s.card, { backgroundColor: tint(path.color, ui.dark ? 0.2 : 0.09) }]}
               activeOpacity={0.85}
               onPress={() => navigation.navigate('LearningPath', { pathId: path.id, headerTitle: path.title })}
             >
@@ -66,8 +66,8 @@ const styles = (ui) => StyleSheet.create({
   intro: { color: ui.sub, fontSize: 14, lineHeight: 20, marginBottom: SPACE.lg },
 
   card: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: ui.card,
-    borderRadius: RADIUS.md, padding: 14, marginBottom: 12, ...cardShadow(ui),
+    flexDirection: 'row', alignItems: 'center',
+    borderRadius: RADIUS.md, padding: 14, marginBottom: 12,
   },
   icon: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   body: { flex: 1, marginHorizontal: 12 },

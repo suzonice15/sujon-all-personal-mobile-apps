@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, Switch, Linking, Modal, Share, ActivityIndicator,
@@ -9,6 +9,7 @@ import AdBanner from '../../components/ads/AdBanner';
 import useSyncWithCooldown from '../../hooks/useSyncWithCooldown';
 import { published_app_slug, apps_title, email } from '../../config/url';
 import AdNative from '../../components/ads/AdNative';
+import { getQuizSoundEnabled, setQuizSoundEnabled } from '../../utils/quizSound';
 
 const SettingItem = ({ icon, label, onPress, right, isDark }) => (
   <TouchableOpacity style={styles(isDark).item} onPress={onPress} activeOpacity={0.7}>
@@ -28,7 +29,18 @@ const SectionTitle = ({ title, isDark }) => (
 
 export default function SettingsScreen({ navigation }) {
   const [notifications, setNotifications] = useState(true); 
+  const [quizSound, setQuizSound] = useState(true);
    const { isDark, toggleTheme } = useTheme(); 
+
+  useEffect(() => {
+    getQuizSoundEnabled().then(setQuizSound).catch(() => {});
+  }, []);
+
+  const toggleQuizSound = async (value) => {
+    setQuizSound(value);
+    await setQuizSoundEnabled(value);
+  };
+
   return (
     <View style={styles(isDark).container}>
       <ScrollView contentContainerStyle={styles(isDark).content}>
@@ -57,6 +69,20 @@ export default function SettingsScreen({ navigation }) {
               <Switch
                 value={isDark}
                 onValueChange={toggleTheme}
+                trackColor={{ false: '#ddd', true: '#4F46E5' }}
+                thumbColor="#fff"
+              />
+            }
+          />
+          <View style={styles(isDark).divider} />
+          <SettingItem
+            icon="volume-up"
+            label="Quiz sound"
+            isDark={isDark}
+            right={
+              <Switch
+                value={quizSound}
+                onValueChange={toggleQuizSound}
                 trackColor={{ false: '#ddd', true: '#4F46E5' }}
                 thumbColor="#fff"
               />

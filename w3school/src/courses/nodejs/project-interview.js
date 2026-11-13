@@ -3,139 +3,131 @@
 export default {
   id: 'project-interview',
   title: 'Project & Interview Prep',
-  description: 'Build a complete courses API and prepare for questions',
+  description: 'Build a Node CLI and a raw HTTP service',
   icon: 'workspace-premium',
   lessons: [
     {
-      id: 'node-project-api',
-      title: 'Project: courses API',
+      id: 'node-project-cli',
+      title: 'Project: a file tool',
       blocks: [
-        { type: 'text', value: 'Build a small API with five routes and a real database. The goal is not size, but a clean shape: validation, service layer, error handling and tests.' },
-        { type: 'code', lang: 'text', tryIt: false, value: `GET    /api/v1/courses?page=1&limit=20
-GET    /api/v1/courses/:id
-POST   /api/v1/courses
-PATCH  /api/v1/courses/:id
-DELETE /api/v1/courses/:id
+        { type: 'text', value: 'Build a command-line tool that reads a log file as a stream and prints counts by status code. It uses the fs module, a readline interface and arguments. Small and useful beats large and unfinished.' },
+        { type: 'code', lang: 'js', tryIt: false, value: `import { createReadStream } from 'node:fs';
+import { createInterface } from 'node:readline';
 
-POST   /api/v1/auth/register
-POST   /api/v1/auth/login
-GET    /api/v1/me` },
-        { type: 'code', lang: 'js', tryIt: false, value: `// app.js
-import express from 'express';
-import courseRoutes from './routes/courses.js';
-import { errorHandler, notFound } from './middleware/errors.js';
+const file = process.argv[2];
+if (!file) {
+  console.error('usage: node count.js <logfile>');
+  process.exit(1);
+}
 
-const app = express();
+const counts = new Map();
+const rl = createInterface({ input: createReadStream(file) });
 
-app.use(express.json({ limit: '100kb' }));
-app.use('/api/v1/courses', courseRoutes);
-app.use(notFound);
-app.use(errorHandler);
-
-export default app;` },
-        { type: 'note', value: 'Separate app.js from server.js so tests can import the app without listening on a port. That one decision makes the project testable.' },
-      ],
-    },
-    {
-      id: 'node-project-testing',
-      title: 'Testing the API',
-      blocks: [
-        { type: 'text', value: 'Test behaviour through HTTP, not by calling private functions. Supertest sends real requests to the in-memory app and checks status, body and headers.' },
-        { type: 'code', lang: 'js', tryIt: false, value: `import request from 'supertest';
-import app from '../src/app.js';
-
-test('rejects an invalid course', async () => {
-  const response = await request(app)
-    .post('/api/v1/courses')
-    .send({ title: '', price: -1 });
-
-  expect(response.status).toBe(400);
-  expect(response.body.error.details).toBeDefined();
+rl.on('line', line => {
+  const match = line.match(/ (\\d{3}) /);
+  if (!match) return;
+  counts.set(match[1], (counts.get(match[1]) || 0) + 1);
 });
 
-test('creates a course', async () => {
-  const response = await request(app)
-    .post('/api/v1/courses')
-    .send({ title: 'SQL', price: 5000 });
-
-  expect(response.status).toBe(201);
-  expect(response.body.title).toBe('SQL');
+rl.on('close', () => {
+  console.table([...counts.entries()].sort());
 });` },
-        { type: 'list', items: [
-          'Test the happy path and the validation failures',
-          'Test authentication and ownership',
-          'Use a separate test database and reset it between tests',
-          'Test the status code, not just the body',
-        ] },
+        { type: 'note', value: 'Streaming keeps memory flat even for a huge log. readline handles line splitting for you.' },
       ],
     },
     {
-      id: 'node-interview-questions',
+      id: 'node-project-http',
+      title: 'Project: a raw HTTP service',
+      blocks: [
+        { type: 'text', value: 'Build a small JSON service with only the http module. It shows how routing, body parsing and status codes work under a framework, which makes Express much easier to understand.' },
+        { type: 'code', lang: 'js', tryIt: false, value: `import { createServer } from 'node:http';
+
+const courses = [{ id: 1, title: 'Node.js', price: 6000 }];
+
+const server = createServer((req, res) => {
+  if (req.method === 'GET' && req.url === '/api/courses') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(courses));
+    return;
+  }
+
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ error: 'Not found' }));
+});
+
+server.listen(3000, () => console.log('http://localhost:3000'));` },
+        { type: 'list', items: [
+          'Read the method and URL to route',
+          'Set the status code and headers before the body',
+          'Parse the body yourself only when needed',
+          'Handle unknown routes explicitly',
+        ] },
+        { type: 'note', value: 'Once you have written this by hand, the value of a framework and its middleware becomes obvious.' },
+      ],
+    },
+    {
+      id: 'node-interview-practice',
       title: 'Interview practice',
       blocks: [
         { type: 'list', items: [
-          'What is the event loop and why does it matter?',
+          'What is the event loop?',
+          'Microtasks versus timers?',
           'When would you use a worker thread?',
-          'How do you prevent SQL injection?',
-          'What is the difference between authentication and authorization?',
-          'How do you structure an Express project?',
-          'How do you handle async errors?',
-          'What is the N+1 problem and how do you fix it?',
-          'How do you deploy and monitor a Node API?',
-          'JWT versus session: trade-offs?',
-          'How do you make a write endpoint idempotent?',
+          'What is backpressure?',
+          'How do you read a huge file safely?',
+          'What is the difference between require and import?',
+          'How do you handle uncaught exceptions?',
+          'How do you debug a memory leak?',
         ] },
-        { type: 'text', value: 'A strong answer explains the trade-off and gives a concrete example from a project. "It depends" without a follow-up is weak; "it depends on X, here is what I would choose and why" is strong.' },
-        { type: 'note', value: 'Interviewers often ask you to debug a small API. Practise reading an error stack, finding the failing route and explaining the fix.' },
+        { type: 'text', value: 'Strong answers connect the mechanism to a failure: "streaming keeps memory flat, readFile on a 2 GB file can crash the process" is a complete answer.' },
+        { type: 'note', value: 'Be ready to write a small script or server with only the built-in modules. It shows you understand the runtime, not only a framework.' },
       ],
     },
     {
-      id: 'node-production-project',
-      title: 'Extend the project',
+      id: 'node-learning-path',
+      title: 'Learning path',
       blocks: [
         { type: 'list', items: [
-          'Add refresh tokens and logout',
-          'Add role-based authorization for admin routes',
-          'Add request validation with Zod',
-          'Add pagination and filtering',
-          'Add rate limiting and helmet',
-          'Add integration tests with a test database',
-          'Add Docker and a health check',
-          'Add structured logging and error tracking',
+          'Week 1: runtime, modules and npm',
+          'Week 2: files, paths and the fs module',
+          'Week 3: HTTP and the raw server',
+          'Week 4: streams, buffers and backpressure',
+          'Week 5: event loop, workers and profiling',
+          'Week 6: build the file tool and the HTTP service',
+          'Week 7: take the Express.js course and add a framework',
         ] },
-        { type: 'text', value: 'Each item is a small, testable feature. Ship them one at a time and keep the API contract stable. That is how a learning project becomes portfolio work.' },
-        { type: 'note', value: 'Document the API with a README or OpenAPI file. A reviewer should be able to run it and call every endpoint without asking you.' },
+        { type: 'note', value: 'Learn the runtime before the framework. Everything Express does is built on the http module you can write by hand.' },
       ],
     },
   ],
   quiz: [
     {
       chapterId: 'project-interview',
-      q: 'Why export app.js separately from server.js?',
-      options: ['To test without opening a port', 'To reduce bundle size', 'To enable CORS', 'To use TypeScript'],
-      answer: 0,
-      explain: 'Supertest can import the app and send requests in memory.',
+      q: 'Why stream a large log file?',
+      options: ['It is shorter code', 'It keeps memory flat', 'It compresses the file', 'It avoids async'],
+      answer: 1,
+      explain: 'Streaming processes chunks instead of the whole file.',
     },
     {
       chapterId: 'project-interview',
-      q: 'What should an API test assert?',
-      options: ['Only the response body', 'Status code, body and important headers', 'The source code', 'The server logs'],
+      q: 'What does readline handle for you?',
+      options: ['Routing', 'Splitting a stream into lines', 'Compression', 'Authentication'],
       answer: 1,
-      explain: 'The status code is part of the contract and should be asserted.',
+      explain: 'readline emits one line at a time.',
     },
     {
       chapterId: 'project-interview',
-      q: 'Which feature makes a retried POST safe?',
-      options: ['Pagination', 'An idempotency key', 'A faster database', 'CORS'],
+      q: 'What must you set before writing a response body?',
+      options: ['The database', 'The status code and headers', 'The port', 'The worker'],
       answer: 1,
-      explain: 'The server recognizes the repeated key and avoids a duplicate write.',
+      explain: 'Headers and status come before the body.',
     },
     {
       chapterId: 'project-interview',
-      q: 'What belongs in a project README?',
-      options: ['Only the title', 'Setup, environment variables, endpoints and examples', 'The full source code', 'Passwords'],
+      q: 'What makes a Node project convincing?',
+      options: ['Many dependencies', 'A working tool with tests and a README', 'A copied tutorial', 'No error handling'],
       answer: 1,
-      explain: 'A reviewer should be able to run and call the API without asking questions.',
+      explain: 'A finished, explained project shows real skill.',
     },
   ],
 };

@@ -1,5 +1,7 @@
-// Docker & DevOps course. Shell, Dockerfile and YAML samples are read-only;
-// the app does not run a container engine.
+// Docker course. Images, containers, Dockerfiles, Compose and networking.
+// DevOps topics (CI/CD, deployment, monitoring, Kubernetes) live in ../devops.
+//
+// Shell, Dockerfile and YAML samples are read-only.
 
 import gettingStarted from './getting-started';
 import dockerBasics from './docker-basics';
@@ -7,11 +9,6 @@ import dockerfile from './dockerfile';
 import imagesVolumes from './images-volumes';
 import networking from './networking';
 import compose from './compose';
-import ciCd from './ci-cd';
-import deployment from './deployment';
-import monitoringLogs from './monitoring-logs';
-import security from './security';
-import kubernetesIntro from './kubernetes-intro';
 import projectsInterview from './projects-interview';
 import interviewQuestions from './interview-qa';
 
@@ -22,19 +19,14 @@ const chapters = [
   imagesVolumes,
   networking,
   compose,
-  ciCd,
-  deployment,
-  monitoringLogs,
-  security,
-  kubernetesIntro,
   projectsInterview,
 ];
 
 export default {
   id: 'docker',
-  title: 'Docker & DevOps',
+  title: 'Docker',
   short: 'Docker',
-  tagline: 'Ship portable containers, pipelines and reliable deployments',
+  tagline: 'Package and run apps in portable containers',
   color: '#2496ED',
   icon: 'widgets',
   chapters,

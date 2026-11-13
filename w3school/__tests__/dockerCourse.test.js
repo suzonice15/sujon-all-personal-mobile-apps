@@ -35,12 +35,12 @@ function collectBlocks(lang) {
 describe('Docker course structure', () => {
   test('has the metadata the app needs', () => {
     expect(docker.id).toBe('docker');
-    expect(docker.title).toBe('Docker & DevOps');
+    expect(docker.title).toBe('Docker');
     expect(docker.short).toBe('Docker');
     expect(docker.tagline).toBeTruthy();
     expect(docker.color).toMatch(/^#[0-9A-Fa-f]{6}$/);
-    expect(docker.chapters.length).toBeGreaterThanOrEqual(10);
-    expect(docker.quiz.length).toBeGreaterThanOrEqual(40);
+    expect(docker.chapters.length).toBeGreaterThanOrEqual(7);
+    expect(docker.quiz.length).toBeGreaterThanOrEqual(28);
   });
 
   test('chapters and lessons are complete and unique', () => {

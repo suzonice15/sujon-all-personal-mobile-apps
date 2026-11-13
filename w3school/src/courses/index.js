@@ -40,12 +40,31 @@ import networks from './networks';
 import mongodb from './mongodb';
 import postgresql from './postgresql';
 import redis from './redis';
+import mysql from './mysql';
+import graphql from './graphql';
 import systemDesign from './system-design';
 import csharp from './csharp';
 import ai from './ai';
 import flutter from './flutter';
 import go from './go';
 import cybersecurity from './cybersecurity';
+import freelancing from './freelancing';
+import designPatterns from './design-patterns';
+import wordpress from './wordpress';
+import microservices from './microservices';
+import angular from './angular';
+import uiUx from './ui-ux';
+import express from './express';
+import devops from './devops';
+import django from './django';
+import flask from './flask';
+import payments from './payments';
+import auth from './auth';
+import englishDev from './english-dev';
+import interviewPrep from './interview-prep';
+import agile from './agile';
+import pwa from './pwa';
+import realtime from './realtime';
 import kotlin from './kotlin';
 import swift from './swift';
 import cloud from './cloud';
@@ -64,15 +83,17 @@ import rust from './rust';
 // content is written: Play rejects apps with empty "coming soon" sections.
 // To add one: create its folder (copy the shape of ./html) and list it here.
 export const COURSE_GROUPS = [
-  { title: 'Web Development', courses: [html, css, javascript, typescript] },
-  { title: 'Frontend Frameworks', courses: [react, vue, nextjs] },
+  { title: 'Web Development', courses: [html, css, javascript, typescript, wordpress, pwa] },
+  { title: 'Frontend Frameworks', courses: [react, vue, nextjs, angular] },
   { title: 'Mobile Development', courses: [reactNative, flutter, kotlin, swift] },
-  { title: 'Backend & Data', courses: [php, python, sql, nodejs, mongodb, postgresql, redis] },
+  { title: 'Backend & Data', courses: [php, python, sql, nodejs, mongodb, postgresql, redis, mysql, payments, realtime] },
   { title: 'AI & Future Skills', courses: [ai, mathMl, ml] },
-  { title: 'Security', courses: [cybersecurity] },
-  { title: 'Backend Frameworks', courses: [laravel, dotnet, springBoot] },
-  { title: 'OS & DevOps', courses: [linux, docker, cloud, kubernetes] },
-  { title: 'Computer Science', courses: [dsa, networks, systemDesign, os, compiler, architecture] },
+  { title: 'Security', courses: [cybersecurity, auth] },
+  { title: 'Career & Business', courses: [freelancing, designPatterns, englishDev, interviewPrep, agile] },
+  { title: 'Design', courses: [uiUx] },
+  { title: 'Backend Frameworks', courses: [laravel, dotnet, springBoot, graphql, express, django, flask] },
+  { title: 'OS & DevOps', courses: [linux, docker, devops, cloud, kubernetes] },
+  { title: 'Computer Science', courses: [dsa, networks, systemDesign, os, compiler, architecture, microservices] },
   { title: 'Languages', courses: [java, cLang, cpp, csharp, go, rust] },
   { title: 'Developer Tools', courses: [git] },
 ];

@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AdBanner from '../../components/ads/AdBanner';
 import { getLearningPath, pathProgress } from '../../courses/learningPaths';
 import { getAllCourseProgress } from '../../db/courseProgress';
-import { useUI, cardShadow, tint, ProgressBar, CourseLogo, HeroDecor, RADIUS, SPACE } from '../../components/course/ui';
+import { useUI, tint, ProgressBar, CourseLogo, HeroDecor, RADIUS, SPACE } from '../../components/course/ui';
 
 const STATUS_ICON = {
   completed: { name: 'check-circle', color: 'success' },
@@ -113,7 +113,7 @@ const styles = (ui, accent) => StyleSheet.create({
 
   step: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: ui.card,
-    borderRadius: RADIUS.md, padding: 12, marginBottom: 10, ...cardShadow(ui),
+    borderRadius: RADIUS.md, padding: 12, marginBottom: 10,
   },
   stepNumber: {
     width: 26, height: 26, borderRadius: 13, backgroundColor: tint(accent, 0.15),

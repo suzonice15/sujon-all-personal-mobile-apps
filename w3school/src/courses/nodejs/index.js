@@ -1,19 +1,16 @@
-// Node.js & Express course. Server code samples are read-only because the
-// Try-it preview runs in a browser, not in Node. Pure JavaScript examples
-// (event loop order, middleware chains, validation) still run live.
+// Node.js course. The runtime and its core modules.
+// Express lives in its own course: ../express.
+//
+// Server samples are read-only because the Try-it preview runs in a browser.
+// Pure JavaScript examples still run live.
 
 import gettingStarted from './getting-started';
 import modules from './modules';
 import npmPackages from './npm-packages';
 import fsPath from './fs-path';
 import httpServer from './http-server';
-import expressBasics from './express-basics';
-import middleware from './middleware';
-import restApi from './rest-api';
-import validationErrors from './validation-errors';
-import auth from './auth';
-import database from './database';
-import deployment from './deployment';
+import streamsBuffers from './streams-buffers';
+import workersPerformance from './workers-performance';
 import projectInterview from './project-interview';
 import interviewQuestions from './interview-qa';
 
@@ -23,21 +20,16 @@ const chapters = [
   npmPackages,
   fsPath,
   httpServer,
-  expressBasics,
-  middleware,
-  restApi,
-  validationErrors,
-  auth,
-  database,
-  deployment,
+  streamsBuffers,
+  workersPerformance,
   projectInterview,
 ];
 
 export default {
   id: 'nodejs',
-  title: 'Node.js & Express',
+  title: 'Node.js',
   short: 'Node',
-  tagline: 'Build the APIs behind web and mobile apps',
+  tagline: 'JavaScript on the server: modules, files, HTTP and streams',
   color: '#339933',
   icon: 'dns',
   chapters,

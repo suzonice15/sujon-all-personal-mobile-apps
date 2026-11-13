@@ -115,6 +115,6 @@ const s = StyleSheet.create({
   circle: { position: 'absolute', borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.12)' },
   pill: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', borderRadius: RADIUS.pill, paddingHorizontal: 10, paddingVertical: 4 },
   pillText: { fontSize: 12, fontWeight: '700' },
-  sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: SPACE.xl, marginBottom: SPACE.md },
+  sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: SPACE.md, marginBottom: SPACE.sm },
   sectionTitle: { fontSize: 18, fontWeight: '800' },
 });
